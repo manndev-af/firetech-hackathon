@@ -16,6 +16,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 - Dokumentasi menegaskan batas personalisasi: profil memengaruhi fokus insight/perbandingan, bukan nilai nutrisi sumber; kalkulasi dilakukan deterministik dan LLM hanya menjelaskan hasil.
 - Struktur repository pada panduan agent dan summary diselaraskan dengan proyek Flutter di `app/` dan backend di `server/`, termasuk README lokal masing-masing.
+- Panduan workspace lama yang merujuk proyek lain diganti dengan layout NutriLens AI, rujukan dokumen, dan alur kolaborasi `main`/`development`.
+- Aturan sinkronisasi dokumentasi disesuaikan dengan dokumen aktif, komponen, serta batas produk NutriLens AI.
+- Dokumen desain UI, register keputusan, dan aturan mutu UI yang sebelumnya berisi konteks proyek lain diselaraskan dengan NutriLens AI.
 
 ### Fixed
 

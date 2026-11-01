@@ -1060,4 +1060,4 @@ Nutrition Profile hanya memengaruhi fokus penjelasan, perbandingan, dan alternat
 - Definisi unit, default, rentang, step, dan konversi porsi berasal dari konfigurasi terstruktur yang ditinjau; jangan ditentukan bebas oleh LLM.
 - Sumber nutrisi yang direncanakan: TKPI untuk makanan Indonesia, Open Food Facts untuk produk kemasan, dan USDA FoodData Central sebagai sumber tambahan bila diperlukan.
 
-Rincian arsitektur lintas komponen, konflik dokumentasi, keputusan yang masih terbuka, serta rencana integrasi dicatat di [architecture.md](architecture.md). Kebutuhan fungsional yang terperinci ada di [FRD.md](FRD.md), sedangkan sasaran produk ada di [PRD.md](PRD.md).
+Rincian arsitektur lintas komponen ada di [architecture.md](architecture.md); status keputusan dan konflik dicatat di [DECISIONS.md](DECISIONS.md). Rancangan UI/UX ada di [DESIGN.md](DESIGN.md), dengan aturan implementasi di [rules/ui.md](../rules/ui.md). Kebutuhan fungsional terperinci ada di [FRD.md](FRD.md), sedangkan sasaran produk ada di [PRD.md](PRD.md).

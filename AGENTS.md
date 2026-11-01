@@ -591,6 +591,8 @@ Update documentation when:
 - Changing environment variables.
 - Changing setup or deployment procedures.
 
+Follow the project-specific [documentation rules](rules/documentation.md) to identify related documents, preserve the distinction between plans and implemented behavior, and update the changelog for material changes.
+
 ---
 
 ## 11. Security and Data Management
@@ -747,17 +749,11 @@ If a technical limitation is discovered, explain it and propose the simplest via
 
 ## NutriLens AI Documentation Context
 
-Before any NutriLens AI development task, read this `AGENTS.md` and the relevant project documents. Use [docs/SUMMARY.md](docs/SUMMARY.md) as the primary product context (including its dated addendum), [docs/PRD.md](docs/PRD.md) for product goals/scope, [docs/FRD.md](docs/FRD.md) for functional requirements and acceptance criteria, and [docs/architecture.md](docs/architecture.md) for component responsibilities and data flow. Consult [README.md](README.md) for the documentation index. Do not assume a proposed API, class list, dataset size/split, nutrient value, or metric is finalized unless the documents explicitly say so.
+Before any NutriLens AI development task, read this `AGENTS.md` and the relevant project documents. Use [docs/SUMMARY.md](docs/SUMMARY.md) as the primary product context (including its dated addendum), [docs/PRD.md](docs/PRD.md) for product goals/scope, [docs/FRD.md](docs/FRD.md) for functional requirements and acceptance criteria, [docs/DESIGN.md](docs/DESIGN.md) and [rules/ui.md](rules/ui.md) for UI work, [docs/DECISIONS.md](docs/DECISIONS.md) for decision status, and [docs/architecture.md](docs/architecture.md) for component responsibilities and data flow. Consult [README.md](README.md) for the documentation index. Do not assume a proposed API, class list, dataset size/split, nutrient value, or metric is finalized unless the documents explicitly say so.
 
 ### Changelog workflow
 
-- Read [CHANGELOG.md](CHANGELOG.md) before making changes that may need an entry.
-- For each task that changes product behavior, user-facing functionality, API/contracts, data/model behavior, setup/dependencies, security/privacy, or material project documentation, add a concise entry under `## [Unreleased]` in `CHANGELOG.md` in the same task.
-- Use the categories `Added`, `Changed`, `Fixed`, `Removed`, and `Security` as applicable. Create only categories that have entries, except that the initial template may show empty categories.
-- Describe the user or project impact, not implementation minutiae. Do not claim work is complete if it is only proposed; distinguish implemented changes from planned work.
-- Keep newest unreleased items at the top. Do not invent release versions or dates. When the team makes a release, move the relevant entries into a dated version section and follow Semantic Versioning.
-- Skip trivial formatting, typo-only, and purely internal refactors with no observable effect. Do not add an entry solely because `CHANGELOG.md` itself was edited.
-- Before finishing a qualifying task, verify the changelog entry matches the actual diff and mention the changelog update in the completion report.
+Follow the [documentation rules](rules/documentation.md#changelog) for when and how to update [CHANGELOG.md](CHANGELOG.md).
 
 ### Current Nutrition Profile direction
 
