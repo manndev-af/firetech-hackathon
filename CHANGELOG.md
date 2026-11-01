@@ -1,0 +1,27 @@
+    
+# Changelog
+
+Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengikuti prinsip [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versi menggunakan [Semantic Versioning](https://semver.org/spec/v2.0.0.html) setelah proyek mulai membuat rilis; sebelum itu, perubahan dicatat pada bagian **Unreleased**.
+
+## [Unreleased]
+
+### Added
+
+- Dokumentasi produk terintegrasi: ringkasan brainstorming, PRD, FRD, dan arsitektur.
+- Konsep Nutrition Profile terbaru: prioritas nutrisi, preferensi makanan, serta field usia, tinggi/berat badan, dan alergi dengan status opsional sesuai dokumen.
+- Aturan konteks proyek dan alur pemeliharaan changelog untuk AI agent.
+- Mekanisme CHANGELOG untuk melacak perubahan penting dalam bagian Unreleased sebelum rilis.
+
+### Changed
+
+- Dokumentasi menegaskan batas personalisasi: profil memengaruhi fokus insight/perbandingan, bukan nilai nutrisi sumber; kalkulasi dilakukan deterministik dan LLM hanya menjelaskan hasil.
+- Struktur repository pada panduan agent dan summary diselaraskan dengan proyek Flutter di `app/` dan backend di `server/`, termasuk README lokal masing-masing.
+
+### Fixed
+
+### Removed
+
+### Security
+
+- Aturan ignore root mencakup file konfigurasi rahasia lokal, dataset unduhan, cache, dan bobot model; file `.env.example` tetap dapat dibagikan.
+
