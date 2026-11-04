@@ -35,7 +35,39 @@ D:\firetech-hackathon\
 │   ├── README.md
 │   ├── android/                 # Platform scaffold yang tersedia saat ini
 │   ├── lib/
-│   │   └── main.dart
+│   │   ├── main.dart
+│   │   ├── app.dart
+│   │   ├── core/
+│   │   │   ├── router/
+│   │   │   ├── app_router.dart
+│   │   │   └── route_paths.dart
+│   │   │   ├── theme/
+│   │   │   │   ├── app_colors.dart
+│   │   │   │   ├── app_theme.dart
+│   │   │   │   └── app_typography.dart
+│   │   │   ├── network/
+│   │   │   │   ├── api_client.dart
+│   │   │   │   ├── api_endpoints.dart
+│   │   │   │   └── api_interceptor.dart
+│   │   │   └── utils/
+│   │   │       └── api_exception.dart
+│   │   ├── models/                # Model global lintas feature
+│   │   ├── services/              # Akses API/backend global
+│   │   ├── repositories/          # Abstraksi data global
+│   │   ├── providers/             # State global
+│   │   ├── features/
+│   │   │   ├── dashboard/
+│   │   │   │   └── widgets/
+│   │   │   ├── food_search/
+│   │   │   │   └── widgets/
+│   │   │   ├── food_journal/
+│   │   │   │   └── widgets/
+│   │   │   ├── recipes/
+│   │   │   │   └── widgets/
+│   │   │   └── profile/
+│   │   └── shared/
+│   │       └── widgets/
+│   │           └── route_placeholder_screen.dart
 │   ├── test/
 │   │   └── widget_test.dart
 │   ├── analysis_options.yaml
@@ -71,7 +103,21 @@ D:\firetech-hackathon\
 
 ### `app/` — Flutter
 
-`app/` adalah proyek Flutter pada root subfoldernya dan memakai scaffold Flutter yang tersedia. Pertahankan struktur platform hasil generate; kode aplikasi ditempatkan di `lib/`, dan tes Flutter berada di `test/`. Saat ini scaffold platform Android tersedia. Jangan memindahkan app ke `app/mobile/` atau membuat folder platform lain tanpa kebutuhan yang jelas.
+`app/` adalah proyek Flutter pada root subfoldernya dan memakai scaffold Flutter yang tersedia. Pertahankan struktur platform hasil generate; kode aplikasi ditempatkan di `lib/`, dan tes Flutter berada di `test/`. Routing `go_router` ada di `lib/core/router/`; tema global ada di `lib/core/theme/`; network client untuk backend terpisah ada di `lib/core/network/`; exception API ada di `lib/core/utils/`. Model, service, repository, dan provider berada di layer global. Folder feature hanya berisi UI dan widgets. Supabase tidak termasuk struktur saat ini. Saat ini scaffold platform Android tersedia. Jangan memindahkan app ke `app/mobile/` atau membuat folder platform lain tanpa kebutuhan yang jelas.
+
+`app/` memakai pendekatan layer global: model, service, repository, dan provider berada masing-masing di `lib/models/`, `lib/services/`, `lib/repositories/`, dan `lib/providers/`. Folder `features/` hanya mengelompokkan UI berdasarkan domain. File halaman diletakkan langsung di folder feature, sedangkan komponen khusus halaman berada di subfolder `widgets/`. Jangan membuat subfolder `pages/` atau mengulang layer data di dalam feature. Folder yang masih kosong adalah kerangka, bukan fitur yang sudah diimplementasikan. Supabase tidak termasuk struktur saat ini.
+
+#### Contoh alur tanggung jawab
+
+Contoh ketika tim mengimplementasikan pencarian makanan:
+
+1. `models/food_model.dart` mendefinisikan bentuk data makanan yang dipakai app.
+2. `services/food_service.dart` memanggil endpoint melalui `core/network/api_client.dart`.
+3. `repositories/food_repository.dart` mengubah respons service menjadi operasi data yang dipakai app.
+4. `providers/food_provider.dart` mengelola state pencarian dan memanggil repository.
+5. `features/food_search/food_search_page.dart` menampilkan UI dan menggunakan provider; widget khusus pencarian berada di `features/food_search/widgets/`.
+
+Contoh ini menjelaskan penempatan tanggung jawab, bukan file/endpoint yang sudah tersedia. Jangan membuat model, endpoint, atau halaman sebelum kontraknya dibutuhkan dan disepakati.
 
 Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../app/README.md) serta konfigurasi `pubspec.yaml` yang ada.
 
