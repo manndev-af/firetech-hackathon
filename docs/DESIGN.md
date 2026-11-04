@@ -1,5 +1,18 @@
 # NutriLens AI — Rancangan UI/UX
 
+## Pembaruan FigCraft — 4 November 2026
+
+Redesign pada `nutrilens-base.figcraft` dikerjakan melalui MCP FigCraft. Seluruh 14 artboard tetap dipertahankan. Perubahan struktur terbesar ada pada Home, Food Scanner, Food Recognition, dan Splash; layar lainnya menerima perapian tipografi, kartu, atau alignment sesuai kebutuhan.
+
+- Referensi pertama diterapkan sebagai komposisi foto editorial dan hierarki konten, bukan dashboard target kalori. Referensi kedua diterapkan sebagai foto kamera dominan dengan bingkai pengambilan gambar dan panel tindakan putih.
+- Palet semantik teal/mint tetap dipakai. Bayangan kartu dikurangi, status tab aktif diperbaiki, serta aksen batas pemberitahuan diselaraskan ke mint.
+- Ringkasan nutrisi memakai enam kartu Auto Layout; label data kosong tidak keluar dari kartu. Tidak ada angka nutrisi atau target harian baru.
+- Foto makanan adalah ilustrasi visual, bukan foto pengguna, bukti identifikasi, atau referensi nutrisi. Foto tertanam di file FigCraft; sumber aset: `https://images.unsplash.com/photo-1512058564366-18510be2db19`. Tulisan ilustrasi tetap tampak pada layar yang memakainya.
+- Jalur kamera utama mempertahankan konfirmasi identitas dan porsi. Barcode/label tetap ditandai sebagai tambahan P1, bukan fitur yang sudah berfungsi. Login/Daftar tetap eksplorasi UI.
+- Verifikasi dilakukan dengan screenshot seluruh artboard dan inspeksi struktur kartu nutrisi; ini bukan pengujian kamera, inferensi, Flutter, aksesibilitas, atau alur runtime. Layout layar secara keseluruhan belum seluruhnya memakai Auto Layout.
+
+PRD dan FRD tidak diubah karena cakupan produk dan aturan kalkulasi tetap sama. Bagian historis berikut dipertahankan; arah navigasi lima tab pada bagian 10 menggantikan uraian empat tab sebelumnya.
+
 > Status: panduan desain dan inventaris prototipe FigCraft. Prototipe adalah rancangan interaktif, bukan bukti bahwa fitur telah diimplementasikan di aplikasi Flutter.
 
 Dokumen ini menerjemahkan sasaran produk menjadi arahan pengalaman pengguna dan mencatat layar yang tersedia di `nutrilens-base.figcraft`. Kebutuhan perilaku tetap mengacu pada [FRD.md](FRD.md), sasaran produk pada [PRD.md](PRD.md), konteks produk pada [SUMMARY.md](SUMMARY.md), status keputusan pada [DECISIONS.md](DECISIONS.md), dan aturan implementasi/review UI pada [rules/ui.md](../rules/ui.md).
