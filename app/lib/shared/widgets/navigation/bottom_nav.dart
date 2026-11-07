@@ -62,8 +62,8 @@ class BottomNav extends StatelessWidget {
                     ),
 
                     NavItem(
-                      icon: Icons.insights_outlined,
-                      label: 'Insight',
+                      icon: Icons.explore_outlined,
+                      label: 'Jelajahi',
                       index: 1,
                       currentIndex: currentIndex,
                       onTap: onTap,
