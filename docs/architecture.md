@@ -28,6 +28,7 @@ Status Flutter 7 November 2026: `NutritionProfile` di `app/lib/models/` merupaka
 |---|---|---|
 | Aplikasi mobile | Flutter / Dart | Onboarding, Nutrition Profile, kamera, barcode/OCR, konfirmasi makanan dan porsi, hasil, aksesibilitas dan TTS. |
 | API backend | Node.js + TypeScript + Express | Validasi request dan gambar, orkestrasi alur, inference, pencarian/mapping nutrisi, Nutrition Engine, trade-off, dan integrasi penjelasan opsional. |
+| Database backend | Prisma ORM 7 + MySQL | Prisma schema/migration untuk penyimpanan backend. Infrastruktur client telah disiapkan; model domain dan fitur persistensi belum ditentukan atau dihubungkan. |
 | Training ML | Python + PyTorch + torchvision | Audit subset data, preprocessing, fine-tuning, evaluasi, dan ekspor model. |
 | Inference | MobileNetV3-Large, target ekspor ONNX | Klasifikasi makanan dan output top-k beserta confidence; backend menjalankan inference sesuai preprocessing model. |
 | Nutrition Engine | Fungsi TypeScript deterministik | Konversi porsi, perhitungan nutrisi, penanganan data hilang, dan aturan insight yang dapat ditelusuri. |

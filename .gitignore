@@ -50,6 +50,7 @@ ml/checkpoints/
 *.onnx
 
 # Temporary files and logs
+output/
 .cache/
 tmp/
 temp/

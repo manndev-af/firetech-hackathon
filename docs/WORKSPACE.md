@@ -120,6 +120,7 @@ D:\firetech-hackathon\
 │   │   ├── controllers/
 │   │   ├── middleware/
 │   │   ├── routes/
+│   │   ├── services/
 │   │   ├── types/
 │   │   ├── utils/
 │   │   └── validation/
@@ -161,7 +162,7 @@ Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../a
 
 ### `server/` — backend
 
-`server/` adalah proyek Node.js + TypeScript tersendiri. Kode saat ini mengikuti starter Express dengan entry point `src/server.ts` dan app setup `src/app.ts`; area `src/` yang ada mencakup config, controllers, middleware, routes, types, utils, dan validation.
+`server/` adalah proyek Node.js + TypeScript tersendiri dengan Express, pnpm, dan Prisma ORM 7 untuk MySQL. Entry point ada di `src/server.ts`; Prisma schema dan CLI config berada di `prisma/schema.prisma` serta `prisma.config.ts`. Prisma Client digenerate ke `src/generated/prisma/` (di-ignore Git) dan diakses melalui `src/config/prisma.ts`. `src/services/` menampung logika bisnis dan orkestrasi data; controller hanya menangani HTTP. Belum ada model domain, migration, atau service yang memakai database.
 
 Gunakan [server/README.md](../server/README.md), `package.json`, dan lockfile untuk setup serta perintah backend. Sebagian isi README berasal dari starter template. Batasan MVP dalam [AGENTS.md](../AGENTS.md) tetap berlaku; misalnya, jangan menambahkan atau menjalankan Docker hanya karena template menyediakan dukungan Docker.
 
