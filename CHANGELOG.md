@@ -5,7 +5,15 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Removed
+
+- Halaman register Flutter, route/nama/path `/register`, akses Daftar pada login dan navigasi placeholder, serta pengujian khusus register dihapus atas permintaan pengguna.
+
 ### Added
+
+- Folder aset Flutter `app/assets/images/` dan `app/assets/icons/`, deklarasi direktori di `pubspec.yaml`, ekspor desain pengguna untuk ilustrasi login, serta panduan aset statis pada WORKSPACE dan README app.
+
+- Layar login Flutter sesuai referensi pengguna dengan tombol Google, layout scroll, serta named route `/login` di luar navigasi bawah. Autentikasi dan pembuatan akun belum diimplementasikan.
 
 - Bottom navigation Flutter dengan ikon dan label tab, penanda tab aktif, serta tombol kamera mengambang di tengah; ditambahkan bersama contoh dashboard.
 - Fondasi komunikasi API backend terpisah di Flutter: `ApiClient`, daftar endpoint usulan, hook interceptor, dan `ApiException`.
@@ -18,6 +26,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Mekanisme CHANGELOG untuk melacak perubahan penting dalam bagian Unreleased sebelum rilis.
 
 ### Changed
+
+- Login Flutter mengikuti referensi terbaru dengan ilustrasi lokal, latar putih, dan tombol tunggal Lanjutkan dengan Google; form email/kata sandi dihapus. Status prototipe tetap terlihat dan integrasi Google belum terhubung. Pengujian UI serta panduan aset diperbarui.
 
 - Arsitektur Flutter diarahkan ke layer global untuk models, services, repositories, dan providers; folder feature hanya menampung file UI langsung dan widgets, tanpa subfolder `pages/` atau layer data berulang.
 - Struktur Flutter memindahkan tanggung jawab model/repository/service ke dalam feature dan menghapus folder data generik serta konfigurasi Supabase dari starter kit.

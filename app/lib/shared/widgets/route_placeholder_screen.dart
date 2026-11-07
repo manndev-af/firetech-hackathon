@@ -16,7 +16,6 @@ class RoutePlaceholderScreen extends StatelessWidget {
   static const _destinations = <({String label, String path})>[
     (label: 'Splash', path: AppRoutes.splash),
     (label: 'Login', path: AppRoutes.login),
-    (label: 'Daftar', path: AppRoutes.register),
     (label: 'Onboarding', path: AppRoutes.onboarding),
     (label: 'Home', path: AppRoutes.home),
     (label: 'Scan makanan', path: AppRoutes.scanner),
@@ -67,8 +66,10 @@ class RoutePlaceholderScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text('Navigasi sementara',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Navigasi sementara',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             for (final destination in _destinations)
               ListTile(

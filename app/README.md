@@ -13,10 +13,13 @@ flutter run
 
 ## Routing
 
-Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi dimulai dari `/splash`. Saat ini setiap route merender `RoutePlaceholderScreen` di `lib/shared/widgets/` sebagai fondasi navigasi; placeholder bukan UI fitur yang sudah selesai.
+Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard contoh `/home` tetap berada dalam shell. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
+
+Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google hanya menampilkan pemberitahuan bahwa integrasi belum terhubung; tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
 
 ## Struktur kode
 
+- `assets/images/` menyimpan foto, ilustrasi, dan logo; `assets/icons/` menyimpan ikon kustom. Keduanya terdaftar di `pubspec.yaml`. `assets/images/login_reference.png` adalah ekspor desain pengguna (`Group-11.png`); layar login hanya merender area ilustrasi makanannya. Gambar ini merupakan ilustrasi, bukan hasil scan/model atau referensi nutrisi. Simpan aset statis di luar `lib/`; panduan penamaan, subfolder, dan lisensi ada di [WORKSPACE.md](../docs/WORKSPACE.md#aset-statis-flutter).
 - `lib/app.dart` mengatur `MaterialApp.router` dan tema aplikasi.
 - `lib/core/theme/` berisi token warna teal/cyan, tipografi, dan `ThemeData` sesuai [DESIGN.md](../docs/DESIGN.md): judul 24 px bold, teks dasar 14 px, kartu putih radius 24 px, dan latar mint pucat.
 - `lib/core/router/` berisi konfigurasi serta path/nama route.
@@ -33,6 +36,7 @@ Navigasi menggunakan `context.go(path)` untuk berpindah ke tujuan dan `context.p
 
 ```bash
 flutter analyze
+flutter test
 ```
 
 Dokumentasi Flutter tersedia di [docs.flutter.dev](https://docs.flutter.dev/). Kontrak produk dan batas nutrisi tetap mengikuti dokumen proyek; route yang tersedia tidak berarti fitur kamera, akun, model, database, atau analisis nutrisi sudah diterapkan.

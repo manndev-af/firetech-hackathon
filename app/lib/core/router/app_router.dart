@@ -1,13 +1,18 @@
 import 'package:go_router/go_router.dart';
+import 'package:nutrilens/features/auth/login_screen.dart';
 import 'package:nutrilens/features/dashboard/dashboard_screen.dart';
 import 'package:nutrilens/shared/layouts/main_scaffold.dart';
 
-// import '../../shared/widgets/route_placeholder_screen.dart';
 import 'route_paths.dart';
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.home,
+  initialLocation: AppRoutes.login,
   routes: [
+    GoRoute(
+      path: AppRoutes.login,
+      name: AppRouteNames.login,
+      builder: (context, state) => const LoginScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScaffold(navigationShell: navigationShell);
@@ -29,22 +34,6 @@ final appRouter = GoRouter(
     //   builder: (context, state) => const RoutePlaceholderScreen(
     //     title: 'Splash',
     //     description: 'Titik masuk NutriLens AI.',
-    //   ),
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.login,
-    //   name: AppRouteNames.login,
-    //   builder: (context, state) => const RoutePlaceholderScreen(
-    //     title: 'Login',
-    //     description: 'Rancangan layar masuk; autentikasi belum diterapkan.',
-    //   ),
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.register,
-    //   name: AppRouteNames.register,
-    //   builder: (context, state) => const RoutePlaceholderScreen(
-    //     title: 'Daftar',
-    //     description: 'Rancangan pendaftaran; akun belum diterapkan.',
     //   ),
     // ),
     // GoRoute(
