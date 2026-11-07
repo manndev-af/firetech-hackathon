@@ -7,7 +7,7 @@ Menyediakan pemilik tetap dan profil nutrisi untuk pengujian backend scanner pad
 ## ADDED Requirements
 
 ### Requirement: Repeatable development seed
-The system SHALL seed one development user with a unique email, salted password hash, and nutrition profile. Repeating the seed MUST preserve existing profile edits and journal records. Plaintext passwords MUST NOT enter database records, API responses, logs, or tracked configuration.
+The system SHALL seed one development user with a unique email, salted password hash, and nutrition profile. Development seed passwords MUST contain 5-128 characters. Repeating the seed MUST preserve existing profile edits and journal records. Plaintext passwords MUST NOT enter database records, API responses, or logs. Confidential credentials MUST NOT enter tracked configuration; .env.example MAY contain explicitly public development-only dummy credentials.
 
 #### Scenario: Seed repeated
 - **WHEN** development seed runs twice with the same email
@@ -16,6 +16,10 @@ The system SHALL seed one development user with a unique email, salted password 
 #### Scenario: Seed credentials absent or production
 - **WHEN** required seed credentials are missing or the seed runs in production
 - **THEN** the seed fails before changing the database
+
+#### Scenario: Development password boundaries
+- **WHEN** the configured password has fewer than 5 or more than 128 characters
+- **THEN** seed fails before database access, while passwords of 5 and 128 characters pass length validation
 
 ### Requirement: Server-selected development owner
 The system SHALL resolve the configured dummy user on the server and reject client-supplied ownership selectors. Dummy identity routes MUST be disabled outside explicit development/test mode and SHALL NOT expose login endpoints or production authentication claims.
@@ -87,8 +91,12 @@ The system SHALL preserve unknown, noneKnown and listed allergy states. Listed M
 - **WHEN** allergyStatus is unknown or food ingredient information is incomplete
 - **THEN** the API and generated context do not represent the food as allergen-free
 
-### Requirement: Independent audio preference and neutral defaults
-The system SHALL persist audioAnalysisEnabled as a boolean defaulting to false independently of nutritional personalization. Initial seed profiles MUST use the frontend's empty/null/unknown defaults and a documented development timezone, without invented body information or food priorities. Persisting audio SHALL NOT imply server TTS support.
+### Requirement: Independent audio preference and complete demo seed
+The system SHALL persist audioAnalysisEnabled independently of nutritional personalization, with the schema default remaining false. Development seed profiles MUST contain explicitly fictional demo values for all editable profile fields, without null values, including body information, food priorities, allergy details, audio preference and a documented timezone. These fixture values MUST NOT be inferred for real users. Persisting audio SHALL NOT imply server TTS support.
+
+#### Scenario: Complete development fixture
+- **WHEN** seed creates a new dummy profile
+- **THEN** every editable profile field is populated with a valid non-null demo value, and the fixture is documented as fictional
 
 #### Scenario: Audio toggle on an incomplete profile
 - **WHEN** only audioAnalysisEnabled is changed to true while priorities is empty
