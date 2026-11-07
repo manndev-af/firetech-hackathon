@@ -11,6 +11,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- OCR label di perangkat dengan ekstraksi konservatif, nilai kosong tetap unknown, dan pengujian parser.
+- Review foto terhubung ke detail hasil, koreksi angka/sajian/acuan dan teks komposisi asli. Klasifikasi makanan dan penyimpanan hasil belum terhubung.
+
+
 - Kamera Flutter dari tombol tengah, Beranda, dan Riwayat kosong: preview kamera belakang, mode Makanan/Label produk, galeri, review foto, dan foto ulang. Kamera dilepas saat latar belakang/review; izin, kegagalan, dan lifecycle diuji.
 
 - Profil memisahkan editor informasi diri dan personalisasi. Detail personalisasi langsung menjadi form inline dengan Simpan/Kembali di bawah; bottom sheet dan langkah Edit tambahan dihapus. Informasi diri dapat disimpan tanpa prioritas, data bagian lain tetap utuh, dan scroll kembali ke ringkasan setelah selesai. Pengujian mencakup alur simpan/batal serta layar sempit dengan teks besar.
