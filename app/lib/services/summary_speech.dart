@@ -29,7 +29,9 @@ class SummarySpeech extends ChangeNotifier {
     try {
       await _tts.stop();
       final voices = await _tts.getVoices;
-      final offline = (voices as List).whereType<Map>().where((voice) {
+      final offline = (voices is List ? voices : const [])
+          .whereType<Map>()
+          .where((voice) {
         final locale = voice['locale'].toString().toLowerCase();
         final features = voice['features']?.toString() ?? '';
         return (locale.startsWith('id-') ||
@@ -43,6 +45,7 @@ class SummarySpeech extends ChangeNotifier {
           'Pasang suara Bahasa Indonesia offline melalui pengaturan Text-to-Speech perangkat.',
         );
       }
+      await _tts.setLanguage(offline.first['locale'].toString());
       await _tts.setVoice({
         'name': offline.first['name'].toString(),
         'locale': offline.first['locale'].toString(),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../models/scan_history_entry.dart';
+import '../../../services/summary_speech.dart';
 import '../../scanner/widgets/analysis_content.dart';
 import '../../../shared/widgets/personal_page.dart';
 
@@ -183,23 +184,83 @@ class HistoryEntryCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 14),
-            const Wrap(
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(
-                  'Lihat analisis lengkap',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: PersonalColors.primary,
+                const Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Lihat analisis lengkap',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: PersonalColors.primary,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                      color: PersonalColors.primary,
+                    ),
+                  ],
+                ),
+                if (entry.spokenSummary.isNotEmpty)
+                  ListenableBuilder(
+                    listenable: SummarySpeech.shared,
+                    builder: (context, _) {
+                      final isPlaying =
+                          SummarySpeech.shared.activeId == entry.id;
+                      return TextButton.icon(
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        icon: Icon(
+                          isPlaying
+                              ? Icons.stop_circle_outlined
+                              : Icons.volume_up_outlined,
+                          size: 18,
+                          color: PersonalColors.primary,
+                        ),
+                        label: Text(
+                          isPlaying ? 'Hentikan' : 'Dengarkan',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: PersonalColors.primary,
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (isPlaying) {
+                            await SummarySpeech.shared.stop();
+                          } else {
+                            try {
+                              await SummarySpeech.shared.speak(
+                                entry.id,
+                                entry.spokenSummary,
+                              );
+                            } catch (error) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      error is StateError
+                                          ? error.message
+                                          : 'Suara belum tersedia di perangkat.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                      );
+                    },
                   ),
-                ),
-                SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 18,
-                  color: PersonalColors.primary,
-                ),
               ],
             ),
           ],
