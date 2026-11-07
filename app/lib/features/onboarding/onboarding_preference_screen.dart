@@ -15,13 +15,16 @@ class OnboardingPreferenceScreen extends StatelessWidget {
   static const choices = [
     (
       title: 'Masakan rumahan',
-      description: 'Nasi, lauk, sayur, dan rasa yang familier',
+      description: 'Menu harian, lauk pauk, dan hidangan lokal rumahan',
     ),
     (
       title: 'Praktis dan cepat',
-      description: 'Pilihan mudah di sela aktivitas',
+      description: 'Pilihan santap ringkas, cepat saji, atau makan di luar',
     ),
-    (title: 'Lebih banyak nabati', description: 'Sayur, buah, tahu, dan tempe'),
+    (
+      title: 'Lebih banyak nabati',
+      description: 'Dominan sayur, buah, olahan kedelai, dan serat sehat',
+    ),
   ];
   final String? selected;
   final ValueChanged<String> onChanged;
@@ -35,12 +38,12 @@ class OnboardingPreferenceScreen extends StatelessWidget {
       OnboardingHeader(step: 2, onBack: onBack),
       const SizedBox(height: 16),
       const Text(
-        'Makanan seperti apa\nyang kamu suka?',
+        'Pola makan seperti apa\nyang kamu sukai?',
         style: onboardingTitleStyle,
       ),
       const SizedBox(height: 12),
       const Text(
-        'Opsional. Pilih yang paling dekat denganmu.',
+        'Opsional. Pilih preferensi yang paling sesuai dengan kebiasaanmu.',
         style: onboardingBodyStyle,
       ),
       const SizedBox(height: 36),

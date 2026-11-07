@@ -16,6 +16,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Penyempurnaan copywriting dan antarmuka Onboarding serta Beranda:
+  - Memperbarui narasi dan judul pada onboarding awal (`OnboardingFocusScreen` dan `OnboardingPreferenceScreen`) serta layar masuk (`LoginScreen`) menjadi lebih lugas, rapi, dan profesional.
+  - Memperbarui judul kartu hero pemindaian di Beranda (`DashboardScanCard`) dari *"Apa isi piringmu?"* menjadi *"Kenali nutrisi makananmu"* dengan teks penjelasan yang lebih terarah.
+  - Memperbaiki rendering aset ilustrasi piring makanan: mengekstrak citra beresolusi tinggi 1254x1254 RGBA transparan menjadi `assets/images/foodartwork.png` dan menggantikan penggunaan `SvgPicture` pada `LoginScreen`, `DashboardScanCard`, serta `OnboardingFinishScreen`, mengatasi kendala kegagalan render SVG akibat keterbatasan parsing raster pattern base64 pada `flutter_svg`.
+
 - Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
   - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
   - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
