@@ -34,10 +34,64 @@ D:\firetech-hackathon\
 ├── app/                         # Flutter application
 │   ├── README.md
 │   ├── android/                 # Platform scaffold yang tersedia saat ini
+│   ├── assets/                  # Aset statis aplikasi, di luar lib/
+│   │   ├── images/              # Foto, ilustrasi, dan logo hasil ekspor desain
+│   │   │   ├── .gitkeep
+│   │   │   ├── login_reference.png # Ekspor desain pengguna; sumber ilustrasi login
+│   │   │   ├── onboarding_finish_reference.png # Ilustrasi selesai onboarding
+│   │   │   └── dashboard_reference.png # Ekspor pengguna untuk ilustrasi kartu scan
+│   │   └── icons/               # Ikon kustom hasil ekspor desain
+│   │       └── .gitkeep
 │   ├── lib/
-│   │   └── main.dart
+│   │   ├── main.dart
+│   │   ├── app.dart
+│   │   ├── core/
+│   │   │   ├── router/
+│   │   │   │   ├── app_router.dart
+│   │   │   │   └── route_paths.dart
+│   │   │   ├── theme/
+│   │   │   │   ├── app_colors.dart
+│   │   │   │   ├── app_theme.dart
+│   │   │   │   └── app_typography.dart
+│   │   │   ├── network/
+│   │   │   │   ├── api_client.dart
+│   │   │   │   ├── api_endpoints.dart
+│   │   │   │   └── api_interceptor.dart
+│   │   │   └── utils/
+│   │   │       └── api_exception.dart
+│   │   ├── models/                # Model global lintas feature
+│   │   │   └── daily_nutrition_summary.dart
+│   │   ├── services/              # Akses API/backend global
+│   │   ├── repositories/          # Abstraksi data global
+│   │   ├── providers/             # State global
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   └── login_screen.dart
+│   │   │   ├── onboarding/
+│   │   │   │   ├── onboarding_screen.dart
+│   │   │   │   ├── onboarding_focus_screen.dart
+│   │   │   │   ├── onboarding_preference_screen.dart
+│   │   │   │   ├── onboarding_finish_screen.dart
+│   │   │   │   └── widgets/
+│   │   │   │       └── onboarding_widgets.dart
+│   │   │   ├── dashboard/
+│   │   │   │   ├── dashboard_screen.dart
+│   │   │   │   └── widgets/
+│   │   │   │       ├── dashboard_history.dart
+│   │   │   │       └── dashboard_scan_card.dart
+│   │   │   ├── food_search/
+│   │   │   │   └── widgets/
+│   │   │   ├── food_journal/
+│   │   │   │   └── widgets/
+│   │   │   ├── recipes/
+│   │   │   │   └── widgets/
+│   │   │   └── profile/
+│   │   └── shared/
+│   │       └── widgets/
+│   │           └── route_placeholder_screen.dart
 │   ├── test/
-│   │   └── widget_test.dart
+│   │   ├── widget_test.dart
+│   │   └── dashboard_test.dart
 │   ├── analysis_options.yaml
 │   ├── pubspec.yaml
 │   └── pubspec.lock
@@ -71,9 +125,33 @@ D:\firetech-hackathon\
 
 ### `app/` — Flutter
 
-`app/` adalah proyek Flutter pada root subfoldernya dan memakai scaffold Flutter yang tersedia. Pertahankan struktur platform hasil generate; kode aplikasi ditempatkan di `lib/`, dan tes Flutter berada di `test/`. Saat ini scaffold platform Android tersedia. Jangan memindahkan app ke `app/mobile/` atau membuat folder platform lain tanpa kebutuhan yang jelas.
+`app/` adalah proyek Flutter pada root subfoldernya dan memakai scaffold Flutter yang tersedia. Pertahankan struktur platform hasil generate; kode aplikasi ditempatkan di `lib/`, dan tes Flutter berada di `test/`. Routing `go_router` ada di `lib/core/router/`; tema global ada di `lib/core/theme/`; network client untuk backend terpisah ada di `lib/core/network/`; exception API ada di `lib/core/utils/`. Model, service, repository, dan provider berada di layer global. Folder feature hanya berisi UI dan widgets. Supabase tidak termasuk struktur saat ini. Saat ini scaffold platform Android tersedia. Jangan memindahkan app ke `app/mobile/` atau membuat folder platform lain tanpa kebutuhan yang jelas.
+
+`app/` memakai pendekatan layer global: model, service, repository, dan provider berada masing-masing di `lib/models/`, `lib/services/`, `lib/repositories/`, dan `lib/providers/`. Folder `features/` hanya mengelompokkan UI berdasarkan domain. File halaman diletakkan langsung di folder feature, sedangkan komponen khusus halaman berada di subfolder `widgets/`. Jangan membuat subfolder `pages/` atau mengulang layer data di dalam feature. Folder yang masih kosong adalah kerangka, bukan fitur yang sudah diimplementasikan. Supabase tidak termasuk struktur saat ini.
+
+#### Contoh alur tanggung jawab
+
+Contoh ketika tim mengimplementasikan pencarian makanan:
+
+1. `models/food_model.dart` mendefinisikan bentuk data makanan yang dipakai app.
+2. `services/food_service.dart` memanggil endpoint melalui `core/network/api_client.dart`.
+3. `repositories/food_repository.dart` mengubah respons service menjadi operasi data yang dipakai app.
+4. `providers/food_provider.dart` mengelola state pencarian dan memanggil repository.
+5. `features/food_search/food_search_page.dart` menampilkan UI dan menggunakan provider; widget khusus pencarian berada di `features/food_search/widgets/`.
+
+Contoh ini menjelaskan penempatan tanggung jawab, bukan file/endpoint yang sudah tersedia. Jangan membuat model, endpoint, atau halaman sebelum kontraknya dibutuhkan dan disepakati.
 
 Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../app/README.md) serta konfigurasi `pubspec.yaml` yang ada.
+
+#### Aset statis Flutter
+
+- [app/assets/images/](../app/assets/images/) menyimpan foto, ilustrasi, dan logo yang diekspor dari Figma atau sumber lain dengan izin penggunaan yang sesuai.
+- [app/assets/icons/](../app/assets/icons/) menyimpan ikon kustom. Ikon Material bawaan tetap dapat digunakan tanpa berkas tambahan.
+- Kedua folder sudah didaftarkan pada `flutter.assets` di [pubspec.yaml](../app/pubspec.yaml). Folder icons masih berisi `.gitkeep`; images juga memuat `login_reference.png` dari ekspor desain pengguna `Group-11.png`. Onboarding juga memakai `onboarding_finish_reference.png` dari ekspor pengguna `Group-16.png`, sedangkan dashboard memakai `dashboard_reference.png` dari `Group-18.png`. Login, onboarding, dan dashboard hanya merender area ilustrasi makanan dari ekspor tersebut, sementara teks dan tombol tetap widget Flutter. Aset merupakan ilustrasi, bukan bukti hasil identifikasi atau nilai nutrisi. Lisensi/sumber asli ilustrasi belum diverifikasi; pastikan izin sebelum redistribusi.
+- Gunakan nama berkas `snake_case`, misalnya `nutrilens_logo.png`, dengan path dari root Flutter seperti `assets/images/nutrilens_logo.png`. Nama tersebut hanya contoh, bukan aset yang sudah tersedia.
+- Jika menambahkan subfolder, daftarkan path-nya tersendiri di `pubspec.yaml`; deklarasi direktori tidak mencakup subfolder secara rekursif, kecuali varian resolusi gambar Flutter.
+- Gunakan format gambar yang didukung Flutter untuk gambar/ikon lokal. SVG memerlukan dukungan tambahan; jangan menambah dependency sebelum diperlukan. Font kustom baru ditambahkan saat berkas dan kebutuhan tipografinya tersedia, lalu didaftarkan pada `flutter.fonts`.
+- Folder ini hanya untuk aset aplikasi. Foto pengguna, hasil scan, dataset, dan model besar tidak ditempatkan atau dikomit di sini. Catat sumber/lisensi aset saat menambahkan berkas sebenarnya.
 
 ### `server/` — backend
 

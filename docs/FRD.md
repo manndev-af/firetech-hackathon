@@ -52,6 +52,14 @@ Dokumen ini merinci kebutuhan fungsional NutriLens AI, prioritas implementasi, s
 | FR-15 | Pengguna dapat mengisi tinggi/berat badan opsional | P0 | Input bersifat sukarela, kegunaannya dijelaskan, dan kosong tidak menghalangi alur scan; data ini tidak memicu diagnosis atau klaim klinis. |
 | FR-16 | Pengguna dapat mencatat alergi secara opsional | P0 | Sistem hanya menandai bahan yang cocok dengan informasi alergen yang tersedia; data tidak lengkap ditandai dan tidak diklaim sebagai pemeriksaan menyeluruh. |
 
+### Status implementasi UI onboarding — 7 November 2026
+
+Alur demo Flutter yang diminta pengguna kini menyediakan dua langkah dan layar selesai: satu fokus Gula/Protein/Natrium/Keseimbangan, preferensi makanan opsional, dan ringkasan pilihan aktual sebelum beranda. Pengguna dapat kembali tanpa kehilangan pilihan dalam alur, atau melewati preferensi sehingga nilainya tidak dipilih. Default visual mengikuti referensi (Gula dan Masakan rumahan). Pilihan belum disimpan atau diterapkan pada engine/dashboard dan kembali ke default ketika alur dibuat ulang. Tombol Google membuka demo ini tanpa autentikasi. Implementasi UI ini belum memenuhi seluruh FR-01/FR-14: Nutrition Profile lengkap, prioritas jamak, Calorie Awareness, penyimpanan, serta pengaruh terhadap insight tetap pekerjaan berikutnya; kebutuhan produk di atas tetap berlaku.
+
+### Status implementasi UI dashboard — 7 November 2026
+
+Dashboard menampilkan empty state selama belum diberi ringkasan catatan. Widget riwayat menerima `DailyNutritionSummary` yang sudah dihitung dari catatan terkonfirmasi; menampilkan jumlah catatan, gula/protein/energi, dan status data yang belum lengkap. Null tidak diganti nol, dan angka contoh prototipe tidak diisikan ke aplikasi. Adapter riwayat/scan belum tersedia, sehingga route Home saat ini tetap memakai state kosong. Tombol scan dan Buka Jelajah pada konten dashboard memberi pemberitahuan fitur belum tersedia. Navigasi bawah beserta callback lamanya dipertahankan sesuai permintaan pengguna. Fokus onboarding hanya diteruskan ke label kartu melalui route extra; belum merupakan profil tersimpan atau input engine. UI ringkasan bukan bukti FR-07/FR-13 atau kamera sudah selesai. Fokus harus berasal dari pilihan pengguna; akses langsung tanpa pilihan menampilkan Belum dipilih.
+
 ## 4. Alur Fungsional Utama (P0)
 
 1. Pengguna membuka aplikasi dan memilih satu atau lebih prioritas nutrisi: gula, natrium, energi/kalori, protein, atau keseimbangan nutrisi.
