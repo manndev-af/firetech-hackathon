@@ -412,6 +412,8 @@ class _ScannerScreenState extends State<ScannerScreen>
                                               ),
                                             )
                                           : Container(
+                                              width: 48,
+                                              height: 48,
                                               decoration: const BoxDecoration(
                                                 color: Colors.white,
                                                 shape: BoxShape.circle,
@@ -450,7 +452,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     if (_photo != null) {
       return Image.file(
         File(_photo!.path),
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         semanticLabel: 'Foto yang dipilih',
         errorBuilder: (_, error, stack) =>
             const Center(child: Text('Foto tidak dapat ditampilkan.')),
@@ -503,9 +505,26 @@ class _ScannerScreenState extends State<ScannerScreen>
         ),
       );
     }
-    return ColoredBox(
-      color: Colors.black,
-      child: Center(child: CameraPreview(_camera!)),
+    return ClipRect(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final landscape =
+              MediaQuery.orientationOf(context) == Orientation.landscape;
+          final ratio = landscape
+              ? _camera!.value.aspectRatio
+              : 1 / _camera!.value.aspectRatio;
+          return SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: constraints.maxHeight * ratio,
+                height: constraints.maxHeight,
+                child: CameraPreview(_camera!),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
