@@ -25,7 +25,7 @@ export const config: Config = {
 };
 
 Object.keys(config).forEach((key) => {
-  if (config[key as keyof Config] === undefined ) {
+  if (config[key as keyof Config] === undefined) {
     throw new Error(`Missing configuration for ${key}`);
   }
 });
