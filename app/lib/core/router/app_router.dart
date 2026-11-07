@@ -23,7 +23,12 @@ import '../../features/scanner/scan_result_screen.dart';
 import '../../providers/local_app_state.dart';
 import '../../services/scan_pipeline.dart';
 export '../../providers/local_app_state.dart'
-    show profileSession, analysisAudioSession;
+    show
+        profileSession,
+        analysisAudioSession,
+        dailySummarySession,
+        syncHistoryFromBackend,
+        fetchDailyNutritionFromBackend;
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -64,6 +69,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.home,
               builder: (context, state) {
+                fetchDailyNutritionFromBackend();
                 const focuses = {'Gula', 'Protein', 'Natrium', 'Keseimbangan'};
                 final focus = state.extra;
                 return ValueListenableBuilder<NutritionProfile>(
@@ -71,72 +77,76 @@ final appRouter = GoRouter(
                   builder: (context, profile, _) =>
                       ValueListenableBuilder<List<ScanHistoryEntry>>(
                     valueListenable: historySession,
-                    builder: (context, history, _) {
-                      final hasRealHistory = history.isNotEmpty;
-                      final isPreview =
-                          const bool.fromEnvironment('UI_PREVIEW') &&
-                          !hasRealHistory;
-                      final entries = hasRealHistory
-                          ? history
-                          : (isPreview
-                              ? historyPreviewData(DateTime.now())
-                              : <ScanHistoryEntry>[]);
-                      final recent = entries.isNotEmpty ? entries.first : null;
+                    builder: (context, history, _) =>
+                        ValueListenableBuilder<DailyNutritionSummary?>(
+                      valueListenable: dailySummarySession,
+                      builder: (context, serverDailySummary, _) {
+                        final hasRealHistory = history.isNotEmpty;
+                        final isPreview =
+                            const bool.fromEnvironment('UI_PREVIEW') &&
+                            !hasRealHistory;
+                        final entries = hasRealHistory
+                            ? history
+                            : (isPreview
+                                ? historyPreviewData(DateTime.now())
+                                : <ScanHistoryEntry>[]);
+                        final recent = entries.isNotEmpty ? entries.first : null;
 
-                      DailyNutritionSummary? summary;
-                      if (entries.isNotEmpty) {
-                        final now = DateTime.now();
-                        final todayEntries = entries
-                            .where((e) =>
-                                DateUtils.isSameDay(e.savedAt, now) ||
-                                isPreview)
-                            .toList();
-                        if (todayEntries.isNotEmpty) {
-                          var sugarCount = 0;
-                          var proteinCount = 0;
-                          var energyCount = 0;
-                          double totalSugar = 0;
-                          double totalProtein = 0;
-                          double totalEnergy = 0;
-                          for (final e in todayEntries) {
-                            if (e.sugarG != null) {
-                              sugarCount++;
-                              totalSugar += e.sugarG!;
+                        DailyNutritionSummary? summary = serverDailySummary;
+                        if (summary == null && entries.isNotEmpty) {
+                          final now = DateTime.now();
+                          final todayEntries = entries
+                              .where((e) =>
+                                  DateUtils.isSameDay(e.savedAt, now) ||
+                                  isPreview)
+                              .toList();
+                          if (todayEntries.isNotEmpty) {
+                            var sugarCount = 0;
+                            var proteinCount = 0;
+                            var energyCount = 0;
+                            double totalSugar = 0;
+                            double totalProtein = 0;
+                            double totalEnergy = 0;
+                            for (final e in todayEntries) {
+                              if (e.sugarG != null) {
+                                sugarCount++;
+                                totalSugar += e.sugarG!;
+                              }
+                              if (e.proteinG != null) {
+                                proteinCount++;
+                                totalProtein += e.proteinG!;
+                              }
+                              if (e.energyKcal != null) {
+                                energyCount++;
+                                totalEnergy += e.energyKcal!;
+                              }
                             }
-                            if (e.proteinG != null) {
-                              proteinCount++;
-                              totalProtein += e.proteinG!;
-                            }
-                            if (e.energyKcal != null) {
-                              energyCount++;
-                              totalEnergy += e.energyKcal!;
-                            }
+                            summary = DailyNutritionSummary(
+                              recordCount: todayEntries.length,
+                              sugarG: sugarCount > 0 ? totalSugar : null,
+                              sugarComplete: sugarCount == todayEntries.length,
+                              proteinG: proteinCount > 0 ? totalProtein : null,
+                              proteinComplete: proteinCount == todayEntries.length,
+                              energyKcal: energyCount > 0 ? totalEnergy : null,
+                              energyComplete: energyCount == todayEntries.length,
+                            );
                           }
-                          summary = DailyNutritionSummary(
-                            recordCount: todayEntries.length,
-                            sugarG: sugarCount > 0 ? totalSugar : null,
-                            sugarComplete: sugarCount == todayEntries.length,
-                            proteinG: proteinCount > 0 ? totalProtein : null,
-                            proteinComplete: proteinCount == todayEntries.length,
-                            energyKcal: energyCount > 0 ? totalEnergy : null,
-                            energyComplete: energyCount == todayEntries.length,
-                          );
                         }
-                      }
 
-                      return DashboardScreen(
-                        onScan: () => context.push(AppRoutes.scanner),
-                        onExplore: () => context.go(AppRoutes.explore),
-                        onViewHistory: () => context.go(AppRoutes.history),
-                        recentEntry: recent,
-                        summary: summary,
-                        focus: profile.priorities.isNotEmpty
-                            ? profile.priorities.join(' · ')
-                            : focus is String && focuses.contains(focus)
-                            ? focus
-                            : null,
-                      );
-                    },
+                        return DashboardScreen(
+                          onScan: () => context.push(AppRoutes.scanner),
+                          onExplore: () => context.go(AppRoutes.explore),
+                          onViewHistory: () => context.go(AppRoutes.history),
+                          recentEntry: recent,
+                          summary: summary,
+                          focus: profile.priorities.isNotEmpty
+                              ? profile.priorities.join(' · ')
+                              : focus is String && focuses.contains(focus)
+                              ? focus
+                              : null,
+                        );
+                      },
+                    ),
                   ),
                 );
               },
@@ -157,35 +167,38 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.history,
               name: AppRouteNames.history,
-              builder: (context, state) => ValueListenableBuilder(
-                valueListenable: historySession,
-                builder: (context, records, _) => ValueListenableBuilder(
-                  valueListenable: draftSession,
-                  builder: (context, drafts, _) => HistoryScreen(
-                    drafts: drafts,
-                    onResume: (draft) =>
-                        Navigator.of(context, rootNavigator: true).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => ScanResultScreen(
-                              photo: XFile(draft.photoPath),
-                              mode: draft.label
-                                  ? ScanMode.label
-                                  : ScanMode.food,
-                              draft: draft,
+              builder: (context, state) {
+                syncHistoryFromBackend();
+                return ValueListenableBuilder(
+                  valueListenable: historySession,
+                  builder: (context, records, _) => ValueListenableBuilder(
+                    valueListenable: draftSession,
+                    builder: (context, drafts, _) => HistoryScreen(
+                      drafts: drafts,
+                      onResume: (draft) =>
+                          Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ScanResultScreen(
+                                photo: XFile(draft.photoPath),
+                                mode: draft.label
+                                    ? ScanMode.label
+                                    : ScanMode.food,
+                                draft: draft,
+                              ),
                             ),
                           ),
-                        ),
-                    entries: records,
-                    onScan: () => context.push(AppRoutes.scanner),
-                    // The current design-review build opens populated history.
-                    // Fixtures remain separate from actual saved records.
-                    preview:
-                        const bool.fromEnvironment('UI_PREVIEW') &&
-                        records.isEmpty &&
-                        drafts.isEmpty,
+                      entries: records,
+                      onScan: () => context.push(AppRoutes.scanner),
+                      // The current design-review build opens populated history.
+                      // Fixtures remain separate from actual saved records.
+                      preview:
+                          const bool.fromEnvironment('UI_PREVIEW') &&
+                          records.isEmpty &&
+                          drafts.isEmpty,
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
