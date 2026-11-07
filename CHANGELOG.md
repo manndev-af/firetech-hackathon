@@ -7,6 +7,15 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Halaman Jelajahi (`ExploreScreen`), Perbandingan (`CompareScreen`), dan Konsultasi AI (`AssistantScreen`) diperbarui secara terstruktur:
+  - Navigasi atas tetap (`TopNav`) disematkan pada halaman Jelajahi dengan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee`, seragam dengan Beranda, Profil, dan Riwayat.
+  - Tiga kartu navigasi utama ditata rapi dengan ikon Material bertema dan badge informatif tanpa emotikon: "Bandingkan dua pilihan", "Lihat pola catatanku", dan "Tanya soal makanan".
+  - Layar "Bandingkan dua pilihan" (`CompareScreen`) menyediakan alur pemilihan foto melalui Kamera (`ImageSource.camera`) maupun Galeri (`ImageSource.gallery`), menyajikan perbandingan nilai gizi berdampingan (energi, protein, gula) dengan ringkasan kesimpulan "Mending yang mana?", serta tombol "Bahas pilihan ini" untuk melanjutkan analisis ke ruang percakapan AI.
+  - Layar "Asisten gizi" (`AssistantScreen`) menyediakan antarmuka chat AI modern untuk konsultasi gizi, analisis pola konsumsi riwayat pengguna, maupun pembahasan perbandingan dua pilihan makanan:
+    - Gelembung pesan interaktif bergaya modern (pesan pengguna dengan latar teal `AppColors.heroBackground`, jawaban AI dengan kartu putih dan badge `NutriSee AI`).
+    - Input pertanyaan (`TextField`) dengan tombol kirim responsif dan dukungan pintasan keyboard.
+    - Chip pertanyaan cepat yang dinamis dan relevan tanpa pengulangan pertanyaan yang sudah diajukan.
+    - Struktur layout menggunakan `SingleChildScrollView` untuk memastikan scrolling dan pembaruan riwayat chat akurat tanpa estimasi berlebih.
 - Validasi kata kunci nilai gizi OCR label kemasan: fungsi `containsNutritionKeywords` memvalidasi keberadaan istilah tabel gizi dalam bahasa Indonesia maupun Inggris (antara lain `informasi nilai gizi, nilai gizi, takaran saji, energi, kalori, lemak, protein, karbohidrat, gula, natrium, nutrition facts, calories, fat, sugar, sodium`). Jika tidak ada kata kunci yang cocok, pemrosesan label langsung melempar `ScanFailure` lokal tanpa membuang kuota/request ke AI.
 - Penanganan kegagalan deteksi objek makanan/minuman dan label gizi tidak lagi berpindah ke halaman baru, melainkan menampilkan dialog popup peringatan yang bersih dan rapi langsung di layar kamera (`ScannerScreen`) dengan tombol "Foto Ulang" untuk kembali ke jendela bidik kamera dengan cepat.
 - Tombol aksi utama di bagian bawah layar hasil scan (`ScanResultScreen`) diubah menjadi tombol "Simpan ke Riwayat" yang berlabuh di footer bawah layar (`footer:` pada `PersonalPage`), menggantikan opsi navigasi foto lain dan mempertegas fungsi pemindaian sebagai pencatatan konsumsi pengguna, lengkap dengan notifikasi konfirmasi SnackBar mengambang. Eksplorasi perbandingan dan konsultasi diarahkan ke fitur Jelajah.
