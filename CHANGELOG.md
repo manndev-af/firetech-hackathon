@@ -11,7 +11,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
-- Layar Jelajahi, Bandingkan, dan Asisten mengikuti artboard FigCraft; tab dan kartu Home terhubung ke Jelajahi, route detail membedakan chat pola catatan dan halaman tanya tanpa chat. Data perbandingan diberi label ilustrasi; lookup nutrisi dan layanan chat belum terhubung.
+- Layar Jelajahi, Bandingkan, dan Asisten mengikuti artboard FigCraft; perbandingan meminta dua gambar galeri sebelum ringkasan ilustrasi ditampilkan. Tab/kartu Home membuka Jelajahi; route asisten membedakan pintasan pola catatan dari halaman tanya tanpa chat. Gambar belum diunggah atau dianalisis.
 - UI Flutter Profil, editor profil nutrisi, dan Riwayat mengikuti referensi Figcraft serta palet teal–mint pengguna. Profil mendukung nama/usia opsional, lima prioritas jamak, preferensi makanan, validasi, simpan/batal, dan informasi privasi sesi. Riwayat menyediakan filter jenis/tanggal serta empty state tanpa catatan contoh.
 - State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; kamera memberi status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
 - Pengujian profil/riwayat untuk validasi, simpan/batal, navigasi, filter, dan layar sempit dengan teks besar. Pengujian onboarding diperbaiki agar menggulir tombol kembali ke layar dan melepas handle semantics sebelum pemeriksaan akhir.

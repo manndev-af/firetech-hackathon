@@ -2,7 +2,7 @@
 
 ## Jelajahi Flutter — 7 November 2026
 
-Halaman Jelajahi, Bandingkan, dan Asisten dibuat mengikuti layer `11 Jelajah`, `16 Bandingkan`, dan `12 Percakapan` pada `canvas.figcraft`. Tab Jelajahi dan kartu Buka Jelajah di Home membuka layar Jelajah; aksi Bandingkan membuka halaman detail. Pintasan pola catatan membuka Asisten dengan tampilan percakapan contoh, sedangkan Tanya soal makanan membuka Asisten tanpa chat. Bandingkan dan Asisten ditampilkan di atas shell agar tidak menampilkan bottom navigation, sesuai artboard. Angka Minuman A/B tetap ilustrasi prototipe, bukan data nutrisi aktual. Belum ada riwayat makanan, lookup nutrisi, kalkulasi, atau integrasi chat/LLM. File FigCraft menjadi referensi baca saja.
+Halaman Jelajahi, Bandingkan, dan Asisten dibuat mengikuti layer `11 Jelajah`, `16 Bandingkan`, dan `12 Percakapan` pada `canvas.figcraft`. Tab Jelajahi dan kartu Buka Jelajah di Home membuka layar Jelajah; aksi Bandingkan membuka halaman detail. Bandingkan meminta dua gambar dari galeri, lalu membuka ringkasan setelah keduanya dipilih dan pengguna menekan Lihat ringkasan. Pengguna dapat mengganti gambar sebelum membuka ringkasan. Gambar hanya dibaca lokal, belum diunggah atau dianalisis; nilai ringkasan masih ilustrasi. Pintasan pola catatan membuka Asisten dengan tampilan percakapan contoh, sedangkan Tanya soal makanan membuka Asisten tanpa chat. Bandingkan dan Asisten ditampilkan di atas shell agar tidak menampilkan bottom navigation, sesuai artboard. Belum ada riwayat makanan, lookup nutrisi, kalkulasi, atau integrasi chat/LLM. File FigCraft menjadi referensi baca saja.
 
 ## Profil dan Riwayat Flutter — 7 November 2026
 
