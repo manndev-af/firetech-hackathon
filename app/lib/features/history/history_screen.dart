@@ -10,11 +10,13 @@ class HistoryScreen extends StatelessWidget {
     this.entries = const [],
     this.preview = false,
     this.now,
+    this.onScan,
     super.key,
   });
   final List<ScanHistoryEntry> entries;
   final bool preview;
   final DateTime? now;
+  final VoidCallback? onScan;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +48,13 @@ class HistoryScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Kamera makanan belum tersedia.'),
-                    ),
-                  ),
+                  onPressed:
+                      onScan ??
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Kamera makanan belum tersedia.'),
+                        ),
+                      ),
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: const Text('Mulai pindai'),
                 ),

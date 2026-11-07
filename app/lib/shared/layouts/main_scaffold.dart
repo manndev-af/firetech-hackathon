@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nutrilens/shared/widgets/navigation/bottom_nav.dart';
 
+import '../../core/router/route_paths.dart';
+
 class MainScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -23,11 +25,7 @@ class MainScaffold extends StatelessWidget {
           );
         },
 
-        onAddTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Kamera makanan belum tersedia.')),
-          );
-        },
+        onAddTap: () => context.push(AppRoutes.scanner),
       ),
     );
   }
