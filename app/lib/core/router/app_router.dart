@@ -27,6 +27,8 @@ export '../../providers/local_app_state.dart'
         profileSession,
         analysisAudioSession,
         dailySummarySession,
+        sampleSeededProfile,
+        loginAsSampleUser,
         syncHistoryFromBackend,
         fetchDailyNutritionFromBackend;
 

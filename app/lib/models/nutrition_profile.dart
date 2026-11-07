@@ -88,20 +88,27 @@ class NutritionProfile {
     'Kerang / udang',
   ];
 
-  NutritionProfile withOnboardingChoices(String focus, String? preference) =>
-      NutritionProfile(
-        name: name,
-        age: age,
-        preference: preference,
-        priorities: [focus],
-        heightCm: heightCm,
-        weightKg: weightKg,
-        eatingPattern: eatingPattern,
-        prefersHalal: prefersHalal,
-        allergyStatus: allergyStatus,
-        allergies: allergies,
-        otherAllergies: otherAllergies,
-      );
+  NutritionProfile withOnboardingChoices(String focus, String? preference) {
+    List<String> newPriorities;
+    if (focus == 'Gula' && priorities.length > 1 && priorities.first == 'Gula') {
+      newPriorities = priorities;
+    } else {
+      newPriorities = [focus];
+    }
+    return NutritionProfile(
+      name: name,
+      age: age,
+      preference: preference,
+      priorities: newPriorities,
+      heightCm: heightCm,
+      weightKg: weightKg,
+      eatingPattern: eatingPattern,
+      prefersHalal: prefersHalal,
+      allergyStatus: allergyStatus,
+      allergies: allergies,
+      otherAllergies: otherAllergies,
+    );
+  }
 }
 
 enum AllergyStatus { unknown, noneKnown, listed }
