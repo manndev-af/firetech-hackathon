@@ -16,9 +16,17 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
-- Penyempurnaan copywriting dan antarmuka Onboarding serta Beranda:
+- Optimasi visual dan penyederhanaan copywriting Onboarding serta Beranda:
+  - Meringkas judul hero kartu pemindaian di Beranda (`DashboardScanCard`) menjadi *"Pindai Makananmu"* yang jauh lebih ringkas, to the point, dan tidak memakan ruang berlebih.
+  - Memperpendek kalimat deskripsi kartu pemindaian menjadi *"Foto makanan atau label kemasan untuk cek nutrisi dan porsinya."*.
+  - Memperbesar dimensi visual ilustrasi piring makanan (`foodartwork.png`) pada kartu Beranda dari ukuran sebelumnya (120x105 px, tinggi 110 px) menjadi ukuran proporsional yang lebih menonjol (155x135 px, tinggi 140 px, fallback 160x145 px) sehingga seimbang dengan kartu hero.
+  - Meringkas judul teks besar (headline) dan subjudul pada alur Onboarding sebelum masuk ke beranda:
+    - `OnboardingFocusScreen`: Judul dipersingkat menjadi *"Pilih fokus nutrisimu"* (sebelumnya panjang: *"Nutrisi apa yang ingin kamu perhatikan?"*), subjudul *"Tentukan prioritas untuk memandu analisis makanan harianmu."*.
+    - `OnboardingPreferenceScreen`: Judul dipersingkat menjadi *"Pilih pola makanmu"* (sebelumnya panjang: *"Pola makan seperti apa yang kamu sukai?"*), subjudul *"Opsional. Sesuaikan dengan kebiasaan santapmu sehari-hari."*.
+    - `OnboardingFinishScreen`: Mengubah badge menjadi *"SIAP MEMULAI"* dan headline menjadi *"Makan lebih paham, setiap hari."*.
+
+- Penyempurnaan copywriting dan antarmuka Onboarding serta Beranda (iterasi sebelumnya):
   - Memperbarui narasi dan judul pada onboarding awal (`OnboardingFocusScreen` dan `OnboardingPreferenceScreen`) serta layar masuk (`LoginScreen`) menjadi lebih lugas, rapi, dan profesional.
-  - Memperbarui judul kartu hero pemindaian di Beranda (`DashboardScanCard`) dari *"Apa isi piringmu?"* menjadi *"Kenali nutrisi makananmu"* dengan teks penjelasan yang lebih terarah.
   - Memperbaiki rendering aset ilustrasi piring makanan: mengekstrak citra beresolusi tinggi 1254x1254 RGBA transparan menjadi `assets/images/foodartwork.png` dan menggantikan penggunaan `SvgPicture` pada `LoginScreen`, `DashboardScanCard`, serta `OnboardingFinishScreen`, mengatasi kendala kegagalan render SVG akibat keterbatasan parsing raster pattern base64 pada `flutter_svg`.
 
 - Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:

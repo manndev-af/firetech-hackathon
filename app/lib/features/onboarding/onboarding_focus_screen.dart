@@ -29,12 +29,12 @@ class OnboardingFocusScreen extends StatelessWidget {
       OnboardingHeader(step: 1, onBack: onBack),
       const SizedBox(height: 16),
       const Text(
-        'Nutrisi apa yang ingin\nkamu perhatikan?',
+        'Pilih fokus\nnutrisimu',
         style: onboardingTitleStyle,
       ),
       const SizedBox(height: 12),
       const Text(
-        'Pilih fokus utamamu agar analisis makanan dapat disesuaikan.',
+        'Tentukan prioritas untuk memandu analisis makanan harianmu.',
         style: onboardingBodyStyle,
       ),
       const SizedBox(height: 36),

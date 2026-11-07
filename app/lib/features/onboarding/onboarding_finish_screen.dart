@@ -80,7 +80,7 @@ class _OnboardingFinishScreenState extends State<OnboardingFinishScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
-                'MULAI DARI YANG KAMU MAKAN',
+                'SIAP MEMULAI',
                 style: TextStyle(
                   color: AppColors.heroBackground,
                   fontSize: 12,
@@ -92,7 +92,7 @@ class _OnboardingFinishScreenState extends State<OnboardingFinishScreen> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'Sedikit lebih paham,\nsetiap kali makan.',
+            'Makan lebih paham,\nsetiap hari.',
             textAlign: TextAlign.center,
             style: onboardingTitleStyle,
           ),
