@@ -308,40 +308,81 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                                     (constraints.maxWidth -
                                         (columns - 1) * 12) /
                                     columns,
-                                padding: const EdgeInsets.all(12),
+                                clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
-                                  color: AppColors.background,
-                                  borderRadius: BorderRadius.circular(16),
+                                  color: _nutrientColor(field.label)
+                                      .withValues(alpha: .09),
+                                  border: Border.all(
+                                    color: _nutrientColor(field.label)
+                                        .withValues(alpha: .18),
+                                  ),
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          _nutrientIcon(field.label),
-                                          size: 18,
-                                          color: AppColors.primaryDark,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        12,
+                                        14,
+                                        12,
+                                        12,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            _nutrientIcon(field.label),
+                                            size: 24,
+                                            color: _nutrientColor(field.label),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
                                             field.label,
-                                            style: const TextStyle(
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
                                               fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: _nutrientColor(
+                                                field.label,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            _displayValue(field.label),
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 26,
+                                              height: 1.15,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _values[field.label]!.text.isEmpty
-                                          ? 'Belum tersedia'
-                                          : '${_displayValue(field.label)} ${field.unit}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                                    ColoredBox(
+                                      color: _nutrientColor(field.label)
+                                          .withValues(alpha: .07),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          field.unit == 'kkal'
+                                              ? 'kilokalori'
+                                              : field.unit == 'mg'
+                                              ? 'miligram'
+                                              : 'gram',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: _nutrientColor(field.label),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -494,6 +535,13 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
         ? _number(double.parse(total.toStringAsFixed(2)))
         : 'Belum tersedia';
   }
+
+  Color _nutrientColor(String label) => switch (label) {
+    'Energi' => const Color(0xFF946018),
+    'Protein' => const Color(0xFF31689B),
+    'Gula' => const Color(0xFF825294),
+    _ => AppColors.primaryDark,
+  };
 
   IconData _nutrientIcon(String label) => switch (label) {
     'Energi' => Icons.local_fire_department_outlined,

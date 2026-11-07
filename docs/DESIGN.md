@@ -234,3 +234,7 @@ Flow scan harus tetap `Home → Scan → pilih metode → Recognition/konfirmasi
 Pembaruan visual terbaru diterapkan pada 14 artboard yang dipertahankan: warna aksen kuning pada chips/status diganti ke nuansa teal/mint, dan bingkai perangkat diperbesar radiusnya menjadi `36px`. Kartu lebar pada layar memakai radius `24px` dengan bayangan ringan. Lima artboard navigasi utama memakai instance master navigasi lima tab. Layar proses scan lainnya tetap mengikuti flow layar khusus dan tidak dipaksa memakai navigasi bawah bila mengganggu tugas konfirmasi.
 
 Master Card Base dan Data Ring tersedia di canvas sebagai sumber komponen. Layar lama belum seluruhnya dipecah dan dirakit ulang dari instance Card Base/Data Ring; konten statistik pada Home wajib hanya berasal dari data yang tersedia. Prototipe tidak memuat metrik kalori harian rekaan. Saat meninjau atau melanjutkan implementasi, pastikan label confidence serta keterbatasan model tetap tampak dan tidak memakai klasifikasi “Sehat/Tidak Sehat”.
+
+### Panel nutrisi hasil scan
+
+Panel utama memakai grid dua kolom: ikon dan nama terpusat, angka 26 px, serta pita satuan di bawah. Warna lembut membedakan energi (amber), protein (biru), gula (ungu), dan natrium (teal); warna bukan penilaian baik/buruk. Teks besar memakai satu kolom. Persentase tidak ditampilkan tanpa dasar data.
