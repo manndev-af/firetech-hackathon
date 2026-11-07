@@ -16,6 +16,10 @@ Pembaruan ini menggantikan batas UI pada catatan implementasi awal di bawah. Pro
 
 Riwayat menyediakan preview terpisah dengan label DATA ILUSTRASI, filter yang bekerja, kelompok tanggal, dan detail sumber/basis/porsi/prioritas saat dicatat. Nilai null tetap Belum tersedia. Referensi sushi/ice cream memengaruhi hierarki dan ruang kosong saja; palet tetap teal/mint. Figcraft dan navigasi global tidak diubah. Bukti, batas aksesibilitas, isi field, dan cara ekspor PNG ada di [audit Profil/Riwayat](PROFILE_HISTORY_AUDIT.md).
 
+## Jelajahi Flutter — 7 November 2026
+
+Halaman Jelajahi, Bandingkan, dan Asisten dibuat mengikuti layer `11 Jelajah`, `16 Bandingkan`, dan `12 Percakapan` pada `canvas.figcraft`. Tab Jelajahi dan kartu Buka Jelajah di Home membuka layar Jelajah; aksi Bandingkan membuka halaman detail. Bandingkan meminta dua gambar dari galeri, lalu membuka ringkasan setelah keduanya dipilih dan pengguna menekan Lihat ringkasan. Pengguna dapat mengganti gambar sebelum membuka ringkasan. Gambar hanya dibaca lokal, belum diunggah atau dianalisis; nilai ringkasan masih ilustrasi. Pintasan pola catatan membuka Asisten dengan tampilan percakapan contoh, sedangkan Tanya soal makanan membuka Asisten tanpa chat. Bandingkan dan Asisten ditampilkan di atas shell agar tidak menampilkan bottom navigation, sesuai artboard. Belum ada riwayat makanan, lookup nutrisi, kalkulasi, atau integrasi chat/LLM. File FigCraft menjadi referensi baca saja.
+
 ## Profil dan Riwayat Flutter awal — 7 November 2026
 
 Implementasi mengikuti struktur artboard `09 History`, `10 Profile & Settings`, dan `07 Nutrition Profile` pada `nutrilens-base.figcraft`, dengan palet dari `palet_warna_ui_aplikasi_nutrisi.md` yang diberikan pengguna. File Figcraft tidak diubah. Layar baru memakai primary `#0D6E6B`, latar `#F3F9F8`, permukaan `#E6F4F3`, chip `#D8EFEF`, teks `#142625`/`#5E7170`, garis `#E4ECEB`, kartu radius 24 px, serta jarak berbasis 8 px. Token layar lama dan bentuk navigasi bawah dipertahankan.
@@ -23,7 +27,7 @@ Implementasi mengikuti struktur artboard `09 History`, `10 Profile & Settings`, 
 - Profil menampilkan identitas aktual atau “Profil kamu”, prioritas, preferensi, dan pengaturan informasi. Editor menyediakan nama/usia opsional, lima prioritas jamak, preferensi opsional, Simpan dan Batal. Tidak memakai nama contoh Naya sebagai data awal.
 - State profil hanya hidup selama sesi aplikasi; pilihan onboarding diteruskan ke profil dan perubahan prioritas memperbarui label Home. Informasi privasi menjelaskan batas ini. Audio hasil analisis ditandai belum tersedia, bukan toggle seolah TTS sudah berfungsi.
 - Riwayat menampilkan filter jenis/tanggal, reset filter, dan empty state. Belum ada penyimpanan atau daftar hasil nyata. Mulai pindai memberi pemberitahuan kamera belum tersedia.
-- Tab Home, History, dan Profile terhubung ke branch yang benar; Insight memberi pemberitahuan belum tersedia. Tombol kamera tidak lagi menuju route contoh `/create-order`.
+- Tab Home, Jelajahi, History, dan Profile terhubung ke branch yang benar. Halaman perbandingan/asisten tampil di atas shell. Tombol kamera tidak lagi menuju route contoh `/create-order`.
 - Tinggi/berat, alergi, penyimpanan permanen, dan integrasi mesin nutrisi tetap belum diimplementasikan. Catatan historis di bawah yang menyebut Profil/Riwayat belum dibuat digantikan oleh pembaruan ini untuk cakupan UI tersebut.
 
 ## Pembaruan FigCraft — 4 November 2026
