@@ -2,7 +2,9 @@ import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
 import { config } from './config/config';
+import { openapi } from './config/openapi';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -44,6 +46,13 @@ export const createApp = (): Application => {
   });
 
   // API routes with rate limiting
+  app.get(`${config.apiPrefix}/openapi.json`, (_req, res) => res.json(openapi));
+  app.use(`${config.apiPrefix}/docs`, helmet({
+    contentSecurityPolicy: { directives: { upgradeInsecureRequests: null } },
+  }), swaggerUi.serve, swaggerUi.setup(openapi, {
+    swaggerOptions: { validatorUrl: null },
+    customSiteTitle: 'NutriLens API Docs',
+  }));
   app.use(config.apiPrefix, generalLimiter, apiRoutes);
 
   // Error handling middleware (must be last)
