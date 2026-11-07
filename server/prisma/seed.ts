@@ -31,7 +31,7 @@ export async function seed() {
       audioAnalysisEnabled: true,
       timezone: 'Asia/Jakarta',
     } });
-    for (const chunk of knowledge) await tx.knowledgeChunk.upsert({ where: { id: chunk.id }, update: {}, create: chunk });
+    for (const chunk of knowledge) await tx.knowledgeChunk.upsert({ where: { id: chunk.id }, update: chunk, create: chunk });
   });
 }
 
