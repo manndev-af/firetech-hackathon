@@ -156,3 +156,7 @@ Fallback label: OCR perangkat bersifat opsional secara default; kegagalan OCR ti
 ### Backend compare - 8 November 2026
 
 Route compare memakai demoOwner, scanSlot bersama scanner, compareUpload, compare.controller dan compare.service. Decoder, requestVision dan totals dipakai ulang tanpa perubahan kontrak scanner. Profil/retrieval dibaca sekali, dua gambar diberi penanda A/B dalam satu dispatch. Backend memvalidasi evidence dan menghitung normalisasi/selisih dengan Decimal; hasil transient tanpa write Prisma/cache/ID lookup. Logger menghilangkan payload compare sebelum parsing. Detail kontrak dan batas narasi ada di [COMPARE_API.md](../server/COMPARE_API.md).
+
+### API assistant - 8 November 2026
+
+assistant.service memakai getProfile/retrieveContext sekali dengan profil allowlist dan referensi reviewed. General tidak mengirim jurnal; pattern menambahkan agregasi tujuh tanggal lokal memakai dayBounds/localDate/summarize dan satu query window maksimal 1001 untuk mendeteksi overflow. LLM menerima teks terstruktur dengan prompt assistant terpisah, satu dispatch maksimum, tanpa retry/write database. Konteks wajib tidak dipotong untuk mengklaim agregasi lengkap. Kontrak ada di [ASSISTANT_API.md](../server/ASSISTANT_API.md).
