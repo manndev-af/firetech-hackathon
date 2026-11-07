@@ -6,6 +6,18 @@ Baca bersama [SUMMARY.md](SUMMARY.md), [PRD.md](PRD.md), [FRD.md](FRD.md), dan [
 
 Catatan migrasi: isi register sebelumnya membahas proyek lain dan tidak dipindahkan karena tidak berlaku untuk NutriLens AI.
 
+## Revisi setelah review pengguna — 7 November 2026
+
+Arahan Profil terbaru (`CONFIRMED_DIRECTION`): Lengkapi/Edit profil hanya memuat informasi diri, sedangkan detail personalisasi langsung membuka form yang dapat diedit di halaman yang sama. Drawer/bottom sheet personalisasi dihapus. Form memiliki Simpan dan Kembali di bawah, tanpa langkah Edit tambahan. Implementasi mengelompokkan nama/usia/tinggi/berat sebagai informasi diri dan prioritas/pilihan makanan/alergi sebagai personalisasi.
+
+`CONFIRMED_DIRECTION`: Profil menampilkan ringkasan personalisasi sebelum detail, audio analisis dapat diaktifkan/nonaktifkan, dan Riwayat menampilkan foto serta ringkasan singkat tanpa filter. Pengguna meminta preview tampilan asli tanpa teks demo/ilustrasi. Implementasi memakai build flag terpisah untuk fixture, bukan memasukkannya ke riwayat nyata. Preferensi audio tersedia dalam sesi; integrasi TTS belum selesai. Istilah sumber/basis disederhanakan di detail. Ukuran font disamakan untuk peran teks setara, dengan hierarki judul tetap dipertahankan.
+
+## Konfirmasi perluasan Profil/Riwayat — 7 November 2026
+
+`CONFIRMED_DIRECTION`: pengguna meminta personalisasi selengkap mungkin, termasuk field tambahan opsional, serta preview riwayat berisi. Implementasi UI mencakup tinggi/berat, pola makan/halal, dan pencatatan alergi; penyakit/obat tetap di luar MVP. Referensi gambar hanya digunakan untuk gaya, bukan palet. Scope desain tetap Profil/Riwayat.
+
+Preview menggunakan fixture yang diberi label ilustrasi dan terpisah dari catatan pengguna. Implementasi tetap dalam memori; penyimpanan permanen, penerapan ke engine, dan pemeriksaan alergen tidak dianggap sudah disetujui/selesai melalui perubahan UI ini. Rincian dan bukti tersedia dalam [audit](PROFILE_HISTORY_AUDIT.md).
+
 ## Status keputusan
 
 | Status | Makna |

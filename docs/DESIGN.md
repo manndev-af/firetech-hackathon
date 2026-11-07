@@ -1,6 +1,20 @@
 # NutriLens AI — Rancangan UI/UX
 
-## Profil dan Riwayat Flutter — 7 November 2026
+## Revisi ringkasan Profil dan foto Riwayat — 7 November 2026
+
+Revisi Profil berikutnya: informasi diri dipisahkan dari personalisasi. Edit profil membuka nama/usia/tinggi/berat; Lihat detail Personalisasi langsung membuka form lengkap prioritas/pilihan makanan/alergi secara inline. Semua bagian form dapat digulir pada halaman yang sama, dengan Simpan dan Kembali di akhir. Tidak memakai drawer/bottom sheet. Pengaturan audio tampil pada ringkasan, dan kembali terlihat setelah editor ditutup. Posisi scroll kembali ke ringkasan saat selesai. Riwayat tidak berubah pada revisi ini.
+
+Pembaruan akses contoh: tab Riwayat sekarang langsung membuka tiga catatan contoh saat `flutter run`, tanpa banner atau tombol tambahan. Susunan visual tidak berubah. `UI_PREVIEW=false` tersedia untuk memeriksa state kosong; fixture tetap tidak menjadi data tersimpan.
+
+Arahan terbaru pengguna menggantikan rincian UI di bawah: tampilkan sebagian personalisasi pada Profil, buka seluruhnya melalui Lihat detail, dan sediakan sakelar Audio analisis. Riwayat berupa foto, nama, waktu/porsi, dan summary singkat tanpa filter. Detail menyimpan angka serta informasi Asal data/Acuan perhitungan dalam bagian yang dapat dibuka. Label demo/ilustrasi tidak ditampilkan pada preview desain; fixture diaktifkan melalui build flag dan tetap terpisah dari catatan nyata. Inter konsisten dengan skala 24/18/16/14 sesuai peran. Dokumentasi bukti, foto, dan keterbatasan ada di [audit terbaru](PROFILE_HISTORY_AUDIT.md#revisi-setelah-review-pengguna).
+
+## Audit dan perluasan personalisasi — 7 November 2026
+
+Pembaruan ini menggantikan batas UI pada catatan implementasi awal di bawah. Profil kini memiliki lima bagian: prioritas jamak, pilihan makanan/pola makan/halal, alergi, nama/usia, dan tinggi/berat opsional. Ringkasan memakai satu kartu identitas mint, deskripsi prioritas, latar putih, token teks/primary dari tema aplikasi, serta Inter. Form menyediakan validasi dekat input, konfirmasi membuang draft, dan footer adaptif terhadap keyboard/layar pendek.
+
+Riwayat menyediakan preview terpisah dengan label DATA ILUSTRASI, filter yang bekerja, kelompok tanggal, dan detail sumber/basis/porsi/prioritas saat dicatat. Nilai null tetap Belum tersedia. Referensi sushi/ice cream memengaruhi hierarki dan ruang kosong saja; palet tetap teal/mint. Figcraft dan navigasi global tidak diubah. Bukti, batas aksesibilitas, isi field, dan cara ekspor PNG ada di [audit Profil/Riwayat](PROFILE_HISTORY_AUDIT.md).
+
+## Profil dan Riwayat Flutter awal — 7 November 2026
 
 Implementasi mengikuti struktur artboard `09 History`, `10 Profile & Settings`, dan `07 Nutrition Profile` pada `nutrilens-base.figcraft`, dengan palet dari `palet_warna_ui_aplikasi_nutrisi.md` yang diberikan pengguna. File Figcraft tidak diubah. Layar baru memakai primary `#0D6E6B`, latar `#F3F9F8`, permukaan `#E6F4F3`, chip `#D8EFEF`, teks `#142625`/`#5E7170`, garis `#E4ECEB`, kartu radius 24 px, serta jarak berbasis 8 px. Token layar lama dan bentuk navigasi bawah dipertahankan.
 
