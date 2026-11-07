@@ -21,6 +21,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
     - `app-arm64-v8a-release.apk` (~60.1 MB) untuk smartphone Android modern 64-bit.
     - `app-armeabi-v7a-release.apk` (~50.1 MB) untuk smartphone Android 32-bit.
     - `app-x86_64-release.apk` (~63.3 MB) untuk emulator Android dan Chromebook.
+- Sebelas knowledge Kemenkes dari data pengguna dan URL Permenkes No. 41 Tahun 2014 ditambahkan ke seed untuk retrieval atas konfirmasi pengguna. Metadata membedakan konfirmasi pengguna dari verifikasi PDF/izin independen; seed ulang memperbarui knowledge berdasarkan ID tanpa menimpa profil pengguna.
 
 - Validasi pesan dan history assistant general/pattern, parser JSON lokal 64 KiB serta penghilangan payload chat dari log sebelum parsing. API POST `{API_PREFIX}/v1/assistant/messages` aktif: prompt assistant terpisah, satu dispatch teks, sumber tervalidasi dan agregasi Decimal tujuh tanggal lokal tanpa write database. OpenAPI dan ASSISTANT_API.md menjelaskan general/pattern, cold start dan handoff Flutter.
 
