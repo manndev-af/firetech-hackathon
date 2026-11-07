@@ -7,7 +7,7 @@ Menghubungkan frontend Flutter secara langsung ke backend REST API Node.js yang 
 ## ADDED Requirements
 
 ### Requirement: Validated multipart scan request dispatch
-The Flutter frontend SHALL dispatch scan requests to `POST /api/v1/scans` as `multipart/form-data` with an `Idempotency-Key` UUID header. The request MUST include the image binary as field `image`, `mode` (`food` or `label`), `rawOcrText` (mandatory for label mode), optional `description` (user note), and optional `quantity`. The client MUST accept both `201 Created` (new entry) and `200 OK` (idempotent replay) as successful responses.
+The Flutter frontend SHALL POST scans as multipart/form-data to /api/v1/scans with a UUID Idempotency-Key, image, mode, optional OCR, description and quantity. OCR MUST NOT exceed 20,000 characters and SHALL be required for label mode only when built with SCANNER_USE_RAW_OCR=true. Both 201 Created and 200 OK SHALL be accepted as success.
 
 #### Scenario: Food scan dispatch
 - **WHEN** the user takes a food photo and confirms the scan
@@ -17,7 +17,7 @@ The Flutter frontend SHALL dispatch scan requests to `POST /api/v1/scans` as `mu
 #### Scenario: Label scan with OCR text
 - **WHEN** the user scans a food package label with extracted nutrition text
 - **THEN** Flutter sends a `POST /api/v1/scans` multipart request containing both the label photo and the raw OCR text string
-- **AND** throws a local failure before dispatch if raw OCR text is empty
+- **AND** throws a local failure before dispatch if raw OCR text is empty only when built with SCANNER_USE_RAW_OCR=true
 
 ### Requirement: Explicit 8-nutrient and personalized insight mapping
 The Flutter frontend SHALL map the backend `entrySchema` response into `ScanHistoryEntry`, including all 8 nutrients (`calories_kcal`, `protein_g`, `total_fat_g`, `saturated_fat_g`, `carbohydrates_g`, `sugar_g`, `sodium_mg`, `fiber_g`), `pros`, `cons`, `ttsSummary`, `ttsSummarySource`, and `provenance`. Null nutrient values MUST be preserved as null ("Belum diketahui") and MUST NOT be converted to zero. Synthetic regex heuristics and hardcoded placeholder texts in the UI MUST NOT be used when backend data is available.
@@ -54,3 +54,15 @@ The Flutter frontend SHALL synchronize consumption history with `GET /api/v1/foo
 - **WHEN** the user opens Dashboard
 - **THEN** Flutter requests `GET /api/v1/nutrition/daily?date=YYYY-MM-DD` in the user's local profile timezone
 - **AND** displays the recorded intake metrics and completeness indicators
+
+
+### Requirement: Image fallback when local OCR is optional
+The Flutter frontend SHALL continue preparing label images when local OCR fails, is empty or lacks nutrition keywords unless built with SCANNER_USE_RAW_OCR=true. It MUST preserve image validation, the OCR length limit, and the food-mode gate. Backend vision SHALL read the image in its original single dispatch; quantity calculations SHALL remain deterministic in the backend.
+
+#### Scenario: Local OCR failure
+- **WHEN** label OCR fails with a recoverable ScanFailure and required OCR is disabled
+- **THEN** Flutter prepares the same image for backend vision without inventing nutrient values or performing another provider request
+
+#### Scenario: Required OCR and oversized text
+- **WHEN** required OCR fails or is empty, or any OCR result exceeds 20,000 characters
+- **THEN** Flutter rejects the scan locally before resizing or creating a draft

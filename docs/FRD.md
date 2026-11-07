@@ -180,3 +180,19 @@ Tim perlu memverifikasi sekurang-kurangnya bahwa:
 - Interpretasi klinis atas tinggi/berat badan; kedua field hanya opsional dan belum mengubah analisis pada MVP.
 - Klaim dampak kesehatan jangka panjang berdasarkan penggunaan aplikasi.
 - Autentikasi kompleks, sinkronisasi cloud, atau analitik konsumsi jangka panjang.
+
+
+### Koreksi basis label - 8 November 2026
+
+Scan label baru dengan basis per sajian dalam gram/ml dinormalisasi menjadi satu porsi dengan massa/volume referensi tetap tersimpan; entri lama dan basis per-100 tidak diubah. Validasi evidence membedakan energi total dari energi lemak/AKG; konflik nyata mengosongkan nilai dan membatalkan insight/TTS terkait. Kontrak dan batasannya ada di [SCANNER_API.md](../server/SCANNER_API.md).
+
+Fallback label: OCR perangkat bersifat opsional secara default; kegagalan OCR tidak memblokir pengiriman gambar ke satu dispatch LLM awal. Build Flutter SCANNER_USE_RAW_OCR=true mempertahankan OCR wajib dan harus diselaraskan dengan flag backend. Validasi gambar, batas OCR 20.000 karakter dan kalkulasi quantity backend tetap berlaku.
+
+
+### Backend compare - 8 November 2026
+
+POST `{API_PREFIX}/v1/comparisons` sudah diimplementasikan: dua gambar dan metadata eksplisit, satu dispatch vision dengan retrieval profil, tanpa write konsumsi. Normalisasi Decimal per sajian/per 100 g/per 100 ml dan selisih B-minus-A mempertahankan null. Basis tidak tersedia ditandai unavailable; tidak ada ranking universal. Narasi/TTS invalid atau evidence ditolak memakai template. Kriteria penerimaan dan mapping Flutter ada di [COMPARE_API.md](../server/COMPARE_API.md); frontend dan API asisten belum diimplementasikan.
+
+### API assistant - 8 November 2026
+
+Assistant backend menyediakan mode general/pattern dengan chat sesi tanpa persistensi. Pattern menghitung seluruh window tujuh tanggal lokal sampai request (maksimal 1000 entri), termasuk hari kosong; total Decimal mempertahankan null, kelengkapan dan provenance. Lima makanan tersering dihitung dari jumlah entri dengan judul yang sama, bukan rekomendasi klinis. Detail kontrak dan mapping Flutter ada di [ASSISTANT_API.md](../server/ASSISTANT_API.md). POST `{API_PREFIX}/v1/assistant/messages` aktif; Flutter tidak diubah. Mode compare tidak diterima; penghapusan navigasi compare-ke-assistant dilakukan terpisah.

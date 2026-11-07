@@ -3,6 +3,7 @@ import multer from "multer";
 import sharp from "sharp";
 import { ajv } from "../validation/nutrition";
 import { DomainError } from "../utils/domainError";
+import { scannerConfig } from "../config/scanner";
 
 export const maxImageBytes = 5 * 1024 * 1024;
 const upload = multer({
@@ -111,7 +112,7 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
   const mode = req.body.mode as "food" | "label";
   const description = (req.body.description || "").trim();
   const rawOcrText = (req.body.rawOcrText || "").trim();
-  if (mode === "label" && !rawOcrText)
+  if (mode === "label" && scannerConfig().useRawOcr && !rawOcrText)
     throw new DomainError("OCR_REQUIRED", "Raw OCR wajib pada mode label.");
   const quantity =
     req.body.quantity === undefined ? 1 : Number(req.body.quantity);
@@ -131,6 +132,27 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
   const file = req.file;
   if (!file || !file.size)
     throw new DomainError("IMAGE_REQUIRED", "Satu gambar wajib diunggah.");
+  const image = await normalizeImage(file);
+  return {
+    key: key.toLowerCase(),
+    mode,
+    description,
+    rawOcrText,
+    quantity,
+    consumedAt,
+    image,
+    original: file.buffer,
+    fingerprintMetadata: {
+      mode,
+      description,
+      rawOcrText,
+      quantity: req.body.quantity ?? null,
+      consumedAt: req.body.consumedAt ?? null,
+    },
+  };
+}
+
+export async function normalizeImage(file: Pick<Express.Multer.File, "buffer" | "mimetype">): Promise<Buffer> {
   try {
     const decoder = sharp(file.buffer, {
       limitInputPixels: 20000000,
@@ -150,33 +172,16 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
         "Format aktual dan MIME harus JPEG atau PNG yang sama.",
         415,
       );
-    const image = await decoder
+    return await decoder
       .rotate()
       .resize({
-        width: 544,
-        height: 544,
+        width: 1600,
+        height: 1600,
         fit: "contain",
         background: "#ffffff",
       })
       .jpeg({ quality: 85 })
       .toBuffer();
-    return {
-      key: key.toLowerCase(),
-      mode,
-      description,
-      rawOcrText,
-      quantity,
-      consumedAt,
-      image,
-      original: file.buffer,
-      fingerprintMetadata: {
-        mode,
-        description,
-        rawOcrText,
-        quantity: req.body.quantity ?? null,
-        consumedAt: req.body.consumedAt ?? null,
-      },
-    };
   } catch (error) {
     if (error instanceof DomainError) throw error;
     throw new DomainError(

@@ -40,7 +40,7 @@ export const healthPaths = (prefix: string) => ({
             properties: { used: { type: 'integer' }, total: { type: 'integer' }, unit: { type: 'string', enum: ['MB'] } },
           },
         },
-      }), '429': rateLimitResponse },
+      }) },
     },
   },
   [`${prefix}/health/readiness`]: {
@@ -49,7 +49,7 @@ export const healthPaths = (prefix: string) => ({
       description: 'Currently returns ready=true; does not check database or other dependencies.',
       responses: { '200': healthResponse({
         type: 'object', required: ['ready'], properties: { ready: { type: 'boolean', enum: [true] } },
-      }), '429': rateLimitResponse },
+      }) },
     },
   },
   [`${prefix}/health/liveness`]: {
@@ -57,15 +57,7 @@ export const healthPaths = (prefix: string) => ({
       tags: ['Health'], operationId: 'getLiveness', summary: 'Liveness probe',
       responses: { '200': healthResponse({
         type: 'object', required: ['alive'], properties: { alive: { type: 'boolean', enum: [true] } },
-      }), '429': rateLimitResponse },
+      }) },
     },
   },
 });
-
-export const rateLimitResponse = {
-  description: 'Too many requests from this IP',
-  content: { 'application/json': { schema: {
-    type: 'object', required: ['success', 'message'],
-    properties: { success: { type: 'boolean', enum: [false] }, message: { type: 'string' } },
-  } } },
-};

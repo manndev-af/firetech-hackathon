@@ -116,7 +116,7 @@ class ExploreScreen extends StatelessWidget {
                   subtitle: 'Pahami makanan yang sering kamu catat',
                   tag: 'Analisis AI Kebiasaan Makan',
                   icon: Icons.insights_rounded,
-                  onTap: () => context.push(AppRoutes.assistant, extra: true),
+                  onTap: () => context.push(AppRoutes.assistant, extra: 'pattern'),
                 ),
                 const SizedBox(height: 14),
                 _ExploreTile(
@@ -124,7 +124,7 @@ class ExploreScreen extends StatelessWidget {
                   subtitle: 'Mulai dari yang sedang kamu pertimbangkan',
                   tag: 'Konsultasi Nutrisi AI',
                   icon: Icons.chat_bubble_outline_rounded,
-                  onTap: () => context.push(AppRoutes.assistant),
+                  onTap: () => context.push(AppRoutes.assistant, extra: 'general'),
                 ),
               ],
             ),

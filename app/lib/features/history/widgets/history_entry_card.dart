@@ -73,16 +73,28 @@ class HistoryPhoto extends StatelessWidget {
         photoPath = diskFile.path;
       }
     }
+    final isYogurtSample = entry.id == 'sample_history_yogurt' ||
+        entry.id == 'preview-yogurt' ||
+        entry.name.toLowerCase().contains('yogurt');
+    final effectiveAsset = entry.photoAsset ??
+        (isYogurtSample ? 'assets/images/history_yogurt.jpg' : null);
+
     final Widget photo;
-    if (photoPath != null) {
+    if (photoPath != null && File(photoPath).existsSync()) {
       photo = Image.file(
         File(photoPath),
         fit: BoxFit.cover,
         errorBuilder: fallback,
       );
-    } else if (entry.photoAsset != null) {
+    } else if (photoPath != null) {
+      photo = Image.file(
+        File(photoPath),
+        fit: BoxFit.cover,
+        errorBuilder: fallback,
+      );
+    } else if (effectiveAsset != null) {
       photo = Image.asset(
-        entry.photoAsset!,
+        effectiveAsset,
         fit: BoxFit.cover,
         errorBuilder: fallback,
       );

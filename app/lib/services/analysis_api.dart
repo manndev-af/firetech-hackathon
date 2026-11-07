@@ -101,6 +101,7 @@ class AnalysisApi {
     }
 
     writeField('quantity', '1');
+    writeField('consumedAt', DateTime.now().toUtc().toIso8601String());
 
     // Write binary image part
     request.write('--$boundary\r\n');

@@ -12,10 +12,10 @@ class OnboardingFocusScreen extends StatelessWidget {
   });
 
   static const choices = [
-    (title: 'Gula', description: 'Memahami gula dalam makananmu'),
-    (title: 'Protein', description: 'Melihat sumber protein dalam makananmu'),
-    (title: 'Natrium', description: 'Memperhatikan kandungan garam'),
-    (title: 'Keseimbangan', description: 'Memahami beberapa nutrisi bersama'),
+    (title: 'Gula', description: 'Pantau dan batasi konsumsi gula harian'),
+    (title: 'Protein', description: 'Cukupi asupan protein untuk energi & otot'),
+    (title: 'Natrium', description: 'Kendalikan kadar garam untuk kesehatan sirkulasi'),
+    (title: 'Keseimbangan', description: 'Pantau proporsi kalori dan nutrisi secara seimbang'),
   ];
   final String selected;
   final ValueChanged<String> onChanged;
@@ -24,17 +24,16 @@ class OnboardingFocusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => OnboardingLayout(
+    header: OnboardingHeader(step: 1, onBack: onBack),
     bottomSpace: 96,
     content: [
-      OnboardingHeader(step: 1, onBack: onBack),
-      const SizedBox(height: 16),
       const Text(
-        'Apa yang ingin\nkamu perhatikan?',
+        'Pilih fokus\nnutrisimu',
         style: onboardingTitleStyle,
       ),
       const SizedBox(height: 12),
       const Text(
-        'Ketuk satu pilihan untuk lanjut.',
+        'Tentukan prioritas untuk memandu analisis makanan harianmu.',
         style: onboardingBodyStyle,
       ),
       const SizedBox(height: 36),
