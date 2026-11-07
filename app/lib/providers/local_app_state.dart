@@ -48,20 +48,25 @@ Future<void> initializeLocalState({LocalStorage? storage}) async {
       analysisAudioSession.addListener(_persist);
       _listening = true;
     }
-    // Sinkronkan profil dari backend bila tersedia secara asinkron
-    ProfileApi().getProfile().then((syncResult) {
-      if (syncResult != null) {
-        if (profileSession.value.priorities.isEmpty && profileSession.value.name.isEmpty) {
-          profileSession.value = syncResult.profile;
+    // Hanya sinkronkan data profil dari backend bila pengguna sudah pernah
+    // menyelesaikan onboarding / memiliki profil tersimpan di perangkat ini.
+    // Bila data aplikasi baru saja dihapus (snapshot == null), sesi dibiarkan
+    // kosong agar diarahkan ke alur Login / Onboarding.
+    if (snapshot != null) {
+      ProfileApi().getProfile().then((syncResult) {
+        if (syncResult != null) {
+          if (profileSession.value.priorities.isEmpty && profileSession.value.name.isEmpty) {
+            profileSession.value = syncResult.profile;
+          }
+          analysisAudioSession.value = syncResult.audioEnabled;
         }
-        analysisAudioSession.value = syncResult.audioEnabled;
-      }
-    }).catchError((_) {});
+      }).catchError((_) {});
 
-    // Sinkronkan riwayat dan ringkasan nutrisi harian dari backend secara asinkron
-    syncHistoryFromBackend().then((_) {
-      fetchDailyNutritionFromBackend();
-    }).catchError((_) {});
+      // Sinkronkan riwayat dan ringkasan nutrisi harian dari backend secara asinkron
+      syncHistoryFromBackend().then((_) {
+        fetchDailyNutritionFromBackend();
+      }).catchError((_) {});
+    }
   } catch (_) {
     storageIssue.value = 'Data lokal belum dapat dibuka. Perubahan belum disimpan; coba mulai ulang aplikasi.';
   }
