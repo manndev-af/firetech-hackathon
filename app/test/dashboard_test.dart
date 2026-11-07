@@ -4,6 +4,7 @@ import 'package:nutrilens/core/theme/app_theme.dart';
 import 'package:nutrilens/features/dashboard/dashboard_screen.dart';
 import 'package:nutrilens/features/dashboard/widgets/dashboard_history.dart';
 import 'package:nutrilens/models/daily_nutrition_summary.dart';
+import 'package:nutrilens/models/scan_history_entry.dart';
 
 void main() {
   Future<void> showDashboard(
@@ -137,4 +138,47 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('FOKUSMU · BELUM DIPILIH'), findsOneWidget);
   });
+
+  testWidgets(
+    'dashboard displays recent analysis snapshot when entry is available',
+    (tester) async {
+      var viewedHistory = false;
+      final entry = ScanHistoryEntry(
+        id: 'test-yogurt',
+        name: 'Yogurt stroberi',
+        savedAt: DateTime(2026, 11, 7, 10, 15),
+        packaged: true,
+        portion: '1 cup · 150 g',
+        source: '',
+        referenceBasis: 'Per sajian 150 g',
+        energyKcal: 140,
+        proteinG: 8,
+        sugarG: 12,
+        note: 'Ada 8 g protein dan 12 g gula dalam porsi ini.',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: DashboardScreen(
+            recentEntry: entry,
+            onViewHistory: () => viewedHistory = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Analisis Terakhir'), findsOneWidget);
+      expect(find.text('Yogurt stroberi'), findsOneWidget);
+      expect(
+        find.text('Ada 8 g protein dan 12 g gula dalam porsi ini.'),
+        findsOneWidget,
+      );
+      expect(find.text('Lihat semua riwayat'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Lihat semua riwayat'));
+      await tester.tap(find.text('Lihat semua riwayat'));
+      expect(viewedHistory, isTrue);
+    },
+  );
 }

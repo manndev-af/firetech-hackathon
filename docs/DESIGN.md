@@ -4,6 +4,8 @@ Penyempurnaan 7 November 2026: detail Riwayat tanpa ikon silang; tutup melalui g
 
 ## Revisi ringkasan Profil dan foto Riwayat — 7 November 2026
 
+Pembaruan alur scan lokal: halaman menampilkan pemeriksaan/proses, error yang bisa dipulihkan, teks OCR asli, atau hasil nyata. Draft tanpa backend tersedia dalam kelompok Menunggu analisis di Riwayat. Hasil nyata memiliki Kesimpulan singkat dengan aksi Dengarkan/Hentikan, ringkasan lengkap terpisah, nutrisi nullable, dan sumber/basis; tidak memakai skor atau nutrisi ilustratif. Preferensi audio tersimpan lokal. Fixture desain tetap terpisah dan hanya aktif melalui flag eksplisit.
+
 Revisi Profil berikutnya: informasi diri dipisahkan dari personalisasi. Edit profil membuka nama/usia/tinggi/berat; Lihat detail Personalisasi langsung membuka form lengkap prioritas/pilihan makanan/alergi secara inline. Semua bagian form dapat digulir pada halaman yang sama, dengan Simpan dan Kembali di akhir. Tidak memakai drawer/bottom sheet. Pengaturan audio tampil pada ringkasan, dan kembali terlihat setelah editor ditutup. Posisi scroll kembali ke ringkasan saat selesai. Riwayat tidak berubah pada revisi ini.
 
 Pembaruan akses contoh: tab Riwayat sekarang langsung membuka tiga catatan contoh saat `flutter run`, tanpa banner atau tombol tambahan. Susunan visual tidak berubah. `UI_PREVIEW=false` tersedia untuk memeriksa state kosong; fixture tetap tidak menjadi data tersimpan.

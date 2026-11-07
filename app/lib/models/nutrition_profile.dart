@@ -34,6 +34,37 @@ class NutritionProfile {
   final List<String> allergies;
   final String otherAllergies;
 
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'age': age,
+    'preference': preference,
+    'priorities': priorities,
+    'heightCm': heightCm,
+    'weightKg': weightKg,
+    'eatingPattern': eatingPattern,
+    'prefersHalal': prefersHalal,
+    'allergyStatus': allergyStatus.name,
+    'allergies': allergies,
+    'otherAllergies': otherAllergies,
+  };
+
+  factory NutritionProfile.fromJson(Map<String, dynamic> json) =>
+      NutritionProfile(
+        name: json['name'] as String? ?? '',
+        age: json['age'] as int?,
+        preference: json['preference'] as String?,
+        priorities: List<String>.from(json['priorities'] as List? ?? []),
+        heightCm: (json['heightCm'] as num?)?.toDouble(),
+        weightKg: (json['weightKg'] as num?)?.toDouble(),
+        eatingPattern: json['eatingPattern'] as String?,
+        prefersHalal: json['prefersHalal'] as bool? ?? false,
+        allergyStatus: AllergyStatus.values.byName(
+          json['allergyStatus'] as String? ?? 'unknown',
+        ),
+        allergies: List<String>.from(json['allergies'] as List? ?? []),
+        otherAllergies: json['otherAllergies'] as String? ?? '',
+      );
+
   static const eatingPatterns = [
     'Fleksibel',
     'Vegetarian',

@@ -9,19 +9,38 @@ class DashboardScanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(20),
+    padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(
       color: AppColors.heroBackground,
       borderRadius: BorderRadius.circular(28),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.heroBackground.withValues(alpha: 0.18),
+          blurRadius: 16,
+          offset: const Offset(0, 6),
+        ),
+      ],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'FOKUSMU · ${focus?.toUpperCase() ?? 'BELUM DIPILIH'}',
-          style: const TextStyle(color: AppColors.surface, fontSize: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            'FOKUSMU · ${focus?.toUpperCase() ?? 'BELUM DIPILIH'}',
+            style: const TextStyle(
+              color: AppColors.mint,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
             final image = Semantics(
@@ -83,19 +102,47 @@ class DashboardScanCard extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        const Text(
+          'Foto makanan atau label gizinya untuk memahami isi dan porsinya.',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 18),
         FilledButton(
           onPressed: onScan,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.mint,
             foregroundColor: AppColors.primaryDark,
             minimumSize: const Size(172, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
+            elevation: 0,
           ),
-          child: const Text('Foto makanan', textAlign: TextAlign.center),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.camera_alt_rounded, size: 20),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Foto makanan',
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     ),

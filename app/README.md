@@ -13,6 +13,24 @@ flutter run
 
 ## Kamera
 
+### Pembaruan pemrosesan lokal, OCR, dan audio
+
+Alur scan sekarang memakai Object Detection dan fallback Image Labeling untuk beberapa kategori minuman sebelum request mode Makanan. Hasil negatif/error berhenti lokal. Mode Label melewati gate tersebut dan mengirim teks OCR mentah beserta JPEG yang diperkecil; parser angka OCR lama tidak dipakai pada alur baru. Batas awal confidence 0,65 belum merupakan hasil evaluasi akurasi, dan tidak semua minuman didukung model bawaan.
+
+Foto upload maksimal 1600 px (makanan) / 2000 px (label), 1,5 MB JPEG, tanpa EXIF; teks OCR tetap dari foto input sebelum kompresi. Profil, preferensi audio, foto terkompresi, teks OCR, draft, dan hasil disimpan dalam application-support directory. Snapshot JSON berurutan memiliki backup untuk pemulihan. Kegagalan penyimpanan ditampilkan, bukan dianggap tersimpan. Backup cloud Android dinonaktifkan; uninstall/hapus data aplikasi menghilangkan catatan lokal.
+
+Backend belum tersedia. Tanpa konfigurasi, draft muncul di Riwayat sebagai Menunggu analisis dan bisa dilanjutkan. Adapter siap memakai [kontrak SCAN_API](../docs/SCAN_API.md):
+
+```bash
+flutter run --dart-define=ANALYSIS_BASE_URL=https://backend.example/
+```
+
+Ganti URL dengan layanan yang menerapkan kontrak tersebut. Kunci LLM tetap di backend. Request hanya membawa prioritas nutrisi, bukan nama/usia/ukuran tubuh/alergi. Tidak ada retry otomatis.
+
+Audio analisis aktif akan membacakan `spokenSummary` singkat saat hasil tersedia. Riwayat menyimpan teksnya untuk dibacakan ulang secara lokal. Flutter TTS memilih suara Indonesia yang terpasang dan tidak membutuhkan jaringan; jika tidak ada, pengguna diberi petunjuk memasang suara melalui pengaturan perangkat. Tidak ada file audio atau panggilan LLM tambahan untuk replay. Teks hasil tetap dapat dibaca ketika TTS gagal.
+
+Build normal kini memakai catatan lokal nyata; `--dart-define=UI_PREVIEW=true` masih tersedia untuk fixture desain bila riwayat dan draft kosong. Nilai contoh tidak lagi dipakai sebagai fallback hasil scan. Uraian historis tentang session-only, default preview, dan parser angka di bawah digantikan oleh pembaruan ini.
+
 Tombol kamera tengah dan aksi scan membuka `/scan` di atas shell. Layar memakai plugin `camera` untuk preview dan foto, serta `image_picker` untuk galeri. Mode Makanan/Label produk menentukan tujuan foto. Foto diperiksa sebelum digunakan dan dapat diulang. Kamera tidak merekam audio, dilepas saat aplikasi tidak aktif atau saat review, dan menampilkan pemulihan izin/error. Capture disimpan di cache perangkat; belum menjadi riwayat permanen. Android memakai izin kamera runtime. Pengujian perangkat fisik tetap diperlukan.
 
 ## Routing
