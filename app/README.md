@@ -39,6 +39,14 @@ Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboa
 - Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Implementasi navigasi lama dipertahankan sesuai permintaan pengguna; pengembangan dashboard tidak menambah branch atau mengubah callback navigasi. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
 - `assets/images/dashboard_reference.png` adalah ekspor pengguna `Group-18.png`; hanya area ilustrasi kartu yang dirender. Teks, tombol, dan ringkasan merupakan widget Flutter. Setelah menambah aset, hentikan dan jalankan ulang aplikasi agar bundle baru terbentuk.
 
+## Font global Inter
+
+Seluruh halaman memakai Inter melalui `fontFamily` pada `AppTheme.light` dan penerapan font ke `TextTheme`. Nama family disimpan di `AppTypography.fontFamily`; tidak perlu menambahkan `fontFamily` pada setiap `Text` atau layout. `TextStyle` lokal tetap dapat mengatur ukuran/bobot/warna dan mewarisi family tema.
+
+File lokal berada di `assets/fonts/`: Inter-Regular (400), Inter-Medium (500), Inter-SemiBold (600), dan Inter-Bold (700), dengan mapping bobot pada `flutter.fonts` di `pubspec.yaml`. Font dibundel agar tersedia offline, tanpa package tambahan atau request font saat aplikasi dibuka. Sumber unduhan: [Google Fonts Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700); lisensi SIL Open Font License disertakan pada `assets/fonts/OFL.txt` dari [repository Google Fonts](https://github.com/google/fonts/blob/main/ofl/inter/OFL.txt).
+
+Setelah menambahkan font, hentikan aplikasi, jalankan `flutter pub get` dari `app/`, lalu `flutter run` agar bundle font ikut dibangun. Hot reload saja belum tentu memuat font baru.
+
 ## Struktur kode
 
 - `assets/images/` menyimpan foto, ilustrasi, dan logo; `assets/icons/` menyimpan ikon kustom. Keduanya terdaftar di `pubspec.yaml`. `assets/images/login_reference.png` adalah ekspor desain pengguna (`Group-11.png`); layar login hanya merender area ilustrasi makanannya. Gambar ini merupakan ilustrasi, bukan hasil scan/model atau referensi nutrisi. Simpan aset statis di luar `lib/`; panduan penamaan, subfolder, dan lisensi ada di [WORKSPACE.md](../docs/WORKSPACE.md#aset-statis-flutter).
