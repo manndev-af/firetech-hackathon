@@ -352,30 +352,18 @@ class _CompareScreenState extends State<CompareScreen> {
                       ),
                     ),
                   ] else ...[
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
-                        onPressed: () => setState(() => _showSummary = false),
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                        label: const Text(
-                          'Ubah gambar',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
                     Row(
                       children: [
                         Expanded(
                           child: _FoodCard(
                             name: 'Pilihan A',
                             imagePath: _imageA!,
+                            calories: '150 kkal',
                             sugar: '12 g',
                             protein: 'Protein 4 g',
-                            color: AppColors.background,
+                            accentColor: const Color(0xFFEA580C),
+                            backgroundColor: const Color(0xFFFFF7ED),
+                            borderColor: const Color(0xFFFED7AA),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -383,37 +371,45 @@ class _CompareScreenState extends State<CompareScreen> {
                           child: _FoodCard(
                             name: 'Pilihan B',
                             imagePath: _imageB!,
+                            calories: '85 kkal',
                             sugar: '6 g',
                             protein: 'Protein 3 g',
-                            color: AppColors.mint,
+                            accentColor: AppColors.primary,
+                            backgroundColor: const Color(0xFFF0FDF4),
+                            borderColor: const Color(0xFFA7F3D0),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 20),
+                    const _NutrientComparisonCard(
+                      colorA: Color(0xFFEA580C),
+                      colorB: AppColors.primary,
+                    ),
+                    const SizedBox(height: 26),
                     const Text(
                       'Lebih sedikit gula,\nprotein juga berbeda.',
                       style: TextStyle(
                         color: AppColors.textPrimary,
-                        fontSize: 24,
+                        fontSize: 22,
                         height: 1.35,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      'Pada contoh ini, B mengandung 6 g gula lebih sedikit dengan protein 1 g lebih rendah. Pilih sesuai hal yang ingin kamu perhatikan.',
+                      'Pada contoh ini, Pilihan B lebih ramah gula (6 g lebih sedikit) dan lebih rendah kalori (85 kkal vs 150 kkal). Pilihan A memberi sedikit lebih banyak protein (4 g vs 3 g). Pilih sesuai fokus nutrisi yang ingin kamu utamakan.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14.5,
-                        height: 1.45,
+                        height: 1.5,
                       ),
                     ),
                     const SizedBox(height: 18),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: AppColors.border),
                       ),
@@ -440,11 +436,11 @@ class _CompareScreenState extends State<CompareScreen> {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            '• Pilihan B lebih ramah gula jika kamu membatasi asupan manis harian.\n• Pilihan A memberi sedikit lebih banyak protein, tetapi gulanya dua kali lipat lebih tinggi.',
+                            '• Pilihan B lebih bersahabat untuk target rendah kalori & gula harian.\n• Pilihan A memberi sedikit lebih banyak protein, tetapi dengan kalori dan gula yang lebih tinggi.',
                             style: TextStyle(
                               color: AppColors.textSecondary,
-                              fontSize: 13.5,
-                              height: 1.45,
+                              fontSize: 14,
+                              height: 1.5,
                             ),
                           ),
                         ],
@@ -578,25 +574,31 @@ class _FoodCard extends StatelessWidget {
   const _FoodCard({
     required this.name,
     required this.imagePath,
+    required this.calories,
     required this.sugar,
     required this.protein,
-    required this.color,
+    required this.accentColor,
+    required this.backgroundColor,
+    required this.borderColor,
   });
 
   final String name;
   final String imagePath;
+  final String calories;
   final String sugar;
   final String protein;
-  final Color color;
+  final Color accentColor;
+  final Color backgroundColor;
+  final Color borderColor;
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 215,
+    height: 232,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: color,
+      color: backgroundColor,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: AppColors.border),
+      border: Border.all(color: borderColor, width: 1.2),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,11 +607,11 @@ class _FoodCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Image.file(
             File(imagePath),
-            height: 68,
+            height: 72,
             width: double.infinity,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const SizedBox(
-              height: 68,
+              height: 72,
               child: Center(
                 child: Icon(
                   Icons.broken_image_outlined,
@@ -619,40 +621,391 @@ class _FoodCard extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          name,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              name,
+              style: TextStyle(
+                color: accentColor,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                calories,
+                style: TextStyle(
+                  color: accentColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 4),
         Text(
           sugar,
-          style: const TextStyle(
-            color: AppColors.primary,
-            fontSize: 26,
+          style: TextStyle(
+            color: accentColor,
+            fontSize: 24,
             fontWeight: FontWeight.w700,
+            letterSpacing: -0.4,
           ),
         ),
         const Text(
-          'gula / 250 ml · ilustrasi',
+          'gula / 250 ml/g',
           style: TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 12,
+            fontSize: 12.5,
           ),
         ),
         const Spacer(),
-        Text(
-          protein,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 13.5,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: borderColor),
+          ),
+          child: Text(
+            protein,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
     ),
   );
+}
+
+class _NutrientComparisonCard extends StatelessWidget {
+  const _NutrientComparisonCard({
+    required this.colorA,
+    required this.colorB,
+  });
+
+  final Color colorA;
+  final Color colorB;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.mint,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.bar_chart_rounded,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Perbandingan Nutrisi',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              _LegendBadge(color: colorA, label: 'Pilihan A'),
+              const SizedBox(width: 8),
+              _LegendBadge(color: colorB, label: 'Pilihan B'),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _HorizontalCompareBar(
+            title: 'Kalori',
+            unit: 'kkal',
+            valueA: 150,
+            valueB: 85,
+            labelA: '150 kkal',
+            labelB: '85 kkal',
+            maxScale: 200,
+            colorA: colorA,
+            colorB: colorB,
+          ),
+          const SizedBox(height: 14),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 14),
+          _HorizontalCompareBar(
+            title: 'Gula',
+            unit: 'g',
+            valueA: 12,
+            valueB: 6,
+            labelA: '12 g',
+            labelB: '6 g',
+            maxScale: 16,
+            colorA: colorA,
+            colorB: colorB,
+          ),
+          const SizedBox(height: 14),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 14),
+          _HorizontalCompareBar(
+            title: 'Protein',
+            unit: 'g',
+            valueA: 4,
+            valueB: 3,
+            labelA: '4 g',
+            labelB: '3 g',
+            maxScale: 6,
+            colorA: colorA,
+            colorB: colorB,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HorizontalCompareBar extends StatelessWidget {
+  const _HorizontalCompareBar({
+    required this.title,
+    required this.unit,
+    required this.valueA,
+    required this.valueB,
+    required this.labelA,
+    required this.labelB,
+    required this.maxScale,
+    required this.colorA,
+    required this.colorB,
+  });
+
+  final String title;
+  final String unit;
+  final double valueA;
+  final double valueB;
+  final String labelA;
+  final String labelB;
+  final double maxScale;
+  final Color colorA;
+  final Color colorB;
+
+  @override
+  Widget build(BuildContext context) {
+    final ratioA = (valueA / maxScale).clamp(0.08, 1.0);
+    final ratioB = (valueB / maxScale).clamp(0.08, 1.0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              'Satuan: $unit',
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Bar Pilihan A
+        Row(
+          children: [
+            Container(
+              width: 22,
+              height: 18,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colorA.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                'A',
+                style: TextStyle(
+                  color: colorA,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: ratioA,
+                    child: Container(
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: colorA,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 65,
+              child: Text(
+                labelA,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: colorA,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        // Bar Pilihan B
+        Row(
+          children: [
+            Container(
+              width: 22,
+              height: 18,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colorB.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                'B',
+                style: TextStyle(
+                  color: colorB,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: ratioB,
+                    child: Container(
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: colorB,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 65,
+              child: Text(
+                labelB,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: colorB,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendBadge extends StatelessWidget {
+  const _LegendBadge({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
