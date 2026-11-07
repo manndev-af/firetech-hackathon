@@ -4,7 +4,7 @@ Panduan ini menjelaskan tata letak repository dan cara berpindah antar area kerj
 
 ## Backend scanner — 7 November 2026
 
-Implementasi development tersedia tanpa perubahan Flutter. `server/prisma/schema.prisma` berisi User, NutritionProfile, FoodEntry, KnowledgeChunk, ScanRequest; migration awal berada di `server/prisma/migrations/202611070001_scanner_consumption/`. `seed.ts` membuat user dummy dengan salted password hash dan profil netral; `knowledge.ts` menyimpan referensi reviewed beserta sumber/izin. Client generated tetap diabaikan Git.
+Implementasi development tersedia tanpa perubahan Flutter. `server/prisma/schema.prisma` berisi User, NutritionProfile, FoodEntry, KnowledgeChunk, ScanRequest; migration awal berada di `server/prisma/migrations/202611070001_scanner_consumption/`. `seed.ts` membuat user dummy dengan salted password hash dan profil contoh lengkap tanpa null; nilai profil fiktif dijelaskan di README backend. `knowledge.ts` menyimpan referensi reviewed beserta sumber/izin. Client generated tetap diabaikan Git.
 
 `server/src/services/` kini berisi `profile.service.ts`, `scan.service.ts`, `retrieval.service.ts`, `deepseek.service.ts`, `journal.service.ts`. Controller domain `nutrition.controller.ts`; middleware `demoOwner.ts` dan `scanUpload.ts`; validasi `nutrition.ts`. Router profile/scanner/food-entry/nutrition memiliki kontrak `.openapi.ts` masing-masing. Tidak ada login, vector DB, server TTS, atau penyimpanan foto permanen.
 

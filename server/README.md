@@ -36,12 +36,12 @@ Logika bisnis dan orkestrasi data berada di `src/services/`: profile, scan, retr
 
 Gunakan Node.js 22.12+ atau versi lebih baru yang didukung Prisma 7, serta pnpm. Instruksi NutriLens pada bagian ini mengungguli contoh starter di bawah.
 
-1. Isi `.env` lokal: `NODE_ENV=development`, `DATABASE_URL`, `SEED_USER_EMAIL`, dan `SEED_USER_PASSWORD` (12–128 karakter). Jangan membagikan password/key di chat atau Git.
+1. Isi `.env` lokal: `NODE_ENV=development`, `DATABASE_URL`, `SEED_USER_EMAIL`, dan `SEED_USER_PASSWORD` (5–128 karakter untuk dummy development). Jangan membagikan password/key di chat atau Git.
 2. Jalankan `pnpm install`, `pnpm db:generate`, `pnpm db:deploy`, lalu `pnpm db:seed` dari `server/`.
 3. Set `ENABLE_DEMO_USER=true`, `DEMO_USER_EMAIL` sama dengan seed, `DEEPSEEK_API_KEY`, serta `DEEPSEEK_MODEL` yang mendukung image input. Default model `deepseek-flash`; akses akun/model belum diuji live.
 4. Jalankan `pnpm dev`; kontrak tersedia di `/api/docs/`. Route domain memakai `${API_PREFIX}/v1`; jangan menambahkan `/v1` pada prefix kecuali memang menginginkan versi ganda.
 
-Seed memakai salted scrypt, membuat profil netral dan tiga referensi reviewed. Seed ulang mempertahankan profil, audio, password hash, dan jurnal. Seed ditolak di production atau tanpa kredensial valid. Email/password dummy **bukan login**; tidak ada autentikasi. Semua request domain memakai satu owner yang dipilih server, override ditolak. Domain nonaktif ketika flag mati atau `NODE_ENV` bukan development/test. Ini backend lokal MVP, bukan layanan publik multi-user.
+Seed memakai salted scrypt, membuat profil dummy lengkap tanpa field null dan tiga referensi reviewed. Profil contoh: Pengguna Demo, usia 25, tinggi 165 cm, berat 60 kg, masakan rumahan, prioritas Gula/Protein, pola Fleksibel, preferensi halal aktif, alergi Susu/Wijen, audio aktif, timezone Asia/Jakarta. Seluruh nilai profil ini fiktif untuk demo, bukan data pengguna atau rekomendasi kesehatan. Seed ulang mempertahankan profil yang sudah ada, audio, password hash, dan jurnal; fixture lengkap diterapkan saat profil baru dibuat. Seed ditolak di production atau tanpa kredensial valid. Email/password dummy **bukan login**; tidak ada autentikasi. Semua request domain memakai satu owner yang dipilih server, override ditolak. Domain nonaktif ketika flag mati atau `NODE_ENV` bukan development/test. Ini backend lokal MVP, bukan layanan publik multi-user.
 
 Scan sukses langsung mencatat konsumsi. Alur: validasi gambar/metadata, claim idempotency, retrieval profil/riwayat/referensi, satu dispatch DeepSeek, validasi output, transaksi simpan jurnal. Tidak ada retry otomatis, tool loop, atau panggilan repair JSON. Provider gagal berarti konsumsi tidak dicatat. Jurnal dan koreksi quantity tetap tersedia tanpa API key.
 
@@ -61,7 +61,7 @@ Panduan request/response dan integrasi TTS: [SCANNER_API.md](SCANNER_API.md). Ti
 
 `pnpm test`, `pnpm build`, `pnpm lint`. Tes integrasi dilewati bila `TEST_DATABASE_URL` tidak diisi. Untuk menjalankannya, sediakan database terisolasi dengan nama berakhiran `_test`, jalankan `pnpm db:deploy` menggunakan URL itu, lalu set `TEST_DATABASE_URL` dan jalankan `pnpm test`. Jangan arahkan tes ke database aplikasi. Fixture synthetic dan transport mock memastikan tidak ada dispatch provider sungguhan.
 
-Verifikasi lokal 7 November 2026: 16 tes lolos tanpa skip dengan provider mock; build, prisma validate/generate/deploy dan OpenSpec strict lolos. Lint exit 0 dengan 12 warning (console/any starter dan non-null assertion journal). Migration/generate/seed dan integrasi diuji memakai provider MySQL Prisma pada MariaDB 10.4.32 terisolasi, bukan Oracle MySQL 8. Live smoke test DeepSeek belum dijalankan karena API key belum tersedia; akses vision dan kualitas analisis nyata belum tervalidasi. Database aplikasi dan `.env` pengguna tidak dikonfigurasi/diubah oleh pengujian ini.
+Verifikasi lokal 7 November 2026 setelah revisi seed: 18 tes lolos tanpa skip dengan provider mock; build dan OpenSpec strict lolos. Prisma validate/generate/deploy telah lolos pada verifikasi awal. Lint exit 0 dengan 12 warning (console/any starter dan non-null assertion journal). Integrasi memakai provider MySQL Prisma pada MariaDB 10.4.32 terisolasi, bukan Oracle MySQL 8. Atas permintaan pengguna, migration dan seed juga diterapkan pada database lokal terkonfigurasi; profil fixture memiliki 13 field terisi tanpa null dan seed ulang tidak menggandakan data. `.env` pengguna tidak diubah. Live smoke test DeepSeek belum dijalankan; akses vision dan kualitas analisis nyata belum tervalidasi.
 
 A professional, production-ready Express.js backend starter template built with TypeScript, featuring clean architecture, comprehensive middleware, and best practices.
 

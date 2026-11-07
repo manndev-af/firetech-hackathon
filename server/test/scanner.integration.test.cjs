@@ -55,12 +55,13 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
   try {
     await seed();
     user = await db.user.findUniqueOrThrow({ where: { email: process.env.SEED_USER_EMAIL }, include: { profile: true } });
-    await t.test('neutral seed, hash, guards and unique constraints', async () => {
+    await t.test('complete demo seed, hash, guards and unique constraints', async () => {
       assert.match(user.passwordHash, /^scrypt:[a-f0-9]{32}:[a-f0-9]{128}$/);
       assert.ok(!user.passwordHash.includes(process.env.SEED_USER_PASSWORD));
-      assert.deepEqual(user.profile.priorities, []);
-      assert.equal(user.profile.audioAnalysisEnabled, false);
-      assert.equal(user.profile.age, null);
+      assert.deepEqual(user.profile.priorities, ['Gula', 'Protein']);
+      assert.equal(user.profile.audioAnalysisEnabled, true);
+      assert.equal(user.profile.age, 25);
+      assert.ok(Object.values(user.profile).every(value => value !== null));
       await assert.rejects(db.user.create({ data: { email: user.email, passwordHash: 'fixture' } }), { code: 'P2002' });
       process.env.NODE_ENV = 'production'; await assert.rejects(seed());
       process.env.NODE_ENV = 'test';
