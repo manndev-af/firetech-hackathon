@@ -11,6 +11,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- UI Flutter Profil, editor profil nutrisi, dan Riwayat mengikuti referensi Figcraft serta palet teal–mint pengguna. Profil mendukung nama/usia opsional, lima prioritas jamak, preferensi makanan, validasi, simpan/batal, dan informasi privasi sesi. Riwayat menyediakan filter jenis/tanggal serta empty state tanpa catatan contoh.
+- State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; Insight dan kamera memberikan status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
+- Pengujian profil/riwayat untuk validasi, simpan/batal, navigasi, filter, dan layar sempit dengan teks besar. Pengujian onboarding diperbaiki agar menggulir tombol kembali ke layar dan melepas handle semantics sebelum pemeriksaan akhir.
+
 - Dashboard NutriLens sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
 - Ilustrasi dashboard lokal dari ekspor pengguna dan pengujian empty state, ringkasan, data hilang, callback, serta teks besar.
 
