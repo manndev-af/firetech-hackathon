@@ -16,6 +16,10 @@ test('Morgan writes request/response JSON and redacts secrets, private fields an
   app.use(express.json());
   app.post('/debug', (req, res) => res.status(201).json({ nutrients: { protein_g: 5 }, password: 'response-secret', context: { name: 'private-person' }, ttsSummary: 'Cek lagi porsinya, ya.' }));
   app.post('/upload', multer().single('image'), (req, res) => res.json({ mode: req.body.mode }));
+  const { compareUpload } = require('../src/middleware/compareUpload');
+  const { domainErrorHandler } = require('../src/utils/domainError');
+  app.post('/api/v1/comparisons', compareUpload, (_req, res) => res.json({ summary: 'private-compare-result' }));
+  app.use(domainErrorHandler);
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
   try {
@@ -31,14 +35,21 @@ test('Morgan writes request/response JSON and redacts secrets, private fields an
     form.set('rawOcrText', 'multipart-private-ocr');
     form.set('image', new Blob(['binary-secret'], { type: 'image/jpeg' }), 'photo.jpg');
     assert.equal((await fetch(`${base}/upload`, { method: 'POST', body: form })).status, 200);
+    for (const metadata of ['private-compare-metadata', 'x'.repeat(256 * 1024 + 1)]) {
+      const comparison = new FormData();
+      comparison.set('metadata', metadata);
+      await fetch(`${base}/api/v1/comparisons`, { method: 'POST', body: comparison });
+    }
+    // Express routing ignores case; privacy must also apply before JSON parsing fails.
+    await fetch(`${base}/API/V1/COMPARISONS/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"metadata":"private-parser-input"' });
     let lines = [];
-    for (let attempt = 0; attempt < 100 && lines.length < 2; attempt++) {
+    for (let attempt = 0; attempt < 100 && lines.length < 5; attempt++) {
       const files = await readdir(directory);
       const text = (await Promise.all(files.map(file => readFile(join(directory, file), 'utf8')))).join('');
       lines = text.trim().split('\n').filter(Boolean);
-      if (lines.length < 2) await new Promise(resolve => setTimeout(resolve, 20));
+      if (lines.length < 5) await new Promise(resolve => setTimeout(resolve, 20));
     }
-    assert.equal(lines.length, 2);
+    assert.equal(lines.length, 5);
     const logs = lines.map(line => JSON.parse(line));
     const log = logs.find(item => item.path === '/debug');
     assert.equal(log.request.body.mode, 'food');
@@ -48,7 +59,11 @@ test('Morgan writes request/response JSON and redacts secrets, private fields an
     assert.equal(log.response.body.ttsSummary, 'Cek lagi porsinya, ya.');
     assert.equal(typeof log.durationMs, 'number');
     assert.deepEqual(logs.find(item => item.path === '/upload').request.file, { mimeType: 'image/jpeg', bytes: 13 });
-    for (const secret of ['query-secret', 'auth-secret', 'request-secret', 'response-secret', 'private-person', 'private-ocr', 'image-secret', 'binary-secret']) assert.ok(!lines.join('').includes(secret), secret);
+    for (const item of logs.filter(item => item.path.toLowerCase().replace(/\/+$/, '') === '/api/v1/comparisons')) {
+      assert.equal(item.request.body, '[omitted]');
+      assert.equal(item.response.body, '[omitted]');
+    }
+    for (const secret of ['query-secret', 'auth-secret', 'request-secret', 'response-secret', 'private-person', 'private-ocr', 'image-secret', 'binary-secret', 'private-compare-result', 'private-compare-metadata', 'private-parser-input']) assert.ok(!lines.join('').includes(secret), secret);
   } finally {
     server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));

@@ -2,6 +2,7 @@ import { appendFile, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { Request, Response, RequestHandler } from 'express';
 import morgan from 'morgan';
+import { config } from '../config/config';
 
 const privateField = /^(authorization|cookie|setcookie|.*password.*|.*secret.*|.*token|.*apikey|name|email|age|heightcm|weightkg|allergies|otherallergies|rawocrtext|description|usernote|image|base64|buffer|stack|context|profile)$/i;
 
@@ -26,11 +27,11 @@ export function createRequestLogger(directory = resolve(__dirname, '../../src/lo
   const logger = morgan<Request, Response>((tokens, req, res) => {
     return JSON.stringify({
       timestamp: new Date().toISOString(), method: req.method, path: req.path,
-      query: bounded(req.query), status: res.statusCode,
+      query: res.locals.omitDebugPayload ? '[omitted]' : bounded(req.query), status: res.statusCode,
       durationMs: Number(tokens['response-time'](req, res)),
-      request: { headers: bounded(req.headers), body: bounded(req.body),
-        ...(req.file && { file: { mimeType: req.file.mimetype, bytes: req.file.size } }) },
-      response: { contentType: res.getHeader('content-type'), body: res.locals.debugResponse ?? '[streamed or empty response]' },
+      request: { headers: bounded(req.headers), body: res.locals.omitDebugPayload ? '[omitted]' : bounded(req.body),
+        ...(!res.locals.omitDebugPayload && req.file && { file: { mimeType: req.file.mimetype, bytes: req.file.size } }) },
+      response: { contentType: res.getHeader('content-type'), body: res.locals.omitDebugPayload ? '[omitted]' : res.locals.debugResponse ?? '[streamed or empty response]' },
     });
   }, { stream: { write(line) {
     appendFile(join(directory, `requests-${new Date().toISOString().slice(0, 10)}.log`), line, { mode: 0o600 }, error => {
@@ -38,13 +39,14 @@ export function createRequestLogger(directory = resolve(__dirname, '../../src/lo
     });
   } } });
   return (req, res, next) => {
+    if (req.path.replace(/\/+$/, '').toLowerCase() === `${config.apiPrefix}/v1/comparisons`.toLowerCase()) res.locals.omitDebugPayload = true;
     const send = res.send;
     res.send = function (body) {
       let payload: unknown = body;
       if (typeof body === 'string') {
         try { payload = JSON.parse(body); } catch { payload = '[non-JSON response omitted]'; }
       }
-      res.locals.debugResponse = bounded(payload);
+      if (!res.locals.omitDebugPayload) res.locals.debugResponse = bounded(payload);
       return send.call(this, body);
     };
     logger(req, res, next);
