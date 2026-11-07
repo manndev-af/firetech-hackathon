@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router/route_paths.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 
@@ -7,11 +9,7 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   void _continueWithGoogle(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Login Google belum terhubung. Akun belum masuk.'),
-      ),
-    );
+    context.go(AppRoutes.onboarding);
   }
 
   @override

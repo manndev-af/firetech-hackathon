@@ -15,7 +15,17 @@ flutter run
 
 Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard contoh `/home` tetap berada dalam shell. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
 
-Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google hanya menampilkan pemberitahuan bahwa integrasi belum terhubung; tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
+Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
+
+## Onboarding
+
+Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboarding_screen.dart`. Container ini mengatur tiga layar: `onboarding_focus_screen.dart` (01/02), `onboarding_preference_screen.dart` (02/02), dan `onboarding_finish_screen.dart`. Komponen khusus alur berada di `features/onboarding/widgets/`.
+
+- Langkah 1 memilih satu fokus: Gula, Protein, Natrium, atau Keseimbangan; default Gula mengikuti referensi.
+- Langkah 2 memilih satu preferensi opsional: Masakan rumahan, Praktis dan cepat, atau Lebih banyak nabati; default Masakan rumahan mengikuti referensi. Lanjutkan menerima pilihan, sedangkan Lewati dulu mengosongkan preferensi.
+- Layar selesai menampilkan fokus aktual dan preferensi jika dipilih, lalu Ke beranda membuka `/home`. Tombol kembali dan back sistem berpindah ke langkah sebelumnya; dari langkah pertama menuju login. Pilihan dipertahankan ketika kembali di dalam alur.
+- Pilihan hanya hidup di state UI selama onboarding. Keluar dari alur/memulai ulang mengembalikan default; belum ada penyimpanan atau penerapan profil ke dashboard/engine. Ini bukan implementasi lengkap Nutrition Profile.
+- `assets/images/onboarding_finish_reference.png` berasal dari ekspor pengguna `Group-16.png`; hanya area ilustrasi dirender. Aset bukan hasil scan atau referensi nutrisi.
 
 ## Struktur kode
 

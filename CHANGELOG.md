@@ -11,6 +11,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Alur onboarding Flutter sesuai tiga referensi pengguna: pilihan fokus nutrisi, preferensi opsional dengan Lewati dulu, dan ringkasan selesai dinamis menuju beranda. Pilihan dipertahankan saat kembali antar-langkah, masih berupa state UI tanpa penyimpanan/profil engine.
+- Route `/onboarding`, komponen pilihan aksesibel, ilustrasi selesai lokal dari ekspor pengguna, dan pengujian navigasi/pilihan/layar sempit. Tombol Google membuka alur demo; autentikasi Google belum terhubung.
+
 - Folder aset Flutter `app/assets/images/` dan `app/assets/icons/`, deklarasi direktori di `pubspec.yaml`, ekspor desain pengguna untuk ilustrasi login, serta panduan aset statis pada WORKSPACE dan README app.
 
 - Layar login Flutter sesuai referensi pengguna dengan tombol Google, layout scroll, serta named route `/login` di luar navigasi bawah. Autentikasi dan pembuatan akun belum diimplementasikan.
