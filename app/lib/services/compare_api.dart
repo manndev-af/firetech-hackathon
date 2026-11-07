@@ -73,14 +73,16 @@ class PrioritySignal {
     required this.direction,
     this.preferredDirection,
     this.reason,
+    this.priority,
   });
 
   factory PrioritySignal.fromJson(Map<String, dynamic> json) {
     return PrioritySignal(
-      nutrientKey: json['nutrientKey'] as String? ?? '',
+      nutrientKey: json['nutrient'] as String? ?? json['nutrientKey'] as String? ?? '',
       direction: json['direction'] as String? ?? '',
       preferredDirection: json['preferredDirection'] as String?,
       reason: json['reason'] as String?,
+      priority: json['priority'] as String?,
     );
   }
 
@@ -88,6 +90,7 @@ class PrioritySignal {
   final String direction;
   final String? preferredDirection;
   final String? reason;
+  final String? priority;
 }
 
 class ComparisonResult {
