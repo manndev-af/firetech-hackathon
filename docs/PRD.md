@@ -62,6 +62,8 @@ Mahasiswa dan dewasa muda Indonesia, khususnya yang sering membeli makanan siap 
 
 ## 5. Ruang Lingkup Produk
 
+Pembaruan permintaan pengguna, 7 November 2026: OCR, pemeriksaan food/drink lokal, TTS kesimpulan singkat, serta penyimpanan profil/draft/riwayat lokal menjadi cakupan implementasi saat ini. Backend AI masih dibangun; Flutter menyediakan adapter menurut [kontrak integrasi](SCAN_API.md). Jalur OCR membawa teks mentah dan foto terkompresi, tanpa menjadikan hasil OCR otomatis benar. Keputusan ini tidak menambahkan akun, sinkronisasi cloud, pencatatan konsumsi harian, atau kemampuan klinis. Penetapan P0/P1 historis berikut dipertahankan sebagai konteks awal.
+
 ### P0 — MVP inti
 
 - Onboarding ringan atau profil demo.

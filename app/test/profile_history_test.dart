@@ -87,13 +87,9 @@ void main() {
     expect(find.byType(HistoryScreen), findsOneWidget);
     expect(
       tester.widget<HistoryScreen>(find.byType(HistoryScreen)).preview,
-      isTrue,
+      isFalse,
     );
-    expect(find.text('Yogurt stroberi'), findsOneWidget);
-    await tap(tester, 'Yogurt stroberi');
-    expect(find.byType(HistoryEntryDetail), findsOneWidget);
-    await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
+    expect(find.text('Belum ada hasil tersimpan'), findsOneWidget);
     await tap(tester, 'Profile');
     await tester.scrollUntilVisible(
       find.text('Naya'),
@@ -318,8 +314,14 @@ void main() {
       await tap(tester, 'Tentang data nutrisi');
       expect(find.text('Acuan perhitungan: Per sajian 150 g'), findsOneWidget);
       expect(find.byIcon(Icons.close), findsNothing);
-      expect(find.text('Ringkasan \u00b7 Yuk, lihat trade-off-nya'), findsOneWidget);
-      expect(find.text('Fokus saat dicatat: Gula \u00b7 Protein'), findsOneWidget);
+      expect(
+        find.text('Ringkasan \u00b7 Yuk, lihat trade-off-nya'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Fokus saat dicatat: Gula \u00b7 Protein'),
+        findsOneWidget,
+      );
       Navigator.of(tester.element(find.byType(HistoryEntryDetail))).pop();
       await tester.pumpAndSettle();
       expect(find.byType(HistoryEntryDetail), findsNothing);
