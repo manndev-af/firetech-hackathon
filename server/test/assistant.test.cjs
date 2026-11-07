@@ -198,3 +198,70 @@ test('assistant transport rejects malformed, truncated, oversized and failed out
   try { await assert.rejects(analyzeAssistant(readAssistantInput(question()), assistantContext(), async () => assert.fail('missing key dispatched')), { code: 'PROVIDER_NOT_CONFIGURED' }); }
   finally { process.env.DEEPSEEK_API_KEY = originalKey; }
 });
+
+test('assistant HTTP uses existing owner, returns schema-valid reply and preserves read-only state on failure', async () => {
+  process.env.ENABLE_DEMO_USER = 'true'; process.env.DEMO_USER_EMAIL = 'demo@example.test';
+  const prisma = require('../src/config/prisma'); const originalPrisma = prisma.getPrismaClient; const nativeFetch = global.fetch;
+  const readOnly = table => new Proxy(table, { get(target, key) { if (!(key in target)) throw Error(`Unexpected DB operation: ${String(key)}`); return target[key]; } });
+  prisma.getPrismaClient = () => readOnly({
+    user: readOnly({ findUnique: async () => ({ id: 'dummy' }) }),
+    nutritionProfile: readOnly({ findUnique: async () => profile }),
+    foodEntry: readOnly({ findMany: async () => [] }), knowledgeChunk: readOnly({ findMany: async () => [] }),
+  });
+  let calls = 0; let fail = false;
+  global.fetch = async (_url, options) => { calls++; assert.equal(JSON.parse(options.body).messages.length, 2); if (fail) throw Error('outage'); return provider(); };
+  try {
+    await serving(createApp(), async base => {
+      const url = `${base}/custom/v1/assistant/messages`;
+      const send = body => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      for (const mode of ['general', 'pattern']) {
+        const response = await nativeFetch(url, send({ ...question(), mode })); assert.equal(response.status, 200);
+        const value = await response.json(); assert.equal(value.success, true); assert.ok(validateResponse(value.data), JSON.stringify(validateResponse.errors));
+      }
+      assert.equal(calls, 2);
+      assert.equal((await nativeFetch(url, send({ ...question(), mode: 'compare' }))).status, 400);
+      assert.equal((await nativeFetch(url, { ...send(question()), headers: { 'Content-Type': 'application/json', 'X-Owner-Id': 'other' } })).status, 400);
+      assert.equal(calls, 2);
+      fail = true;
+      const failure = await nativeFetch(url, send(question())); assert.equal(failure.status, 502);
+      assert.equal((await failure.json()).data.code, 'PROVIDER_FAILED'); assert.equal(calls, 3);
+      process.env.ENABLE_DEMO_USER = 'false';
+      assert.equal((await nativeFetch(url, send(question()))).status, 404); assert.equal(calls, 3);
+    });
+  } finally { prisma.getPrismaClient = originalPrisma; global.fetch = nativeFetch; process.env.ENABLE_DEMO_USER = 'false'; }
+});
+
+test('assistant shares scanner and compare capacity and holds slot after disconnect until generation finishes', async () => {
+  const express = require('express'); const sharp = require('sharp');
+  const service = require('../src/services/assistant.service'); const scan = require('../src/services/scan.service'); const compare = require('../src/services/compare.service');
+  const originals = [service.createAssistantMessage, scan.createScan, compare.createComparison];
+  const started = []; const releases = [];
+  const hold = kind => new Promise(resolve => { started.push(kind); releases.push(resolve); });
+  service.createAssistantMessage = async () => { await hold('assistant'); return assistantGeneralExample; };
+  scan.createScan = async () => { await hold('scanner'); return { entry: { id: 'scanner-test' }, replay: false }; };
+  compare.createComparison = async () => { await hold('compare'); return { transient: true }; };
+  const { assistantJson } = require('../src/validation/assistant'); const { domainErrorHandler } = require('../src/utils/domainError');
+  const app = express(); app.use(assistantJson); app.use(express.json()); app.use((_req, res, next) => { res.locals.userId = 'dummy'; next(); });
+  app.use('/custom/v1/assistant', require('../src/routes/assistant.routes').default);
+  app.use('/scan', require('../src/routes/scanner.routes').default); app.use('/compare', require('../src/routes/compare.routes').default); app.use(domainErrorHandler);
+  const waitFor = async predicate => { const end = Date.now() + 5000; while (!predicate()) { assert.ok(Date.now() < end, 'operation did not start'); await new Promise(resolve => setTimeout(resolve, 10)); } };
+  try {
+    await serving(app, async base => {
+      const bytes = await sharp({ create: { width: 10, height: 10, channels: 3, background: '#fff' } }).png().toBuffer();
+      const scanBody = new FormData(); scanBody.set('mode', 'food'); scanBody.set('image', new Blob([bytes], { type: 'image/png' }), 'test.png');
+      const scanner = fetch(`${base}/scan`, { method: 'POST', headers: { 'Idempotency-Key': '12345678-1234-4123-8123-123456789abc' }, body: scanBody });
+      await waitFor(() => started.length === 1);
+      const abort = new AbortController();
+      const assistant = fetch(`${base}/custom/v1/assistant/messages`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(question()), signal: abort.signal })
+        .then(() => assert.fail('aborted request returned'), error => assert.equal(error.name, 'AbortError'));
+      await waitFor(() => started.length === 2); assert.deepEqual(started, ['scanner', 'assistant']); abort.abort(); await assistant;
+      const form = () => { const body = new FormData(); for (const key of ['imageA', 'imageB']) body.set(key, new Blob([bytes], { type: 'image/png' }), 'test.png');
+        body.set('metadata', JSON.stringify({ a: { mode: 'food' }, b: { mode: 'food' } })); return body; };
+      const busy = await fetch(`${base}/compare`, { method: 'POST', body: form() }); assert.equal(busy.status, 429); assert.equal((await busy.json()).data.code, 'SCAN_BUSY');
+      assert.equal(started.length, 2); releases[1](); await new Promise(resolve => setTimeout(resolve, 20));
+      const next = fetch(`${base}/compare`, { method: 'POST', body: form() }); await waitFor(() => started.length === 3);
+      releases[2](); assert.equal((await next).status, 200); releases[0](); assert.equal((await scanner).status, 201);
+      assert.deepEqual(started, ['scanner', 'assistant', 'compare']);
+    });
+  } finally { releases.forEach(release => release()); [service.createAssistantMessage, scan.createScan, compare.createComparison] = originals; }
+});
