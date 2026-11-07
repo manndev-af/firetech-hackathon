@@ -117,7 +117,7 @@ void main() {
     await tester.pumpAndSettle();
     await tap(tester, 'Tanya soal makanan');
     expect(find.byType(AssistantScreen), findsOneWidget);
-    expect(find.byType(TextField), findsNothing);
+    expect(find.byType(TextField), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

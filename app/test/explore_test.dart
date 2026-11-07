@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nutrilens/core/router/app_router.dart';
+import 'package:nutrilens/core/router/route_paths.dart';
 import 'package:nutrilens/core/theme/app_theme.dart';
 import 'package:nutrilens/features/explore/assistant_screen.dart';
 import 'package:nutrilens/features/explore/compare_screen.dart';
@@ -37,6 +40,56 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Tanya soal makanan'), findsOneWidget);
+  });
+
+  testWidgets('Tapping Tanya soal makanan opens AI assistant roomchat directly', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: '/explore',
+      routes: [
+        GoRoute(
+          path: '/explore',
+          builder: (context, state) => const ExploreScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.assistant,
+          builder: (context, state) {
+            final extra = state.extra;
+            final showConversation = extra != false;
+            final mode = extra is String ? extra : 'general';
+            return AssistantScreen(
+              showConversation: showConversation,
+              initialMode: mode,
+            );
+          },
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: AppTheme.light,
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Tanya soal makanan'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Tanya soal makanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AssistantScreen), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Konsultasi nutrisi · online'), findsOneWidget);
+    expect(
+      find.textContaining('Halo! Saya asisten nutrisi NutriSee'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('CompareScreen presents camera/gallery option and supports summary', (
