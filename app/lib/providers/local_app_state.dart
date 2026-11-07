@@ -29,9 +29,12 @@ Future<void> initializeLocalState({LocalStorage? storage}) async {
     if (snapshot != null) {
       profileSession.value = snapshot.profile;
       analysisAudioSession.value = snapshot.audioEnabled;
-      historySession.value = snapshot.history.isEmpty
-          ? [sampleHistoryEntry]
-          : snapshot.history;
+      final loadedHistory = (snapshot.history.isEmpty
+              ? [sampleHistoryEntry]
+              : snapshot.history)
+          .toList()
+        ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+      historySession.value = loadedHistory;
       draftSession.value = snapshot.drafts;
     } else {
       historySession.value = [sampleHistoryEntry];
@@ -81,11 +84,17 @@ Future<void> syncHistoryFromBackend({String? date}) async {
             photoPath = diskFile.path;
           }
         }
-        if (photoPath != null) {
-          existingMap[remote.id] = remote.copyWith(photoPath: photoPath);
-        } else {
-          existingMap[remote.id] = remote;
-        }
+        final isYogurtSample = remote.id == 'sample_history_yogurt' ||
+            remote.id == 'preview-yogurt' ||
+            remote.name.toLowerCase().contains('yogurt');
+        final photoAsset = local?.photoAsset ??
+            remote.photoAsset ??
+            (isYogurtSample ? 'assets/images/history_yogurt.jpg' : null);
+
+        existingMap[remote.id] = remote.copyWith(
+          photoPath: photoPath,
+          photoAsset: photoAsset,
+        );
       }
       final merged = existingMap.values.toList()
         ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
@@ -186,11 +195,20 @@ Future<void> saveAnalysis(ScanHistoryEntry entry) async {
       ? entry.copyWith(photoPath: effectivePhoto)
       : entry;
 
-  historySession.value = [
-    ...previous.where((item) => item.id != resolvedEntry.id),
-    resolvedEntry,
-  ];
-  draftSession.value = drafts.where((item) => item.id != resolvedEntry.id).toList();
+  final isYogurtSample = resolvedEntry.id == 'sample_history_yogurt' ||
+      resolvedEntry.id == 'preview-yogurt' ||
+      resolvedEntry.name.toLowerCase().contains('yogurt');
+  final finalEntry = (resolvedEntry.photoAsset == null && isYogurtSample)
+      ? resolvedEntry.copyWith(photoAsset: 'assets/images/history_yogurt.jpg')
+      : resolvedEntry;
+
+  final updatedHistory = [
+    finalEntry,
+    ...previous.where((item) => item.id != finalEntry.id),
+  ]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+
+  historySession.value = updatedHistory;
+  draftSession.value = drafts.where((item) => item.id != finalEntry.id).toList();
   try {
     await persistLocalState();
     fetchDailyNutritionFromBackend().catchError((_) {});
