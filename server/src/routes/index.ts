@@ -2,6 +2,8 @@ import { Router } from 'express';
 import healthRoutes from './health.routes';
 import userRoutes from './user.routes';
 import profileRoutes from './profile.routes';
+import foodEntryRoutes from './food-entry.routes';
+import nutritionRoutes from './nutrition.routes';
 import { demoOwner } from '../middleware/demoOwner';
 import { domainErrorHandler } from '../utils/domainError';
 
@@ -13,6 +15,8 @@ router.use('/users', userRoutes);
 const domain = Router();
 domain.use(demoOwner);
 domain.use('/profile', profileRoutes);
+domain.use('/food-entries', foodEntryRoutes);
+domain.use('/nutrition', nutritionRoutes);
 domain.use(domainErrorHandler);
 router.use('/v1', domain);
 

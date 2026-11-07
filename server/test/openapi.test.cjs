@@ -18,10 +18,10 @@ test('Swagger serves local assets and documents working routes with a custom pre
     assert.equal(json.status, 200);
     const spec = await json.json();
     assert.equal(spec.openapi, '3.0.3');
-    assert.deepEqual(Object.keys(spec.paths).sort(), ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}', '/api/v1/v1/profile'].sort());
+    assert.deepEqual(Object.keys(spec.paths).sort(), ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}', '/api/v1/v1/profile', '/api/v1/v1/food-entries', '/api/v1/v1/food-entries/{id}', '/api/v1/v1/food-entries/{id}/quantity', '/api/v1/v1/nutrition/daily'].sort());
     const ids = Object.values(spec.paths).flatMap(path =>
       Object.values(path).filter(operation => operation.operationId).map(operation => operation.operationId));
-    assert.equal(ids.length, 11);
+    assert.equal(ids.length, 16);
     assert.equal(new Set(ids).size, ids.length);
     const domain = await request('/api/v1/v1/profile');
     assert.equal(domain.status, 404);
