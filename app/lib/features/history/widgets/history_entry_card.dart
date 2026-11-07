@@ -124,8 +124,11 @@ class HistoryEntryCard extends StatelessWidget {
         isScrollControlled: true,
         useRootNavigator: true,
         useSafeArea: true,
-        showDragHandle: true,
+        showDragHandle: false,
         backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
         builder: (context) => HistoryEntryDetail(entry: entry),
       ),
       child: Padding(
