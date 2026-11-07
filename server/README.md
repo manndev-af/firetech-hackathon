@@ -1,5 +1,7 @@
 # Express TypeScript Starter Template
 
+Pembaruan 8 November 2026: `SCANNER_USE_RAW_OCR=false` menjadi default sementara. Mode label menerima gambar tanpa raw OCR; OCR yang disertakan tetap divalidasi batas input, disimpan dan masuk fingerprint deduplikasi, tetapi tidak digunakan untuk retrieval, payload provider atau pencocokan evidence. Prompt v4 meminta evidence `origin=image`. Set `SCANNER_USE_RAW_OCR=true` di `server/.env` lalu restart backend untuk mengaktifkan gambar + OCR kembali; OCR label kembali wajib. Deskripsi tambahan, provenance, validasi angka/satuan, satu dispatch dan kalkulasi porsi tetap berlaku. Ini menggantikan kewajiban OCR pada uraian sebelumnya untuk konfigurasi default. Data lama/replay tidak dianalisis ulang; gunakan operasi scan baru yang disengaja untuk membandingkan mode.
+
 ## Swagger / OpenAPI
 
 Jalankan `pnpm dev` dari `server/`, lalu buka `http://localhost:3000/api/docs/`.
@@ -13,7 +15,7 @@ Dokumentasi tersedia juga pada hasil build (`pnpm build`, `pnpm start`). Aset Sw
 
 Setiap penambahan/perubahan/penghapusan route wajib memperbarui `<name>.openapi.ts` di samping `<name>.routes.ts` dalam pekerjaan yang sama. Daftarkan modul baru pada assembler, dokumentasikan semua method, parameter, body, validasi, status, schema respons, dan contoh relevan. Jangan satukan kontrak semua route dalam satu file. Schema validasi user dipakai ulang agar batas input tetap sinkron.
 
-OpenAPI mencerminkan kontrak starter dan delapan operasi scanner/profile/jurnal (`success`, `message`, `data`, `timestamp` pada respons sukses). Kontrak domain berada di `profile.openapi.ts`, `scanner.openapi.ts`, `food-entry.openapi.ts`, dan `nutrition.openapi.ts`. Route dokumentasi berada di luar rate limiter API agar pemuatan aset tidak menghabiskan kuota. Header keamanan tetap aktif; `upgrade-insecure-requests` dinonaktifkan khusus dokumentasi agar aset bekerja pada HTTP localhost.
+OpenAPI mencerminkan kontrak starter dan delapan operasi scanner/profile/jurnal (`success`, `message`, `data`, `timestamp` pada respons sukses). Kontrak domain berada di `profile.openapi.ts`, `scanner.openapi.ts`, `food-entry.openapi.ts`, dan `nutrition.openapi.ts`. Rate limiter global API dinonaktifkan; konfigurasi RATE_LIMIT_* tidak diterapkan pada request. Header keamanan tetap aktif; `upgrade-insecure-requests` dinonaktifkan khusus dokumentasi agar aset bekerja pada HTTP localhost.
 
 Verifikasi: `pnpm test`, `pnpm build`, dan `pnpm lint`. Tes memakai Node.js test runner dan menguji JSON, aset UI, prefix khusus, serta respons route. Gunakan Node.js yang kompatibel dengan dependency Prisma 7 yang terpasang.
 
@@ -51,7 +53,7 @@ Seed memakai salted scrypt, membuat profil dummy lengkap tanpa field null dan ti
 
 Scan sukses langsung mencatat konsumsi. Alur: validasi gambar/metadata, claim idempotency, retrieval profil/riwayat/referensi, satu dispatch DeepSeek, validasi output, transaksi simpan jurnal. Tidak ada retry otomatis, tool loop, atau panggilan repair JSON. Provider gagal berarti konsumsi tidak dicatat. Jurnal dan koreksi quantity tetap tersedia tanpa API key.
 
-Upload satu JPEG/PNG maksimal 5 MiB/20 megapixel, total multipart maksimal 6 MiB. Metadata: `mode`, `description` maksimal 1.000 karakter, `rawOcrText` maksimal 20.000 (wajib label), `consumedAt` ISO8601 opsional, `quantity` positif maksimal 10.000/enam desimal (default 1). Field berulang/tak dikenal, URL input, MIME palsu, dan gambar rusak ditolak. Decoder merotasi, membatasi sisi 1600 px dan menghapus metadata. Gambar tidak disimpan permanen; hanya dikirim ke provider. Dua operasi scan bersamaan per proses; request berikutnya mendapat 429. Rate limiter starter tetap berlaku.
+Upload satu JPEG/PNG maksimal 5 MiB/20 megapixel, total multipart maksimal 6 MiB. Metadata: `mode`, `description` maksimal 1.000 karakter, `rawOcrText` maksimal 20.000 (wajib label), `consumedAt` ISO8601 opsional, `quantity` positif maksimal 10.000/enam desimal (default 1). Field berulang/tak dikenal, URL input, MIME palsu, dan gambar rusak ditolak. Decoder merotasi, membatasi sisi 1600 px dan menghapus metadata. Gambar tidak disimpan permanen; hanya dikirim ke provider. Dua operasi scan bersamaan per proses; request berikutnya mendapat 429.
 
 `Idempotency-Key` UUID wajib. Key dan input identik memberi hasil tersimpan (200); input berbeda 409; processing/dispatch tidak pasti 409; replay sesudah delete 410. Crash setelah dispatch tidak boleh mengirim ulang. Key baru merupakan operasi baru yang dapat memakai biaya baru; jangan membuat key baru otomatis saat timeout.
 
@@ -408,3 +410,9 @@ MIT
 ---
 
 **Happy Coding! 🚀**
+
+### Koreksi label - 8 November 2026
+
+Untuk scan label baru dengan basis `per_serving`, keluaran model `20 g` atau `200 ml` dinormalisasi ke `baseQuantity: 1`, `unitCode: porsi`, dengan massa/volume asli pada `referenceWeightG`/`referenceVolumeMl`. Jadi `quantity: 1` berarti satu sajian, bukan satu gram/ml. Basis `per_100g`/`per_100ml` tetap memakai satuan sumber. Entri lama tidak ditulis ulang; scan ulang bila basis entri lama salah.
+
+Evidence per nutrisi harus berisi satu baris nama, angka dan satuan. Energi dari lemak dan acuan AKG bukan energi total. Variasi spasi OCR diterima; konflik angka sebenarnya tetap menghasilkan `null`. Bila angka ditolak, insight dan TTS diganti penjelasan keterbatasan agar tidak mempertahankan klaim dari angka tersebut. `extractLabel()` Flutter tetap parser saran lokal, bukan sumber angka request atau hasil API. Batas teks Flutter/backend sama: 20.000 karakter.

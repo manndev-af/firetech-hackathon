@@ -1,6 +1,8 @@
 # Handoff backend scanner
 
-Gambar kedua mode dinormalisasi menjadi JPEG 544 x 544 dengan orientasi dikoreksi, rasio asli dipertahankan, dan padding putih tanpa crop sebelum dikirim ke provider. Raw OCR tetap dikirim utuh sesuai batas input; detail label kecil mungkin berkurang pada resolusi ini. Penghematan token aktual bergantung pada provider.
+Pembaruan 8 November 2026: `SCANNER_USE_RAW_OCR=false` menjadi default sementara. Mode label menerima gambar tanpa raw OCR; OCR yang disertakan tetap divalidasi batas input, disimpan dan masuk fingerprint deduplikasi, tetapi tidak digunakan untuk retrieval, payload provider atau pencocokan evidence. Prompt v4 meminta evidence `origin=image`. Set `SCANNER_USE_RAW_OCR=true` di `server/.env` lalu restart backend untuk mengaktifkan gambar + OCR kembali; OCR label kembali wajib. Deskripsi tambahan, provenance, validasi angka/satuan, satu dispatch dan kalkulasi porsi tetap berlaku. Ini menggantikan kewajiban OCR pada uraian sebelumnya untuk konfigurasi default. Data lama/replay tidak dianalisis ulang; gunakan operasi scan baru yang disengaja untuk membandingkan mode.
+
+Gambar kedua mode dinormalisasi menjadi JPEG 1600 x 1600 dengan orientasi dikoreksi, rasio asli dipertahankan, dan padding putih tanpa crop sebelum dikirim ke provider. Raw OCR tetap dikirim utuh sesuai batas input; detail label kecil mungkin berkurang pada resolusi ini. Penghematan token aktual bergantung pada provider.
 
 Backend development saja; frontend tidak diubah. Sumber kontrak lengkap: `/api/openapi.json` dan `/api/docs/`; prefix default `/api`, delapan operasi domain di `/api/v1`. Setup dummy seed ada di [README.md](README.md#scanner-konsumsi-development). Tidak ada endpoint login; email/password seed disimpan sebagai identitas development dan hash, bukan dikirim lewat HTTP.
 
@@ -29,7 +31,7 @@ Gunakan base URL backend yang dapat dijangkau perangkat. Untuk Android Emulator 
 |---|---|
 | `image` | Wajib satu file JPEG/PNG, MIME sesuai isi, maksimal 5 MiB dan 20 MP; total multipart maksimal 6 MiB |
 | `mode` | Wajib `food` atau `label` |
-| `rawOcrText` | Wajib tidak kosong pada label; maksimal 20.000 karakter |
+| `rawOcrText` | Opsional saat flag mati; wajib tidak kosong pada label saat SCANNER_USE_RAW_OCR=true; maksimal 20.000 karakter |
 | `description` | Opsional, maksimal 1.000 karakter |
 | `quantity` | Opsional, string desimal titik tanpa eksponen, default `1`; rentang 0.000001–10000, maksimal enam digit desimal |
 | `consumedAt` | Opsional, timestamp ISO 8601 dengan zona waktu; kirim nilai tetap jika disertakan pada operasi yang mungkin diperiksa ulang |
@@ -162,3 +164,10 @@ Sebelum integrasi, ubah copy frontend yang menyatakan data session-only/tidak di
 RAG SQL/tag/text menyimpan context snapshot berisi profile, recordedDaily, history, references dengan ID/versi/URL sumber. Tidak ada vector DB. Riwayat estimasi tetap punya provenance; referensi menjelaskan konsep, bukan membuktikan angka nutrient model.
 
 Live service DeepSeek melalui 9Router telah diuji untuk food dan label dengan fixture nonpribadi: kedua respons HTTP 200 dan lolos validasi backend, satu dispatch per mode. Uji tidak menambah konsumsi fixture; HTTP/persistensi diuji terpisah dengan provider mock. Model, latensi, hasil TTS dan batas observasi ada di [README backend](README.md#live-smoke-test-9router--7-november-2026). Tidak ada perubahan Flutter dalam change ini.
+
+
+### Koreksi label - 8 November 2026
+
+Untuk scan label baru dengan basis `per_serving`, keluaran model `20 g` atau `200 ml` dinormalisasi ke `baseQuantity: 1`, `unitCode: porsi`, dengan massa/volume asli pada `referenceWeightG`/`referenceVolumeMl`. Jadi `quantity: 1` berarti satu sajian, bukan satu gram/ml. Basis `per_100g`/`per_100ml` tetap memakai satuan sumber. Entri lama tidak ditulis ulang; scan ulang bila basis entri lama salah.
+
+Evidence per nutrisi harus berisi satu baris nama, angka dan satuan. Energi dari lemak dan acuan AKG bukan energi total. Variasi spasi OCR diterima; konflik angka sebenarnya tetap menghasilkan `null`. Bila angka ditolak, insight dan TTS diganti penjelasan keterbatasan agar tidak mempertahankan klaim dari angka tersebut. `extractLabel()` Flutter tetap parser saran lokal, bukan sumber angka request atau hasil API. Batas teks Flutter/backend sama: 20.000 karakter.

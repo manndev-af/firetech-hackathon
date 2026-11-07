@@ -8,6 +8,8 @@ Scanner perlu backend yang mengubah foto makanan atau foto label beserta OCR dan
 
 ## What Changes
 
+Pembaruan 8 November 2026: `SCANNER_USE_RAW_OCR=false` menjadi default sementara. Mode label menerima gambar tanpa raw OCR; OCR yang disertakan tetap divalidasi batas input, disimpan dan masuk fingerprint deduplikasi, tetapi tidak digunakan untuk retrieval, payload provider atau pencocokan evidence. Prompt v4 meminta evidence `origin=image`. Set `SCANNER_USE_RAW_OCR=true` di `server/.env` lalu restart backend untuk mengaktifkan gambar + OCR kembali; OCR label kembali wajib. Deskripsi tambahan, provenance, validasi angka/satuan, satu dispatch dan kalkulasi porsi tetap berlaku. Ini menggantikan kewajiban OCR pada uraian sebelumnya untuk konfigurasi default. Data lama/replay tidak dianalisis ulang; gunakan operasi scan baru yang disengaja untuk membandingkan mode.
+
 - Tambahkan schema, migration, dan seed idempotent di `server/prisma` untuk user dummy development, profil nutrisi, catatan konsumsi, referensi RAG, dan deduplikasi request scan.
 - Selaraskan NutritionProfile dengan seluruh screen profil Flutter: name, age, heightCm, weightKg, preference, priorities, eatingPattern, prefersHalal, allergyStatus, allergies, otherAllergies; sertakan audioAnalysisEnabled dari switch audio yang saat ini terpisah dari model Dart. Timezone tetap metadata backend. Pertahankan validasi UI, field opsional, dan pemisahan update identitas/personalisasi/pengaturan.
 - User dummy memiliki email dan password hash; backend memilih user dari konfigurasi development. Tidak ada endpoint login, registrasi, token, atau autentikasi produksi dalam change ini (pilihan pengguna).
