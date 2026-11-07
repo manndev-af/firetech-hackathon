@@ -11,11 +11,14 @@ import '../../services/local_vision.dart';
 
 enum ScanMode { food, label }
 
+typedef UsePhotoCallback =
+    Future<void> Function(XFile photo, ScanMode mode, {String? note});
+
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({this.pickImage, this.onUsePhoto, super.key});
 
   final Future<XFile?> Function()? pickImage;
-  final Future<void> Function(XFile photo, ScanMode mode)? onUsePhoto;
+  final UsePhotoCallback? onUsePhoto;
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -27,6 +30,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   Future<void> _cameraWork = Future.value();
   XFile? _photo;
   ScanMode _mode = ScanMode.food;
+  final TextEditingController _noteController = TextEditingController();
   String? _cameraError;
   String? _photoError;
   bool _loading = true;
@@ -130,6 +134,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     WidgetsBinding.instance.removeObserver(this);
     _foreground = false;
     unawaited(_syncCamera());
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -226,8 +231,13 @@ class _ScannerScreenState extends State<ScannerScreen>
       return;
     }
     setState(() => _busy = true);
+    final note = _noteController.text.trim();
     try {
-      await widget.onUsePhoto!(_photo!, _mode);
+      await widget.onUsePhoto!(
+        _photo!,
+        _mode,
+        note: note.isNotEmpty ? note : null,
+      );
     } on ScanFailure catch (e) {
       if (mounted) {
         setState(() => _showingResult = false);
@@ -442,6 +452,10 @@ class _ScannerScreenState extends State<ScannerScreen>
                               ),
                           ],
                         ),
+                        if (review) ...[
+                          const SizedBox(height: 18),
+                          _buildNoteField(isLabel),
+                        ],
                         if (_photoError != null) ...[
                           const SizedBox(height: 12),
                           Semantics(
@@ -578,10 +592,118 @@ class _ScannerScreenState extends State<ScannerScreen>
     );
   }
 
+  Widget _buildNoteField(bool isLabel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: const [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.edit_note_rounded,
+                  size: 20,
+                  color: AppColors.primaryDark,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  'Deskripsi tambahan',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.all(Radius.circular(6)),
+                border: Border.fromBorderSide(
+                  BorderSide(color: AppColors.border),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                child: Text(
+                  'Opsional',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          key: const Key('scan-note-field'),
+          controller: _noteController,
+          enabled: !_busy,
+          maxLines: 2,
+          minLines: 1,
+          maxLength: 140,
+          textInputAction: TextInputAction.done,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+          ),
+          decoration: InputDecoration(
+            hintText: isLabel
+                ? 'Contoh: Varian cokelat, botol 250 ml, rasa tawar'
+                : 'Contoh: 1 mangkok sedang, tanpa kuah santan, sambal dipisah',
+            hintStyle: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            filled: true,
+            fillColor: AppColors.background,
+            counterText: '',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: AppColors.heroBackground,
+                width: 1.5,
+              ),
+            ),
+            suffixIcon: _noteController.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    color: AppColors.textSecondary,
+                    onPressed: () => setState(() => _noteController.clear()),
+                  )
+                : null,
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
+    );
+  }
+
   void _retake() {
     setState(() {
       _photo = null;
       _photoError = null;
+      _noteController.clear();
     });
     _syncCamera();
   }

@@ -770,6 +770,59 @@ class _AnalysisContentState extends State<AnalysisContent>
         ),
         const SizedBox(height: 20),
 
+        // Catatan / Deskripsi Tambahan Pengguna
+        if (entry.userNote != null && entry.userNote!.trim().isNotEmpty) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.mint,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.edit_note_rounded,
+                        size: 20,
+                        color: AppColors.heroBackground,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Deskripsi Tambahan',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  entry.userNote!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+
         // 10. ExpansionTile for Source, Basis, & Raw OCR Text
         ExpansionTile(
           tilePadding: EdgeInsets.zero,

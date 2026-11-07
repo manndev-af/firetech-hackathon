@@ -260,7 +260,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.light,
           home: ScannerScreen(
-            onUsePhoto: (file, mode) async {
+            onUsePhoto: (file, mode, {note}) async {
               throw const ScanFailure(
                 'Tabel nilai gizi tidak ditemukan pada label.',
               );
@@ -287,6 +287,62 @@ void main() {
       await tap(tester, find.widgetWithText(FilledButton, 'Foto Ulang'));
       expect(find.text('Makanan Belum Terdeteksi'), findsNothing);
       expect(find.byType(CameraPreview), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'review screen shows optional description field and forwards note',
+    (tester) async {
+      final folder = Directory.systemTemp.createTempSync(
+        'nutrilens-note-test-',
+      );
+      final photo = File('${folder.path}/capture.jpg');
+      addTearDown(() async {
+        if (await photo.exists()) await photo.delete();
+        await folder.delete();
+      });
+      await tester.runAsync(() async {
+        final bytes = await rootBundle.load('assets/images/history_yogurt.jpg');
+        await photo.writeAsBytes(bytes.buffer.asUint8List());
+      });
+      camera.photoPath = photo.path;
+      String? recordedNote;
+      ScanMode? recordedMode;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: ScannerScreen(
+            onUsePhoto: (file, mode, {note}) async {
+              recordedNote = note;
+              recordedMode = mode;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await precacheImage(
+          FileImage(photo),
+          tester.element(find.byType(ScannerScreen)),
+        );
+      });
+      await tap(tester, find.byKey(const Key('camera-shutter')));
+      expect(find.text('Periksa fotomu'), findsOneWidget);
+      expect(find.text('Deskripsi tambahan'), findsOneWidget);
+      expect(find.text('Opsional'), findsOneWidget);
+      expect(find.byKey(const Key('scan-note-field')), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('scan-note-field')),
+        'Tanpa kuah, sambal dipisah',
+      );
+      await tester.pumpAndSettle();
+
+      await tap(tester, find.widgetWithText(FilledButton, 'Gunakan foto'));
+      await tester.pumpAndSettle();
+
+      expect(recordedMode, ScanMode.food);
+      expect(recordedNote, 'Tanpa kuah, sambal dipisah');
     },
   );
 }

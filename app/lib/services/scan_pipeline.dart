@@ -25,6 +25,7 @@ class ScanPipeline {
     String path, {
     required bool label,
     required List<String> priorities,
+    String? note,
   }) async {
     if (await File(path).length() > 20000000) {
       throw const ScanFailure('Ukuran foto maksimal 20 MB.');
@@ -58,6 +59,7 @@ class ScanPipeline {
       createdAt: DateTime.now(),
       priorities: List.of(priorities),
       rawOcrText: rawText,
+      note: note,
     );
   }
 }
