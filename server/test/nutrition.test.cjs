@@ -111,10 +111,12 @@ test('speech remains concise with local fallback only', () => {
 
 test('DeepSeek transport receives image and OCR once and rejects bad responses without retry', async () => {
   process.env.DEEPSEEK_API_KEY = 'test-only-not-real';
+  process.env.DEEPSEEK_BASE_URL = 'https://deepseek.test/v1/';
   const context = { references: [], profile: { priorities: ['Gula'] } };
   let calls = 0;
-  const transport = async (_url, options) => {
+  const transport = async (url, options) => {
     calls++;
+    assert.equal(url, 'https://deepseek.test/v1/chat/completions');
     const body = JSON.parse(options.body);
     assert.equal(body.messages[1].content[0].type, 'text');
     assert.match(body.messages[1].content[0].text, /rawOcrText/);
@@ -137,4 +139,10 @@ test('DeepSeek transport receives image and OCR once and rejects bad responses w
       options.signal.addEventListener('abort', () => reject(new DOMException('Mock timeout', 'AbortError')), { once: true });
     })), { code: 'PROVIDER_TIMEOUT', statusCode: 504 });
   } finally { global.setTimeout = schedule; }
+  const before = calls;
+  for (const baseUrl of ['', 'not-a-url', 'file:///tmp/provider', 'https://user:password@deepseek.test', 'https://deepseek.test?query=1', 'https://deepseek.test#fragment']) {
+    process.env.DEEPSEEK_BASE_URL = baseUrl;
+    await assert.rejects(callDeepSeek(input, context, transport), { code: 'PROVIDER_NOT_CONFIGURED', statusCode: 503 });
+  }
+  assert.equal(calls, before);
 });
