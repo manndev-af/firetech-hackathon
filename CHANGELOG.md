@@ -49,6 +49,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Detail Riwayat tanpa tanda silang, dengan kartu ringkasan dan fokus saat dicatat. Form Profil dirapikan; preview Personalisasi menampilkan seluruh prioritas, pilihan makanan, pola makan, halal, dan alergi dengan hierarki font yang konsisten.
+
 - Konstanta navigasi Insight diganti menjadi Jelajahi: `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), termasuk referensi placeholder. Builder Jelajahi masih dinonaktifkan; perubahan ini belum menambahkan layar fitur baru.
 
 - Seluruh halaman Flutter memakai Inter melalui tema dan TextTheme global, tanpa dependency tambahan atau unduhan font saat runtime.

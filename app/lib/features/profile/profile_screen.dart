@@ -137,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final priority in profile.priorities.take(3))
+                    for (final priority in profile.priorities)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -157,20 +157,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     if (profile.priorities.isEmpty) const Text('Belum dipilih'),
-                    if (profile.priorities.length > 3)
-                      Text(
-                        '+${profile.priorities.length - 3} lainnya',
-                        style: const TextStyle(fontSize: 14),
-                      ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 _detail(
                   'Pilihan makanan',
-                  profile.preference ??
-                      profile.eatingPattern ??
-                      'Belum dipilih',
+                  profile.preference ?? 'Belum dipilih',
                 ),
+                _detail('Pola makan', profile.eatingPattern ?? 'Belum dipilih'),
+                _detail(
+                  'Preferensi halal',
+                  profile.prefersHalal
+                      ? 'Mengutamakan makanan halal'
+                      : 'Belum dipilih',
+                ),
+                _detail('Alergi makanan', switch (profile.allergyStatus) {
+                  AllergyStatus.unknown => 'Belum diisi',
+                  AllergyStatus.noneKnown => 'Tidak ada yang diketahui',
+                  AllergyStatus.listed =>
+                    [
+                          ...profile.allergies,
+                          if (profile.otherAllergies.isNotEmpty)
+                            profile.otherAllergies,
+                        ].join(', ').isEmpty
+                        ? 'Bahan belum diisi'
+                        : [
+                            ...profile.allergies,
+                            if (profile.otherAllergies.isNotEmpty)
+                              profile.otherAllergies,
+                          ].join(', '),
+                }),
                 const Divider(color: PersonalColors.border),
                 TextButton.icon(
                   onPressed: () => setState(
@@ -258,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             height: 1.5,
           ),

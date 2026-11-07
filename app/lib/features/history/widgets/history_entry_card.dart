@@ -197,14 +197,6 @@ class HistoryEntryDetail extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              tooltip: 'Tutup detail',
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.close),
-            ),
-          ),
           HistoryPhoto(entry: entry, width: double.infinity, height: 180),
           const SizedBox(height: 20),
           Text(
@@ -231,9 +223,35 @@ class HistoryEntryDetail extends StatelessWidget {
                 color: PersonalColors.soft,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Text(
-                entry.note,
-                style: const TextStyle(fontSize: 14, height: 1.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Ringkasan · Yuk, lihat trade-off-nya',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: PersonalColors.primary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    entry.note,
+                    style: const TextStyle(fontSize: 14, height: 1.5),
+                  ),
+                  if (entry.prioritySnapshot.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      'Fokus saat dicatat: ${entry.prioritySnapshot.join(' · ')}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: PersonalColors.secondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],

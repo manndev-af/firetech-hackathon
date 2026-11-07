@@ -203,6 +203,33 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
     });
   }
 
+  InputDecoration _fieldDecoration(
+    String label, {
+    String? unit,
+    String? hint,
+  }) => InputDecoration(
+    labelText: label,
+    hintText: hint,
+    suffixText: unit,
+    filled: true,
+    fillColor: PersonalColors.soft,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+    labelStyle: const TextStyle(fontSize: 14, color: PersonalColors.secondary),
+    hintStyle: const TextStyle(fontSize: 16, color: PersonalColors.secondary),
+    suffixStyle: const TextStyle(fontSize: 14, color: PersonalColors.secondary),
+    errorMaxLines: 3,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: PersonalColors.border),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: PersonalColors.primary, width: 2),
+    ),
+  );
+
   Widget _layout({
     required String title,
     required String subtitle,
@@ -295,10 +322,18 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                             title: Text(
                               priorityCopy[priority]!.title,
                               style: const TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            subtitle: Text(priorityCopy[priority]!.detail),
+                            subtitle: Text(
+                              priorityCopy[priority]!.detail,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: PersonalColors.secondary,
+                              ),
+                            ),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -368,10 +403,7 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                       DropdownButtonFormField<String>(
                         initialValue: _pattern,
                         isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Pola makan (opsional)',
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: _fieldDecoration('Pola makan (opsional)'),
                         items: [
                           const DropdownMenuItem<String>(
                             value: null,
@@ -426,10 +458,7 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                           DropdownButtonFormField<AllergyStatus>(
                             initialValue: _allergyStatus,
                             isExpanded: true,
-                            decoration: const InputDecoration(
-                              labelText: 'Informasi alergi',
-                              border: OutlineInputBorder(),
-                            ),
+                            decoration: _fieldDecoration('Informasi alergi'),
                             items: const [
                               DropdownMenuItem(
                                 value: AllergyStatus.unknown,
@@ -518,12 +547,13 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                     TextFormField(
                       key: const Key('profile-name'),
                       controller: _name,
+                      style: const TextStyle(fontSize: 16, height: 1.5),
                       maxLength: 60,
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Nama panggilan (opsional)',
-                        border: OutlineInputBorder(),
+                      decoration: _fieldDecoration(
+                        'Nama panggilan (opsional)',
+                        hint: 'Nama yang ingin kamu gunakan',
                       ),
                       onChanged: (_) => setState(() {}),
                       validator: (value) => (value?.trim().length ?? 0) > 60
@@ -534,12 +564,13 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                     TextFormField(
                       key: const Key('profile-age'),
                       controller: _age,
+                      style: const TextStyle(fontSize: 16, height: 1.5),
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Usia (opsional)',
-                        suffixText: 'tahun',
-                        border: OutlineInputBorder(),
+                      decoration: _fieldDecoration(
+                        'Usia (opsional)',
+                        unit: 'tahun',
+                        hint: 'Contoh: 22',
                       ),
                       onChanged: (_) => setState(() {}),
                       validator: _ageError,
@@ -559,14 +590,15 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                     TextFormField(
                       key: const Key('profile-height'),
                       controller: _height,
+                      style: const TextStyle(fontSize: 16, height: 1.5),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Tinggi badan (opsional)',
-                        suffixText: 'cm',
-                        border: OutlineInputBorder(),
+                      decoration: _fieldDecoration(
+                        'Tinggi badan (opsional)',
+                        unit: 'cm',
+                        hint: 'Contoh: 165',
                       ),
                       onChanged: (_) => setState(() {}),
                       validator: (value) => _measureError(value, 300, 'cm'),
@@ -575,13 +607,14 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                     TextFormField(
                       key: const Key('profile-weight'),
                       controller: _weight,
+                      style: const TextStyle(fontSize: 16, height: 1.5),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Berat badan (opsional)',
-                        suffixText: 'kg',
-                        border: OutlineInputBorder(),
+                      decoration: _fieldDecoration(
+                        'Berat badan (opsional)',
+                        unit: 'kg',
+                        hint: 'Contoh: 58,5',
                       ),
                       onChanged: (_) => setState(() {}),
                       validator: (value) => _measureError(value, 700, 'kg'),
