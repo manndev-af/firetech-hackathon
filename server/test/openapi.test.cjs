@@ -22,11 +22,12 @@ test('Swagger serves local assets and documents working routes with a custom pre
       '/health', '/api/v1/health', '/api/v1/health/readiness',
       '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}',
       '/api/v1/v1/profile', '/api/v1/v1/scans', '/api/v1/v1/food-entries',
+      '/api/v1/v1/comparisons',
       '/api/v1/v1/food-entries/{id}', '/api/v1/v1/food-entries/{id}/quantity', '/api/v1/v1/nutrition/daily',
     ].sort());
     const ids = Object.values(spec.paths).flatMap(path =>
       Object.values(path).filter(operation => operation.operationId).map(operation => operation.operationId));
-    assert.equal(ids.length, 17);
+    assert.equal(ids.length, 18);
     assert.equal(new Set(ids).size, ids.length);
     assert.equal(spec.paths['/api/v1/health'].get.responses['429'], undefined);
     assert.equal(spec.paths['/api/v1/users'].get.responses['429'], undefined);
@@ -37,6 +38,13 @@ test('Swagger serves local assets and documents working routes with a custom pre
     const domain = await request('/api/v1/v1/profile');
     assert.equal(domain.status, 404);
     assert.equal((await domain.json()).data.code, 'DEMO_DISABLED');
+    const comparison = spec.paths['/api/v1/v1/comparisons'].post;
+    assert.deepEqual(comparison.requestBody.content['multipart/form-data'].schema.required, ['imageA', 'imageB', 'metadata']);
+    assert.ok(comparison.responses['200'].content['application/json'].schema);
+    assert.ok(comparison.responses['413']);
+    const disabledComparison = await request('/api/v1/v1/comparisons', { method: 'POST' });
+    assert.equal(disabledComparison.status, 404);
+    assert.equal((await disabledComparison.json()).data.code, 'DEMO_DISABLED');
     for (const path of ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/1']) {
       assert.equal((await request(path)).status, 200, path);
     }

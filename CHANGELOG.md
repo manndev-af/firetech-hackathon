@@ -5,6 +5,12 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Added
+
+- Service compare dua gambar memakai satu dispatch vision dan retrieval read-only. Normalisasi per sajian/per 100 g/per 100 ml, selisih B-minus-A dan sorotan prioritas dihitung dengan Decimal; unknown tetap null. Ringkasan/TTS memakai template lokal bila evidence atau basis tidak mendukung narasi.
+
+- Validasi upload compare dua gambar, batas multipart termasuk chunked upload, kontrak request OpenAPI/handoff dan penghilangan payload compare dari log development. Route POST `{API_PREFIX}/v1/comparisons` aktif dengan dummy owner dan slot inferensi bersama scanner; tidak menyimpan konsumsi atau hasil compare.
+
 ### Changed
 
 - Decoder gambar, transport JSON vision dan tipe input kalkulasi nutrisi scanner dipisahkan untuk pemakaian ulang compare; kontrak dan perilaku scanner tetap dipertahankan.
