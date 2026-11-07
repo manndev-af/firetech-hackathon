@@ -11,6 +11,16 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Profil memisahkan editor informasi diri dan personalisasi. Detail personalisasi langsung menjadi form inline dengan Simpan/Kembali di bawah; bottom sheet dan langkah Edit tambahan dihapus. Informasi diri dapat disimpan tanpa prioritas, data bagian lain tetap utuh, dan scroll kembali ke ringkasan setelah selesai. Pengujian mencakup alur simpan/batal serta layar sempit dengan teks besar.
+
+- Contoh Riwayat kini langsung tampil melalui tab saat aplikasi dijalankan biasa: tiga makanan dengan foto, porsi, summary, dan detail yang dapat dibuka. Router review mengaktifkan fixture secara default; `UI_PREVIEW=false` tersedia untuk state tanpa contoh. Data contoh tetap tidak disimpan sebagai catatan pengguna.
+
+- Revisi review Profil/Riwayat: ringkasan personalisasi dengan detail, preferensi audio aktif/nonaktif selama sesi, foto lokal dan ringkasan catatan. Filter serta banner demo dihapus dari tampilan; fixture terpisah dapat diaktifkan dengan `UI_PREVIEW=true`. Font Inter disamakan per peran 24/18/16/14. TTS, capture kamera, dan penyimpanan nyata belum terintegrasi. Foto preview berlisensi Unsplash dan sumbernya dicatat dalam audit.
+
+- Personalisasi Profil dilengkapi pola makan, preferensi halal, status/bahan alergi, tinggi dan berat opsional; validasi, konfirmasi pembatalan, dan pemeliharaan field saat onboarding diperbarui. Data masih dalam memori dan belum diterapkan ke engine/pencocokan alergen.
+- Preview Riwayat berisi dengan fixture terpisah berlabel ilustrasi, filter jenis/tanggal, kelompok tanggal, detail sumber/porsi/basis, serta pembedaan null dan nol. Tidak menambah catatan pengguna atau API penyimpanan.
+- Audit Profil/Riwayat, ekspor PNG widget Flutter, dan pengujian form lengkap, pemisahan preview, keyboard, serta layout teks besar. Hierarki kedua layar dirapikan dengan tema teal/mint dan Inter yang ada.
+
 - UI Flutter Profil, editor profil nutrisi, dan Riwayat mengikuti referensi Figcraft serta palet teal–mint pengguna. Profil mendukung nama/usia opsional, lima prioritas jamak, preferensi makanan, validasi, simpan/batal, dan informasi privasi sesi. Riwayat menyediakan filter jenis/tanggal serta empty state tanpa catatan contoh.
 - State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; Insight dan kamera memberikan status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
 - Pengujian profil/riwayat untuk validasi, simpan/batal, navigasi, filter, dan layar sempit dengan teks besar. Pengujian onboarding diperbaiki agar menggulir tombol kembali ke layar dan melepas handle semantics sebelum pemeriksaan akhir.
