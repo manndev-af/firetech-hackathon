@@ -52,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _ => OnboardingFinishScreen(
         focus: _focus,
         preference: _preference,
-        onHome: () => context.go(AppRoutes.home),
+        onHome: () => context.go(AppRoutes.home, extra: _focus),
       ),
     },
   );

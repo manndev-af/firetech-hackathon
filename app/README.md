@@ -13,7 +13,7 @@ flutter run
 
 ## Routing
 
-Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard contoh `/home` tetap berada dalam shell. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
+Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home` berada dalam shell dengan navigasi Beranda, Jelajahi, Kamera, Riwayat, dan Profil. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
 
 Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
 
@@ -24,8 +24,20 @@ Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboa
 - Langkah 1 memilih satu fokus: Gula, Protein, Natrium, atau Keseimbangan; default Gula mengikuti referensi.
 - Langkah 2 memilih satu preferensi opsional: Masakan rumahan, Praktis dan cepat, atau Lebih banyak nabati; default Masakan rumahan mengikuti referensi. Lanjutkan menerima pilihan, sedangkan Lewati dulu mengosongkan preferensi.
 - Layar selesai menampilkan fokus aktual dan preferensi jika dipilih, lalu Ke beranda membuka `/home`. Tombol kembali dan back sistem berpindah ke langkah sebelumnya; dari langkah pertama menuju login. Pilihan dipertahankan ketika kembali di dalam alur.
-- Pilihan hanya hidup di state UI selama onboarding. Keluar dari alur/memulai ulang mengembalikan default; belum ada penyimpanan atau penerapan profil ke dashboard/engine. Ini bukan implementasi lengkap Nutrition Profile.
+- Pilihan hanya hidup di state UI selama onboarding. Keluar dari alur/memulai ulang mengembalikan default; fokus terpilih diteruskan ke label dashboard sebagai route extra, tanpa penyimpanan permanen atau penerapan ke engine. Ini bukan implementasi lengkap Nutrition Profile.
 - `assets/images/onboarding_finish_reference.png` berasal dari ekspor pengguna `Group-16.png`; hanya area ilustrasi dirender. Aset bukan hasil scan atau referensi nutrisi.
+
+## Dashboard dan ringkasan hari ini
+
+`features/dashboard/dashboard_screen.dart` mengikuti referensi Home kosong/berisi. Kartu scan berada di `widgets/dashboard_scan_card.dart`; bagian riwayat berada di `widgets/dashboard_history.dart`.
+
+- Tanpa `summary`, layar menampilkan Belum ada catatan dan Catat makanan pertama. Tidak ada angka contoh yang dimasukkan ke data aplikasi.
+- `DashboardScreen(summary: DailyNutritionSummary(...))` menerima ringkasan catatan hari ini yang sudah dihitung dari data terkonfirmasi oleh integrasi berikutnya. Model global ada di `models/daily_nutrition_summary.dart`: jumlah catatan positif, total gula/protein/energi nullable, dan penanda kelengkapan tiap nutrisi. Widget hanya memformat nilai yang diberikan; belum ada penyimpanan, pengambilan riwayat, atau kalkulasi nutrisi baru.
+- Nilai null tampil sebagai Belum tersedia, angka nol yang diketahui tetap nol, dan nutrisi yang hilang/ditandai parsial menghasilkan catatan belum lengkap. Ringkasan bukan target atau total konsumsi harian di luar makanan yang dicatat.
+- Fokus onboarding dibawa lewat `GoRouterState.extra` dan divalidasi terhadap empat opsi yang tersedia. Akses langsung `/home` tanpa fokus menampilkan Belum dipilih; route extra tidak disimpan setelah restart/reload.
+- Foto makanan dan Catat makanan pertama memakai callback `onScan`; kartu Buka Jelajah memakai `onExplore`. Callback default memberi pemberitahuan fitur belum tersedia. Kamera, riwayat tersimpan, perbandingan, dan profil belum diimplementasikan.
+- Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Implementasi navigasi lama dipertahankan sesuai permintaan pengguna; pengembangan dashboard tidak menambah branch atau mengubah callback navigasi. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
+- `assets/images/dashboard_reference.png` adalah ekspor pengguna `Group-18.png`; hanya area ilustrasi kartu yang dirender. Teks, tombol, dan ringkasan merupakan widget Flutter. Setelah menambah aset, hentikan dan jalankan ulang aplikasi agar bundle baru terbentuk.
 
 ## Struktur kode
 

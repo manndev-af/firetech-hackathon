@@ -28,7 +28,15 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: AppRoutes.home,
-              builder: (context, state) => const DashboardScreen(),
+              builder: (context, state) {
+                const focuses = {'Gula', 'Protein', 'Natrium', 'Keseimbangan'};
+                final focus = state.extra;
+                return DashboardScreen(
+                  focus: focus is String && focuses.contains(focus)
+                      ? focus
+                      : null,
+                );
+              },
             ),
           ],
         ),
