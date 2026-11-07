@@ -15,6 +15,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; Insight dan kamera memberikan status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
 - Pengujian profil/riwayat untuk validasi, simpan/batal, navigasi, filter, dan layar sempit dengan teks besar. Pengujian onboarding diperbaiki agar menggulir tombol kembali ke layar dan melepas handle semantics sebelum pemeriksaan akhir.
 
+- Font Inter lokal beserta lisensi SIL Open Font License, mapping bobot 400/500/600/700 pada pubspec, dan panduan font di README/WORKSPACE.
+
 - Dashboard NutriLens sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
 - Ilustrasi dashboard lokal dari ekspor pengguna dan pengujian empty state, ringkasan, data hilang, callback, serta teks besar.
 
@@ -36,6 +38,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Mekanisme CHANGELOG untuk melacak perubahan penting dalam bagian Unreleased sebelum rilis.
 
 ### Changed
+
+- Konstanta navigasi Insight diganti menjadi Jelajahi: `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), termasuk referensi placeholder. Builder Jelajahi masih dinonaktifkan; perubahan ini belum menambahkan layar fitur baru.
+
+- Seluruh halaman Flutter memakai Inter melalui tema dan TextTheme global, tanpa dependency tambahan atau unduhan font saat runtime.
 
 - Dashboard contoh toko diganti kartu scan dan Hari ini; fokus onboarding diteruskan ke label kartu. Navigasi bawah tetap menggunakan desain dan callback sebelumnya sesuai permintaan pengguna.
 

@@ -22,7 +22,7 @@ class RoutePlaceholderScreen extends StatelessWidget {
     (label: 'Food recognition', path: AppRoutes.recognition),
     (label: 'Konfirmasi porsi', path: AppRoutes.portionConfirmation),
     (label: 'Hasil nutrisi', path: AppRoutes.nutritionResult),
-    (label: 'Insight personal', path: AppRoutes.insight),
+    (label: 'Jelajahi', path: AppRoutes.explore),
     (label: 'Perbandingan makanan', path: AppRoutes.comparison),
     (label: 'Riwayat', path: AppRoutes.history),
     (label: 'Nutrition Profile', path: AppRoutes.nutritionProfile),

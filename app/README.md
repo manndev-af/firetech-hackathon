@@ -13,6 +13,8 @@ flutter run
 
 ## Routing
 
+Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), menggantikan konstanta Insight sebelumnya. Builder Jelajahi di router masih dinonaktifkan sampai layar fiturnya diimplementasikan.
+
 Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home` berada dalam shell dengan navigasi Beranda, Jelajahi, Kamera, Riwayat, dan Profil. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
 
 Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
@@ -48,6 +50,14 @@ Pembaruan 7 November 2026 menggantikan status navigasi/profil pada uraian dashbo
 - Model `models/nutrition_profile.dart` serta notifier sesi pada router menghubungkan onboarding, profil, dan label fokus dashboard. State tidak disimpan ke disk atau server dan hilang setelah restart. Profil belum diterapkan ke engine.
 - `features/history/history_screen.dart` menyediakan filter jenis, tanggal, reset, dan empty state. Tidak ada data contoh, daftar hasil tersimpan, atau API riwayat. Tombol Mulai pindai menjelaskan kamera belum tersedia.
 - Komponen bersama dan palet khusus layar baru berada di `shared/widgets/personal_page.dart`, mengikuti palet teal–mint pengguna. Figcraft menjadi referensi dan tidak dimodifikasi. TTS, tinggi/berat, alergi, dan penyimpanan permanen belum ditambahkan.
+
+## Font global Inter
+
+Seluruh halaman memakai Inter melalui `fontFamily` pada `AppTheme.light` dan penerapan font ke `TextTheme`. Nama family disimpan di `AppTypography.fontFamily`; tidak perlu menambahkan `fontFamily` pada setiap `Text` atau layout. `TextStyle` lokal tetap dapat mengatur ukuran/bobot/warna dan mewarisi family tema.
+
+File lokal berada di `assets/fonts/`: Inter-Regular (400), Inter-Medium (500), Inter-SemiBold (600), dan Inter-Bold (700), dengan mapping bobot pada `flutter.fonts` di `pubspec.yaml`. Font dibundel agar tersedia offline, tanpa package tambahan atau request font saat aplikasi dibuka. Sumber unduhan: [Google Fonts Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700); lisensi SIL Open Font License disertakan pada `assets/fonts/OFL.txt` dari [repository Google Fonts](https://github.com/google/fonts/blob/main/ofl/inter/OFL.txt).
+
+Setelah menambahkan font, hentikan aplikasi, jalankan `flutter pub get` dari `app/`, lalu `flutter run` agar bundle font ikut dibangun. Hot reload saja belum tentu memuat font baru.
 
 ## Struktur kode
 
