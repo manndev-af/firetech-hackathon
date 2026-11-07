@@ -218,3 +218,8 @@ Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyata
 ### Log debugging backend
 
 `server/src/middleware/requestLogger.ts` mencatat request/response development melalui Morgan ke `server/src/logs/requests-YYYY-MM-DD.log` (UTC). Folder dibuat saat server development berjalan dan diabaikan Git. Isi disamarkan serta dibatasi; tidak menyimpan gambar mentah. Lihat [panduan log backend](../server/README.md#log-debugging-request-dan-response) untuk batas data dan perintah pemantauan.
+
+
+### Backend compare - 8 November 2026
+
+Backend compare aktif melalui `server/src/routes/compare.routes.ts` dan `compare.openapi.ts`, `controllers/compare.controller.ts`, `middleware/compareUpload.ts`, serta `services/compare.service.ts`. Tes upload, provider mock, kalkulasi, read-only database dan concurrency ada di `server/test/compare.test.cjs`; OpenAPI/logging tercakup suite terkait. Handoff Flutter ada di [COMPARE_API.md](../server/COMPARE_API.md). Tidak menambah folder, schema Prisma, env atau dependency; frontend/asisten di luar change ini.

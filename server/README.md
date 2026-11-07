@@ -429,3 +429,9 @@ Get-Content .\src\logs\requests-YYYY-MM-DD.log -Wait
 Untuk scan label baru dengan basis `per_serving`, keluaran model `20 g` atau `200 ml` dinormalisasi ke `baseQuantity: 1`, `unitCode: porsi`, dengan massa/volume asli pada `referenceWeightG`/`referenceVolumeMl`. Jadi `quantity: 1` berarti satu sajian, bukan satu gram/ml. Basis `per_100g`/`per_100ml` tetap memakai satuan sumber. Entri lama tidak ditulis ulang; scan ulang bila basis entri lama salah.
 
 Evidence per nutrisi harus berisi satu baris nama, angka dan satuan. Energi dari lemak dan acuan AKG bukan energi total. Variasi spasi OCR diterima; konflik angka sebenarnya tetap menghasilkan `null`. Bila angka ditolak, insight dan TTS diganti penjelasan keterbatasan agar tidak mempertahankan klaim dari angka tersebut. `extractLabel()` Flutter tetap parser saran lokal, bukan sumber angka request atau hasil API. Batas teks Flutter/backend sama: 20.000 karakter.
+
+## Compare dua makanan
+
+POST `{API_PREFIX}/v1/comparisons` menerima dua gambar dalam satu request multipart, memakai dummy owner yang sama dengan scanner. Hasil hanya untuk sesi, tidak mencatat konsumsi atau menyimpan perbandingan. Route berbagi kapasitas dua operasi dengan scanner dan satu dispatch vision untuk pasangan A/B. Tidak memerlukan env/dependency atau migration baru.
+
+Lihat [COMPARE_API.md](COMPARE_API.md) untuk request, contoh respons/error, basis, null dan handoff CompareScreen. OpenAPI tersedia di `{API_PREFIX}/openapi.json` dan Swagger di `{API_PREFIX}/docs/`. Payload request/response compare selalu dihilangkan dari log debugging, termasuk saat gagal parsing; route lain mempertahankan redaksi log yang ada. Frontend dan API asisten belum termasuk implementasi ini.
