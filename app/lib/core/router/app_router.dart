@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:nutrilens/features/auth/login_screen.dart';
+import 'package:nutrilens/features/onboarding/onboarding_screen.dart';
 import 'package:nutrilens/features/dashboard/dashboard_screen.dart';
 import 'package:nutrilens/shared/layouts/main_scaffold.dart';
 
@@ -8,6 +9,11 @@ import 'route_paths.dart';
 final appRouter = GoRouter(
   initialLocation: AppRoutes.login,
   routes: [
+    GoRoute(
+      path: AppRoutes.onboarding,
+      name: AppRouteNames.onboarding,
+      builder: (context, state) => const OnboardingScreen(),
+    ),
     GoRoute(
       path: AppRoutes.login,
       name: AppRouteNames.login,

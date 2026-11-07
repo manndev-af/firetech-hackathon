@@ -37,7 +37,8 @@ D:\firetech-hackathon\
 │   ├── assets/                  # Aset statis aplikasi, di luar lib/
 │   │   ├── images/              # Foto, ilustrasi, dan logo hasil ekspor desain
 │   │   │   ├── .gitkeep
-│   │   │   └── login_reference.png # Ekspor desain pengguna; sumber ilustrasi login
+│   │   │   ├── login_reference.png # Ekspor desain pengguna; sumber ilustrasi login
+│   │   │   └── onboarding_finish_reference.png # Ilustrasi selesai onboarding
 │   │   └── icons/               # Ikon kustom hasil ekspor desain
 │   │       └── .gitkeep
 │   ├── lib/
@@ -62,6 +63,15 @@ D:\firetech-hackathon\
 │   │   ├── repositories/          # Abstraksi data global
 │   │   ├── providers/             # State global
 │   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   └── login_screen.dart
+│   │   │   ├── onboarding/
+│   │   │   │   ├── onboarding_screen.dart
+│   │   │   │   ├── onboarding_focus_screen.dart
+│   │   │   │   ├── onboarding_preference_screen.dart
+│   │   │   │   ├── onboarding_finish_screen.dart
+│   │   │   │   └── widgets/
+│   │   │   │       └── onboarding_widgets.dart
 │   │   │   ├── dashboard/
 │   │   │   │   └── widgets/
 │   │   │   ├── food_search/
@@ -131,7 +141,7 @@ Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../a
 
 - [app/assets/images/](../app/assets/images/) menyimpan foto, ilustrasi, dan logo yang diekspor dari Figma atau sumber lain dengan izin penggunaan yang sesuai.
 - [app/assets/icons/](../app/assets/icons/) menyimpan ikon kustom. Ikon Material bawaan tetap dapat digunakan tanpa berkas tambahan.
-- Kedua folder sudah didaftarkan pada `flutter.assets` di [pubspec.yaml](../app/pubspec.yaml). Folder icons masih berisi `.gitkeep`; images juga memuat `login_reference.png` dari ekspor desain pengguna `Group-11.png`. Login merender area ilustrasi makanan dari ekspor tersebut, sementara teks dan tombol tetap widget Flutter. Aset merupakan ilustrasi, bukan bukti hasil identifikasi atau nilai nutrisi. Lisensi/sumber asli ilustrasi belum diverifikasi; pastikan izin sebelum redistribusi.
+- Kedua folder sudah didaftarkan pada `flutter.assets` di [pubspec.yaml](../app/pubspec.yaml). Folder icons masih berisi `.gitkeep`; images juga memuat `login_reference.png` dari ekspor desain pengguna `Group-11.png`. Onboarding juga memakai `onboarding_finish_reference.png` dari ekspor pengguna `Group-16.png`. Login dan onboarding hanya merender area ilustrasi makanan dari ekspor tersebut, sementara teks dan tombol tetap widget Flutter. Aset merupakan ilustrasi, bukan bukti hasil identifikasi atau nilai nutrisi. Lisensi/sumber asli ilustrasi belum diverifikasi; pastikan izin sebelum redistribusi.
 - Gunakan nama berkas `snake_case`, misalnya `nutrilens_logo.png`, dengan path dari root Flutter seperti `assets/images/nutrilens_logo.png`. Nama tersebut hanya contoh, bukan aset yang sudah tersedia.
 - Jika menambahkan subfolder, daftarkan path-nya tersendiri di `pubspec.yaml`; deklarasi direktori tidak mencakup subfolder secara rekursif, kecuali varian resolusi gambar Flutter.
 - Gunakan format gambar yang didukung Flutter untuk gambar/ikon lokal. SVG memerlukan dukungan tambahan; jangan menambah dependency sebelum diperlukan. Font kustom baru ditambahkan saat berkas dan kebutuhan tipografinya tersedia, lalu didaftarkan pada `flutter.fonts`.
