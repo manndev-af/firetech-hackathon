@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/nutrition_profile.dart';
 import '../models/scan_history_entry.dart';
+import '../models/history_preview_data.dart';
 import '../models/scan_draft.dart';
 import '../services/local_storage.dart';
 
@@ -22,8 +23,12 @@ Future<void> initializeLocalState({LocalStorage? storage}) async {
     if (snapshot != null) {
       profileSession.value = snapshot.profile;
       analysisAudioSession.value = snapshot.audioEnabled;
-      historySession.value = snapshot.history;
+      historySession.value = snapshot.history.isEmpty
+          ? [sampleHistoryEntry]
+          : snapshot.history;
       draftSession.value = snapshot.drafts;
+    } else {
+      historySession.value = [sampleHistoryEntry];
     }
     localStorage = candidate;
     if (candidate.recoveredBackup) {

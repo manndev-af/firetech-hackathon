@@ -7,6 +7,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
+  - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
+  - Memungkinkan pengujian langsung fitur suara Text-to-Speech (TTS) lokal tanpa harus mengambil atau memindai foto makanan terlebih dahulu.
+  - Dilengkapi ringkasan kesimpulan singkat (`spokenSummary`) yang ramah aksesibilitas: *"Porsi camilan baik dengan 8 gram protein. Perhatikan 12 gram gula sesuai target harianmu."*
+
 - Kolom deskripsi tambahan opsional setelah memotret pada peninjauan kamera (`ScannerScreen`):
   - Tampil di bawah pilihan mode saat foto berhasil diambil atau dipilih dari galeri, berlaku untuk mode Makanan maupun Label produk.
   - Dilengkapi label "Deskripsi tambahan", badge penanda "Opsional", ikon pensil/catatan, pembatasan 140 karakter, dan tombol bersihkan teks.
@@ -23,6 +28,12 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Perbaikan batas outline tombol kamera pada Bottom Navigation Bar (`BottomNav` & `BottomNavPainter`):
+  - Tombol aksi kamera mengambang diposisikan sejajar (`top: 20`, 56x56 px) dengan outline putih (`Border.all(color: Colors.white, width: 3.0)`) yang senada dengan warna dasar navbar, dan tidak keluar dari jalur garis tepi outline navbar.
+  - Lengkungan notch diperhalus memeluk tombol kamera dengan rapi serta diberi goresan border halus bertema pada jalur outline navigasi bawah.
+- Penyesuaian nada suara (*pitch / voice tune*) dan kecepatan bicara (*speech rate*) TTS pada `SummarySpeech`:
+  - Nada suara (*pitch*) diatur ke nilai standar alami (`1.0`).
+  - Kecepatan bicara (*speech rate*) diatur ke `0.45` (berada di antara rentang santai 0.4 dan 0.5) agar pelafalan ringkasan kesimpulan terdengar jelas, tenang, dan mudah dipahami.
 - Tombol kembali (panah back) dan identitas roomchat pada asisten nutrisi AI (`AssistantScreen`) dijadikan fixed (statis) di bagian atas layar:
   - Tombol panah kembali beserta judul dan status konteks percakapan ditempatkan di top bar tetap di luar area scrollable, sehingga tidak ikut ter-scroll ke atas saat pesan percakapan memanjang.
   - Pengguna dapat menekan tombol kembali kapan saja dengan mudah tanpa perlu menggulir ke paling atas layar chat.
