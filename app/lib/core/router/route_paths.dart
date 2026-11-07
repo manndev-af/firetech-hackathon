@@ -8,7 +8,7 @@ abstract final class AppRoutes {
   static const recognition = '/scan/recognition';
   static const portionConfirmation = '/scan/portion';
   static const nutritionResult = '/scan/result';
-  static const insight = '/insight';
+  static const explore = '/explore';
   static const nutritionProfile = '/profile/nutrition';
   static const comparison = '/comparison';
   static const history = '/history';
@@ -25,7 +25,7 @@ abstract final class AppRouteNames {
   static const recognition = 'recognition';
   static const portionConfirmation = 'portion-confirmation';
   static const nutritionResult = 'nutrition-result';
-  static const insight = 'insight';
+  static const explore = 'explore';
   static const nutritionProfile = 'nutrition-profile';
   static const comparison = 'comparison';
   static const history = 'history';

@@ -13,6 +13,8 @@ flutter run
 
 ## Routing
 
+Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), menggantikan konstanta Insight sebelumnya. Builder Jelajahi di router masih dinonaktifkan sampai layar fiturnya diimplementasikan.
+
 Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home` berada dalam shell dengan navigasi Beranda, Jelajahi, Kamera, Riwayat, dan Profil. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
 
 Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
@@ -38,6 +40,16 @@ Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboa
 - Foto makanan dan Catat makanan pertama memakai callback `onScan`; kartu Buka Jelajah memakai `onExplore`. Callback default memberi pemberitahuan fitur belum tersedia. Kamera, riwayat tersimpan, perbandingan, dan profil belum diimplementasikan.
 - Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Implementasi navigasi lama dipertahankan sesuai permintaan pengguna; pengembangan dashboard tidak menambah branch atau mengubah callback navigasi. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
 - `assets/images/dashboard_reference.png` adalah ekspor pengguna `Group-18.png`; hanya area ilustrasi kartu yang dirender. Teks, tombol, dan ringkasan merupakan widget Flutter. Setelah menambah aset, hentikan dan jalankan ulang aplikasi agar bundle baru terbentuk.
+
+## Profil dan Riwayat
+
+Pembaruan 7 November 2026 menggantikan status navigasi/profil pada uraian dashboard terdahulu:
+
+- Tab History membuka `/history`; Profile membuka `/profile`; editor berada di `/profile/nutrition`. Home tetap branch pertama. Insight dan tombol kamera memberi pemberitahuan belum tersedia, bukan membuka route yang tidak ada.
+- `features/profile/` memuat ringkasan/pengaturan dan editor profil. Nama/usia opsional, lima prioritas bisa dipilih jamak, dan preferensi dapat dikosongkan. Simpan memvalidasi dan menerapkan draft; Batal membuangnya.
+- Model `models/nutrition_profile.dart` serta notifier sesi pada router menghubungkan onboarding, profil, dan label fokus dashboard. State tidak disimpan ke disk atau server dan hilang setelah restart. Profil belum diterapkan ke engine.
+- `features/history/history_screen.dart` menyediakan filter jenis, tanggal, reset, dan empty state. Tidak ada data contoh, daftar hasil tersimpan, atau API riwayat. Tombol Mulai pindai menjelaskan kamera belum tersedia.
+- Komponen bersama dan palet khusus layar baru berada di `shared/widgets/personal_page.dart`, mengikuti palet teal–mint pengguna. Figcraft menjadi referensi dan tidak dimodifikasi. TTS, tinggi/berat, alergi, dan penyimpanan permanen belum ditambahkan.
 
 ## Font global Inter
 

@@ -1,5 +1,15 @@
 # NutriLens AI — Rancangan UI/UX
 
+## Profil dan Riwayat Flutter — 7 November 2026
+
+Implementasi mengikuti struktur artboard `09 History`, `10 Profile & Settings`, dan `07 Nutrition Profile` pada `nutrilens-base.figcraft`, dengan palet dari `palet_warna_ui_aplikasi_nutrisi.md` yang diberikan pengguna. File Figcraft tidak diubah. Layar baru memakai primary `#0D6E6B`, latar `#F3F9F8`, permukaan `#E6F4F3`, chip `#D8EFEF`, teks `#142625`/`#5E7170`, garis `#E4ECEB`, kartu radius 24 px, serta jarak berbasis 8 px. Token layar lama dan bentuk navigasi bawah dipertahankan.
+
+- Profil menampilkan identitas aktual atau “Profil kamu”, prioritas, preferensi, dan pengaturan informasi. Editor menyediakan nama/usia opsional, lima prioritas jamak, preferensi opsional, Simpan dan Batal. Tidak memakai nama contoh Naya sebagai data awal.
+- State profil hanya hidup selama sesi aplikasi; pilihan onboarding diteruskan ke profil dan perubahan prioritas memperbarui label Home. Informasi privasi menjelaskan batas ini. Audio hasil analisis ditandai belum tersedia, bukan toggle seolah TTS sudah berfungsi.
+- Riwayat menampilkan filter jenis/tanggal, reset filter, dan empty state. Belum ada penyimpanan atau daftar hasil nyata. Mulai pindai memberi pemberitahuan kamera belum tersedia.
+- Tab Home, History, dan Profile terhubung ke branch yang benar; Insight memberi pemberitahuan belum tersedia. Tombol kamera tidak lagi menuju route contoh `/create-order`.
+- Tinggi/berat, alergi, penyimpanan permanen, dan integrasi mesin nutrisi tetap belum diimplementasikan. Catatan historis di bawah yang menyebut Profil/Riwayat belum dibuat digantikan oleh pembaruan ini untuk cakupan UI tersebut.
+
 ## Pembaruan FigCraft — 4 November 2026
 
 Redesign pada `nutrilens-base.figcraft` dikerjakan melalui MCP FigCraft. Seluruh 14 artboard tetap dipertahankan. Perubahan struktur terbesar ada pada Home, Food Scanner, Food Recognition, dan Splash; layar lainnya menerima perapian tipografi, kartu, atau alignment sesuai kebutuhan.
