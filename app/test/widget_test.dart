@@ -9,6 +9,7 @@ import 'package:nutrilens/features/onboarding/onboarding_focus_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_preference_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_finish_screen.dart';
 import 'package:nutrilens/features/onboarding/widgets/onboarding_widgets.dart';
+import 'package:nutrilens/models/nutrition_profile.dart';
 import 'package:nutrilens/shared/layouts/main_scaffold.dart';
 
 void main() {
@@ -154,6 +155,38 @@ void main() {
       expect(find.byType(OnboardingFinishScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
       semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'tapping Masuk loads seeded sample user profile and preserves it into home and profile',
+    (tester) async {
+      profileSession.value = NutritionProfile();
+      analysisAudioSession.value = false;
+      await start(tester);
+      await tap(tester, 'Masuk');
+      expect(profileSession.value.name, 'Pengguna Demo');
+      expect(profileSession.value.age, 25);
+      expect(profileSession.value.heightCm, 165);
+      expect(profileSession.value.weightKg, 60);
+      expect(profileSession.value.preference, 'Masakan rumahan');
+      expect(profileSession.value.eatingPattern, 'Fleksibel');
+      expect(profileSession.value.prefersHalal, isTrue);
+      expect(profileSession.value.allergyStatus, AllergyStatus.listed);
+      expect(profileSession.value.allergies, ['Susu']);
+      expect(profileSession.value.otherAllergies, 'Wijen');
+      expect(analysisAudioSession.value, isTrue);
+
+      await tap(tester, 'Lanjutkan');
+      await tap(tester, 'Lanjutkan');
+      await tap(tester, 'Ke beranda');
+      expect(appRouter.routeInformationProvider.value.uri.path, AppRoutes.home);
+      expect(profileSession.value.name, 'Pengguna Demo');
+      expect(profileSession.value.age, 25);
+      expect(profileSession.value.heightCm, 165);
+      expect(profileSession.value.weightKg, 60);
+      expect(profileSession.value.allergies, ['Susu']);
+      expect(profileSession.value.otherAllergies, 'Wijen');
     },
   );
 }

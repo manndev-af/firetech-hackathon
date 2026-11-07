@@ -4,12 +4,16 @@ import 'package:go_router/go_router.dart';
 import '../../core/router/route_paths.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../providers/local_app_state.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  void _onLogin(BuildContext context) {
-    context.go(AppRoutes.onboarding);
+  Future<void> _onLogin(BuildContext context) async {
+    await loginAsSampleUser();
+    if (context.mounted) {
+      context.go(AppRoutes.onboarding);
+    }
   }
 
   @override
