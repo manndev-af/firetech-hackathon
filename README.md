@@ -12,7 +12,7 @@ NutriLens AI adalah aplikasi pendukung keputusan nutrisi personal yang membantu 
 - [Rancangan UI/UX](docs/DESIGN.md) — alur layar, komponen, state, dan arahan desain.
 - [Register keputusan](docs/DECISIONS.md) — keputusan yang ditegaskan, rekomendasi, konflik, serta hal terbuka.
 - [Arsitektur](docs/architecture.md) — pembagian tanggung jawab komponen, alur data, batas model, dan keputusan yang masih perlu difinalisasi.
-- [Panduan workspace](docs/WORKSPACE.md) — tata letak repository, pembagian area kerja, dan alur branch yang disarankan.
+- [Panduan workspace](docs/WORKSPACE.md) — tata letak repository, pembagian area kerja, dan aturan kerja/commit langsung di `main` sesuai permintaan pemilik repository.
 - [Aturan dokumentasi](rules/documentation.md) — sumber rujukan, aturan sinkronisasi, dan kapan mencatat perubahan.
 - [Aturan mutu UI](rules/ui.md) — prinsip implementasi dan review UI Flutter.
 - [Panduan Flutter](app/README.md) — setup dan penggunaan aplikasi mobile.

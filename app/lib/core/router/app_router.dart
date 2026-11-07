@@ -10,12 +10,17 @@ import '../../models/nutrition_profile.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/profile/nutrition_profile_screen.dart';
 import '../../features/history/history_screen.dart';
+import '../../features/explore/explore_screen.dart';
+import '../../features/explore/compare_screen.dart';
+import '../../features/explore/assistant_screen.dart';
 
 // In-memory UI state only; no account, disk storage, or nutrition-engine input.
 final profileSession = ValueNotifier<NutritionProfile>(NutritionProfile());
 final analysisAudioSession = ValueNotifier<bool>(false);
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
+  navigatorKey: _rootNavigatorKey,
   initialLocation: AppRoutes.login,
   routes: [
     GoRoute(
@@ -51,6 +56,7 @@ final appRouter = GoRouter(
                 return ValueListenableBuilder<NutritionProfile>(
                   valueListenable: profileSession,
                   builder: (context, profile, _) => DashboardScreen(
+                    onExplore: () => context.go(AppRoutes.explore),
                     focus: profile.priorities.isNotEmpty
                         ? profile.priorities.join(' · ')
                         : focus is String && focuses.contains(focus)
@@ -59,6 +65,15 @@ final appRouter = GoRouter(
                   ),
                 );
               },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.explore,
+              name: AppRouteNames.explore,
+              builder: (context, state) => const ExploreScreen(),
             ),
           ],
         ),
@@ -107,6 +122,19 @@ final appRouter = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: AppRoutes.comparison,
+      name: AppRouteNames.comparison,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CompareScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.assistant,
+      name: AppRouteNames.assistant,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) =>
+          AssistantScreen(showConversation: state.extra == true),
     ),
     // GoRoute(
     //   path: AppRoutes.splash,

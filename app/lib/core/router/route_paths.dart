@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const portionConfirmation = '/scan/portion';
   static const nutritionResult = '/scan/result';
   static const explore = '/explore';
+  static const assistant = '/assistant';
   static const nutritionProfile = '/profile/nutrition';
   static const comparison = '/comparison';
   static const history = '/history';
@@ -26,6 +27,7 @@ abstract final class AppRouteNames {
   static const portionConfirmation = 'portion-confirmation';
   static const nutritionResult = 'nutrition-result';
   static const explore = 'explore';
+  static const assistant = 'assistant';
   static const nutritionProfile = 'nutrition-profile';
   static const comparison = 'comparison';
   static const history = 'history';

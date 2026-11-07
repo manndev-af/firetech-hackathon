@@ -21,8 +21,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Preview Riwayat berisi dengan fixture terpisah berlabel ilustrasi, filter jenis/tanggal, kelompok tanggal, detail sumber/porsi/basis, serta pembedaan null dan nol. Tidak menambah catatan pengguna atau API penyimpanan.
 - Audit Profil/Riwayat, ekspor PNG widget Flutter, dan pengujian form lengkap, pemisahan preview, keyboard, serta layout teks besar. Hierarki kedua layar dirapikan dengan tema teal/mint dan Inter yang ada.
 
+- Layar Jelajahi, Bandingkan, dan Asisten mengikuti artboard FigCraft; perbandingan meminta dua gambar galeri sebelum ringkasan ilustrasi ditampilkan. Tab/kartu Home membuka Jelajahi; route asisten membedakan pintasan pola catatan dari halaman tanya tanpa chat. Gambar belum diunggah atau dianalisis.
 - UI Flutter Profil, editor profil nutrisi, dan Riwayat mengikuti referensi Figcraft serta palet teal–mint pengguna. Profil mendukung nama/usia opsional, lima prioritas jamak, preferensi makanan, validasi, simpan/batal, dan informasi privasi sesi. Riwayat menyediakan filter jenis/tanggal serta empty state tanpa catatan contoh.
-- State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; Insight dan kamera memberikan status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
+- State profil dalam memori menghubungkan onboarding, Profil, dan label fokus Home. Tab History/Profile aktif; kamera memberi status belum tersedia. Penyimpanan permanen, API riwayat, dan integrasi engine/TTS belum ditambahkan.
 - Pengujian profil/riwayat untuk validasi, simpan/batal, navigasi, filter, dan layar sempit dengan teks besar. Pengujian onboarding diperbaiki agar menggulir tombol kembali ke layar dan melepas handle semantics sebelum pemeriksaan akhir.
 
 - Font Inter lokal beserta lisensi SIL Open Font License, mapping bobot 400/500/600/700 pada pubspec, dan panduan font di README/WORKSPACE.
@@ -51,7 +52,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 - Detail Riwayat tanpa tanda silang, dengan kartu ringkasan dan fokus saat dicatat. Form Profil dirapikan; preview Personalisasi menampilkan seluruh prioritas, pilihan makanan, pola makan, halal, dan alergi dengan hierarki font yang konsisten.
 
-- Konstanta navigasi Insight diganti menjadi Jelajahi: `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), termasuk referensi placeholder. Builder Jelajahi masih dinonaktifkan; perubahan ini belum menambahkan layar fitur baru.
+- Aturan Git proyek diperbarui sesuai permintaan pengguna: pekerjaan dan commit langsung di `main`, tanpa pembuatan/perpindahan branch otomatis. AGENTS, WORKSPACE, dan README menegaskan prioritas aturan proyek atas saran branch dari skill generik.
+
+- Konstanta navigasi Insight diganti menjadi Jelajahi: `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Screen Jelajahi kini terdaftar pada shell navigasi.
 
 - Seluruh halaman Flutter memakai Inter melalui tema dan TextTheme global, tanpa dependency tambahan atau unduhan font saat runtime.
 
