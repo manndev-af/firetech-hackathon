@@ -99,7 +99,10 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                  minWidth: constraints.maxWidth,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -107,6 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 16),
                       // Konten Tengah: Logo, Nama Aplikasi & Tagline
@@ -116,6 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
                           scale: _scaleAnimation,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
                                 width: 110,
