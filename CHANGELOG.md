@@ -7,6 +7,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Profil seed development kini berisi fixture lengkap tanpa field null untuk demo, termasuk identitas, personalisasi, alergi, audio, dan timezone. Seed ulang tetap mempertahankan koreksi profil yang sudah ada; tidak membuat konsumsi atau hasil scan fiktif.
+
+- Batas minimal password seed dummy development diturunkan menjadi 5 karakter atas permintaan pengguna; batas maksimal 128, salted scrypt, dan larangan seed production tetap berlaku.
+
 - Template environment backend disiapkan untuk demo lokal MySQL/XAMPP: dummy owner aktif, email/password seed contoh terisi, dan API key DeepSeek acak yang ditandai sebagai placeholder tidak valid untuk scan live.
 
 - Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
