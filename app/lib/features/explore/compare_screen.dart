@@ -5,12 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../services/local_vision.dart';
 
 class CompareScreen extends StatefulWidget {
-  const CompareScreen({super.key, this.pickImage});
+  const CompareScreen({super.key, this.pickImage, this.checkFood});
 
   @visibleForTesting
   final Future<String?> Function()? pickImage;
+
+  @visibleForTesting
+  final Future<void> Function(String)? checkFood;
 
   @override
   State<CompareScreen> createState() => _CompareScreenState();
@@ -23,6 +27,106 @@ class _CompareScreenState extends State<CompareScreen> {
   bool _showSummary = false;
   bool _isPicking = false;
 
+  Future<void> _validateAndSetImage(String path, {required bool isImageA}) async {
+    try {
+      if (widget.checkFood != null) {
+        await widget.checkFood!(path);
+      } else if (widget.pickImage == null || File(path).existsSync()) {
+        await LocalVision().checkFood(path);
+      }
+      if (!mounted) return;
+      setState(() {
+        if (isImageA) {
+          _imageA = path;
+        } else {
+          _imageB = path;
+        }
+      });
+    } on ScanFailure catch (e) {
+      if (mounted) {
+        await _showFoodErrorDialog(e.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        await _showFoodErrorDialog(
+          'Makanan atau minuman belum terdeteksi. Dekatkan kamera dan ambil foto ulang dengan pencahayaan yang cukup.',
+        );
+      }
+    }
+  }
+
+  Future<void> _showFoodErrorDialog(String message) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        backgroundColor: Colors.white,
+        icon: Container(
+          width: 52,
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1F2),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFFECDD3)),
+          ),
+          child: const Icon(
+            Icons.warning_amber_rounded,
+            color: const Color(0xFFE11D48),
+            size: 28,
+          ),
+        ),
+        title: const Text(
+          'Makanan Belum Terdeteksi',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.5,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.heroBackground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+              },
+              child: const Text(
+                'Foto Ulang',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _pickImage({required bool isImageA}) async {
     if (_isPicking) return;
     if (widget.pickImage != null) {
@@ -31,13 +135,7 @@ class _CompareScreenState extends State<CompareScreen> {
         final path = await widget.pickImage!();
         if (!mounted) return;
         if (path != null) {
-          setState(() {
-            if (isImageA) {
-              _imageA = path;
-            } else {
-              _imageB = path;
-            }
-          });
+          await _validateAndSetImage(path, isImageA: isImageA);
         }
       } finally {
         if (mounted) setState(() => _isPicking = false);
@@ -147,13 +245,7 @@ class _CompareScreenState extends State<CompareScreen> {
       );
       if (!mounted) return;
       if (picked != null) {
-        setState(() {
-          if (isImageA) {
-            _imageA = picked.path;
-          } else {
-            _imageB = picked.path;
-          }
-        });
+        await _validateAndSetImage(picked.path, isImageA: isImageA);
       }
     } catch (_) {
       if (mounted) {
