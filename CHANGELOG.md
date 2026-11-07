@@ -5,6 +5,17 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Changed
+
+- Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
+- Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
+  - Kandungan gizi kini disajikan dalam format kartu dan badge berikon sesuai tema (Protein, Lemak, Karbohidrat, Serat, Gula, Natrium).
+  - Porsi dihitung dalam satuan dengan tombol cepat porsi (`1`, `2`, `3`, `4`) serta kontrol stepper (`-` / `+`), di mana semua nilai gizi langsung dikalikan secara reaktif.
+  - Ditambahkan kartu analisis trade-off personal (`Kelebihan` dan `Kekurangan`) dengan indikator ikon dan kontras tema yang jelas.
+  - Form koreksi manual dan tombol "Periksa & koreksi" dihilangkan sehingga alur menjadi langsung, bersih, dan intuitif.
+  - Data pratinjau lengkap (nama hidangan/produk, kalori 32 px, skor kesehatan `8.0+/10`, tag karakteristik, komposisi hidangan) aktif untuk pengujian realistis.
+  - Tipografi diperbesar seukuran onboarding (judul 24 px, angka kalori 32 px, judul kartu 18 px, deskripsi 15 px) sehingga nyaman dibaca dan tidak kekecilan.
+
 ### Removed
 
 - Halaman register Flutter, route/nama/path `/register`, akses Daftar pada login dan navigasi placeholder, serta pengujian khusus register dihapus atas permintaan pengguna.
