@@ -1,6 +1,6 @@
 # Tasks
 
-Status: pengguna menyetujui apply. Implementasi backend dan tes mock/database terisolasi selesai; tidak ada perubahan `app/`. Login tidak termasuk. Live smoke test 8.2 belum dijalankan: pengguna mengonfirmasi API key belum tersedia dan meminta penyelesaian implementasi/tes mock saja.
+Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi backend dan tes mock/database terisolasi selesai; migration serta seed telah diterapkan pada database lokal pengguna. Password dummy 5–128 karakter dan profil fixture lengkap tanpa null sudah diverifikasi. Tidak ada perubahan `app/`; login tidak termasuk. Live smoke test 8.2 tetap belum dijalankan sesuai cakupan tes mock yang diminta pengguna. Checklist diperbarui setelah pemeriksaan akhir, sebelum commit.
 
 ## 1. Kontrak dan keputusan produk
 
@@ -11,7 +11,7 @@ Status: pengguna menyetujui apply. Implementasi backend dan tes mock/database te
 
 - [x] 2.1 Tambahkan User, NutritionProfile, FoodEntry, KnowledgeChunk, ScanRequest beserta FK, unique constraints, Decimal/null fields, dan index owner/time di server/prisma/schema.prisma; NutritionProfile wajib sesuai tabel bagian 1a design.md termasuk identity opsional, pilihan UI, enum AllergyStatus, audio, dan timezone, dengan nama hanya di profile; verifikasi prisma validate, db:generate, serta round-trip semua field dan default berhasil.
 - [x] 2.2 Buat migration pertama tanpa reset/destructive SQL; verifikasi migration pada database MySQL development/test terisolasi dan constraint menolak duplicate email serta owner/idempotency key.
-- [x] 2.3 Tambahkan server/prisma/seed.ts, wiring prisma.config.ts dan db:seed untuk user email/password hash dari environment, profil netral sesuai constructor Flutter (tanpa usia/ukuran tubuh/alergi/prioritas buatan, audio false), dan referensi reviewed; verifikasi seed dua kali tidak menggandakan atau menimpa profil/audio/jurnal, password tidak plaintext, dan production/missing credentials ditolak.
+- [x] 2.3 Tambahkan server/prisma/seed.ts, wiring prisma.config.ts dan db:seed untuk user email/password hash dari environment (password dummy 5–128 karakter), profil fixture development lengkap dengan 13 field tanpa null sesuai revisi pengguna setelah apply, dan referensi reviewed; verifikasi batas password, seed dua kali tidak menggandakan atau menimpa profil/audio/jurnal, password tidak plaintext, dan production/missing credentials ditolak.
 - [x] 2.4 Dokumentasikan environment contoh tanpa rahasia, langkah migrate/generate/seed, batas dummy user, dan struktur baru di server/README.md serta docs/WORKSPACE.md; verifikasi perintah yang didokumentasikan pada database test.
 
 ## 3. Pemilik development dan profil
@@ -62,10 +62,19 @@ Status: pengguna menyetujui apply. Implementasi backend dan tes mock/database te
 - Pengguna mereview proposal/design/specs/tasks dan dapat menyetujui, mengurangi, atau mengubah scope sebelum apply.
 - Setelah implementasi dan pemeriksaan diterima, archive melalui workflow OpenSpec bila diminta. Tidak commit/push otomatis.
 
-## Bukti verifikasi apply — 7 November 2026
+## Bukti verifikasi apply awal — 7 November 2026
 
 - `pnpm test` dengan `TEST_DATABASE_URL`: 16 tes lolos, nol gagal/skip. Provider memakai transport mock; gambar/angka fixture sintetis.
 - `pnpm build`, `prisma validate`, `pnpm db:generate`, `pnpm db:deploy`, dan OpenSpec strict lolos. `pnpm lint` exit 0: 12 warning, tanpa error.
 - Migration/seed/integrasi memakai database MariaDB 10.4.32 terisolasi pada port lokal 3307 melalui provider Prisma MySQL. Oracle MySQL 8 belum diuji. Proses database tes dihentikan sesudah pengujian; database aplikasi tidak disentuh.
 - `git diff --check` bersih; tidak ada perubahan tracked/untracked dalam `app/`. Handoff tersedia di `server/SCANNER_API.md`; environment, setup, workspace, keputusan dan changelog diperbarui.
 - Task 8.2 tetap terbuka sesuai jawaban pengguna: API key belum tersedia; tidak ada request live DeepSeek, klaim akses vision, latensi atau kualitas analisis nyata. Tidak commit/push/archive otomatis.
+
+## Pemeriksaan akhir sebelum commit revisi — 7 November 2026
+
+- Proposal diperbarui dari status pra-implementasi menjadi scope yang sudah disetujui/diimplementasikan; batas retrieval, sifat referensi FDA, revisi seed dan ide lanjutan yang belum dibangun dijelaskan. Design/specs diselaraskan sebelum checklist ini diperbarui.
+- `pnpm test` dengan `TEST_DATABASE_URL`: 18 tes lolos, tanpa gagal/skip, termasuk batas password 5/128, penolakan 4/129, profil fixture lengkap dan integrasi scan dengan provider mock. `pnpm build` lolos; `pnpm lint` exit 0 dengan 12 warning dan tanpa error.
+- Migration `202611070001_scanner_consumption` diterapkan pada database lokal yang dikonfigurasi pengguna. Setelah audit memastikan tidak ada konsumsi/request scan, satu user dummy, satu profil dan tiga referensi seed lama dihapus secara terbatas lalu dibuat ulang. Tidak ada reset database menyeluruh atau konsumsi fiktif.
+- Verifikasi database lokal: satu user, satu profil dengan 13 field terisi dan nol field null, tiga referensi reviewed. Seed kedua mempertahankan ID, password hash, profil dan jumlah record. `.env` tetap diabaikan Git dan tidak diubah.
+- Integrasi terakhir memakai database MariaDB 10.4.32 terisolasi melalui provider Prisma MySQL; proses database tes dihentikan setelah selesai. Oracle MySQL 8 belum diuji.
+- Task 8.2 tetap belum dicentang; tidak ada request live DeepSeek. Progres 27/28. Commit diizinkan pengguna dan dipisah menurut fitur; tidak push atau archive.
