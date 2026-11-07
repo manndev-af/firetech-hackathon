@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../core/router/route_paths.dart';
 import '../../core/theme/app_colors.dart';
 
 class CompareScreen extends StatefulWidget {
@@ -205,13 +204,14 @@ class _CompareScreenState extends State<CompareScreen> {
                       fontSize: 28,
                       height: 1.3,
                       fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _showSummary
-                        ? 'Contoh perbandingan · per 250 ml'
-                        : 'Pilih gambar pertama dan kedua dari galeri.',
+                        ? 'Perbandingan takaran saji setara (per 250 ml/g)'
+                        : 'Pilih dua gambar makanan dari galeri atau kamera.',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
@@ -220,11 +220,11 @@ class _CompareScreenState extends State<CompareScreen> {
                   const SizedBox(height: 4),
                   Text(
                     _showSummary
-                        ? 'Gambar belum dianalisis. Nilai berikut hanya ilustrasi.'
-                        : 'Gambar tetap di perangkat; analisis belum terhubung.',
+                        ? 'Nilai nutrisi dinormalisasi untuk perbandingan setara.'
+                        : 'Gambar diproses langsung di perangkatmu untuk privasi.',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
-                      fontSize: 12,
+                      fontSize: 12.5,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -250,13 +250,13 @@ class _CompareScreenState extends State<CompareScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                     const Text(
-                      'Pilih dua gambar untuk melihat ringkasan perbandingan.',
+                      'Pilih dua gambar untuk melihat ringkasan perbandingan nutrisi.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
-                        fontSize: 13,
-                        height: 1.4,
+                        fontSize: 14,
+                        height: 1.45,
                       ),
                     ),
                   ] else ...[
@@ -265,9 +265,16 @@ class _CompareScreenState extends State<CompareScreen> {
                       child: TextButton.icon(
                         onPressed: () => setState(() => _showSummary = false),
                         icon: const Icon(Icons.edit_outlined, size: 18),
-                        label: const Text('Ubah gambar'),
+                        label: const Text(
+                          'Ubah gambar',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         Expanded(
@@ -306,16 +313,16 @@ class _CompareScreenState extends State<CompareScreen> {
                       'Pada contoh ini, B mengandung 6 g gula lebih sedikit dengan protein 1 g lebih rendah. Pilih sesuai hal yang ingin kamu perhatikan.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
-                        fontSize: 14,
+                        fontSize: 14.5,
                         height: 1.45,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.background,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: AppColors.border),
                       ),
                       child: const Column(
@@ -325,7 +332,7 @@ class _CompareScreenState extends State<CompareScreen> {
                             children: [
                               Icon(
                                 Icons.balance_rounded,
-                                size: 18,
+                                size: 20,
                                 color: AppColors.primary,
                               ),
                               SizedBox(width: 8),
@@ -333,19 +340,19 @@ class _CompareScreenState extends State<CompareScreen> {
                                 'Rekomendasi (Mending yang Mana?):',
                                 style: TextStyle(
                                   color: AppColors.textPrimary,
-                                  fontSize: 14,
+                                  fontSize: 14.5,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: 10),
                           Text(
                             '• Pilihan B lebih ramah gula jika kamu membatasi asupan manis harian.\n• Pilihan A memberi sedikit lebih banyak protein, tetapi gulanya dua kali lipat lebih tinggi.',
                             style: TextStyle(
                               color: AppColors.textSecondary,
-                              fontSize: 13,
-                              height: 1.4,
+                              fontSize: 13.5,
+                              height: 1.45,
                             ),
                           ),
                         ],
@@ -359,7 +366,7 @@ class _CompareScreenState extends State<CompareScreen> {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
               child: SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 54,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.heroBackground,
@@ -370,14 +377,14 @@ class _CompareScreenState extends State<CompareScreen> {
                     elevation: 0,
                   ),
                   onPressed: _showSummary
-                      ? () => context.push(AppRoutes.assistant, extra: 'compare')
+                      ? () => context.pop()
                       : hasBothImages
                       ? () => setState(() => _showSummary = true)
                       : null,
                   child: Text(
-                    _showSummary ? 'Bahas pilihan ini' : 'Lihat ringkasan',
+                    _showSummary ? 'Selesai' : 'Lihat ringkasan',
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -412,7 +419,7 @@ class _ImageChoiceCard extends StatelessWidget {
       onTap: isPicking ? null : onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        height: 211,
+        height: 215,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.border),
@@ -454,18 +461,18 @@ class _ImageChoiceCard extends StatelessWidget {
               label,
               style: const TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               imagePath == null
                   ? 'Kamera atau galeri'
                   : 'Ketuk untuk mengganti',
               style: const TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 11,
+                fontSize: 13,
               ),
             ),
           ],
@@ -492,8 +499,8 @@ class _FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 211,
-    padding: const EdgeInsets.all(12),
+    height: 215,
+    padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(20),
@@ -506,11 +513,11 @@ class _FoodCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Image.file(
             File(imagePath),
-            height: 64,
+            height: 68,
             width: double.infinity,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const SizedBox(
-              height: 64,
+              height: 68,
               child: Center(
                 child: Icon(
                   Icons.broken_image_outlined,
@@ -525,7 +532,7 @@ class _FoodCard extends StatelessWidget {
           name,
           style: const TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -539,14 +546,17 @@ class _FoodCard extends StatelessWidget {
         ),
         const Text(
           'gula / 250 ml · ilustrasi',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+          ),
         ),
         const Spacer(),
         Text(
           protein,
           style: const TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 12,
+            fontSize: 13.5,
             fontWeight: FontWeight.w600,
           ),
         ),

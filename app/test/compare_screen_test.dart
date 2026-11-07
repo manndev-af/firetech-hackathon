@@ -43,6 +43,7 @@ void main() {
       find.text('Lebih sedikit gula,\nprotein juga berbeda.'),
       findsOneWidget,
     );
-    expect(find.text('Bahas pilihan ini'), findsOneWidget);
+    expect(find.text('Bahas pilihan ini'), findsNothing);
+    expect(find.text('Selesai'), findsOneWidget);
   });
 }
