@@ -7,7 +7,9 @@ import 'onboarding_preference_screen.dart';
 import 'onboarding_finish_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({this.onComplete, super.key});
+
+  final void Function(String focus, String? preference)? onComplete;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -52,7 +54,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _ => OnboardingFinishScreen(
         focus: _focus,
         preference: _preference,
-        onHome: () => context.go(AppRoutes.home, extra: _focus),
+        onHome: () {
+          widget.onComplete?.call(_focus, _preference);
+          context.go(AppRoutes.home, extra: _focus);
+        },
       ),
     },
   );

@@ -62,6 +62,12 @@ Dashboard menampilkan empty state selama belum diberi ringkasan catatan. Widget 
 
 ## 4. Alur Fungsional Utama (P0)
 
+### Pembaruan implementasi Profil/Riwayat — 7 November 2026
+
+UI `/profile` dan `/profile/nutrition` menyediakan nama (maksimal 60 karakter), usia opsional (bilangan bulat 1–120 untuk validasi input, bukan batas medis/segmentasi), minimal satu dari lima prioritas nutrisi, serta preferensi makanan opsional. Simpan menerapkan draft ke state sesi; Batal membuang perubahan draft. Pilihan onboarding mengisi profil sesi dan label fokus Home mengikuti prioritas yang disimpan. Profil tidak dikirim ke server, tidak bertahan setelah restart, dan belum memengaruhi engine/insight. FR-15/16 tetap belum diimplementasikan.
+
+UI `/history` memiliki filter Semua/Tanpa kemasan/Kemasan, satu tanggal, dan reset. Tanpa sumber riwayat, layar selalu menampilkan empty state yang sesuai filter; tidak mengklaim ada penyimpanan analisis. Kamera/TTS/Insight masih ditandai belum tersedia. Ini implementasi UI parsial FR-13/14, bukan bukti pipeline atau persistensi sudah selesai. Ketentuan produk di atas tetap berlaku; status historis onboarding/dashboard diperbarui sebatas state sesi dan navigasi ini.
+
 1. Pengguna membuka aplikasi dan memilih satu atau lebih prioritas nutrisi: gula, natrium, energi/kalori, protein, atau keseimbangan nutrisi.
 2. Pengguna memilih jalur makanan tanpa kemasan dan mengambil foto.
 3. Sistem memvalidasi gambar dan mengirimkannya ke backend klasifikasi.

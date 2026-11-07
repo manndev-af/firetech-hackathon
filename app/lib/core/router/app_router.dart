@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nutrilens/features/auth/login_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_screen.dart';
@@ -5,6 +6,13 @@ import 'package:nutrilens/features/dashboard/dashboard_screen.dart';
 import 'package:nutrilens/shared/layouts/main_scaffold.dart';
 
 import 'route_paths.dart';
+import '../../models/nutrition_profile.dart';
+import '../../features/profile/profile_screen.dart';
+import '../../features/profile/nutrition_profile_screen.dart';
+import '../../features/history/history_screen.dart';
+
+// In-memory UI state only; no account, disk storage, or nutrition-engine input.
+final profileSession = ValueNotifier<NutritionProfile>(NutritionProfile());
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.login,
@@ -12,7 +20,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.onboarding,
       name: AppRouteNames.onboarding,
-      builder: (context, state) => const OnboardingScreen(),
+      builder: (context, state) => OnboardingScreen(
+        onComplete: (focus, preference) {
+          final current = profileSession.value;
+          profileSession.value = NutritionProfile(
+            name: current.name,
+            age: current.age,
+            priorities: [focus],
+            preference: preference,
+          );
+        },
+      ),
     ),
     GoRoute(
       path: AppRoutes.login,
@@ -31,12 +49,61 @@ final appRouter = GoRouter(
               builder: (context, state) {
                 const focuses = {'Gula', 'Protein', 'Natrium', 'Keseimbangan'};
                 final focus = state.extra;
-                return DashboardScreen(
-                  focus: focus is String && focuses.contains(focus)
-                      ? focus
-                      : null,
+                return ValueListenableBuilder<NutritionProfile>(
+                  valueListenable: profileSession,
+                  builder: (context, profile, _) => DashboardScreen(
+                    focus: profile.priorities.isNotEmpty
+                        ? profile.priorities.join(' · ')
+                        : focus is String && focuses.contains(focus)
+                        ? focus
+                        : null,
+                  ),
                 );
               },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.history,
+              name: AppRouteNames.history,
+              builder: (context, state) => const HistoryScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.profile,
+              name: AppRouteNames.profile,
+              builder: (context, state) =>
+                  ValueListenableBuilder<NutritionProfile>(
+                    valueListenable: profileSession,
+                    builder: (context, profile, _) => ProfileScreen(
+                      profile: profile,
+                      onEdit: () => context.push(AppRoutes.nutritionProfile),
+                    ),
+                  ),
+              routes: [
+                GoRoute(
+                  path: 'nutrition',
+                  name: AppRouteNames.nutritionProfile,
+                  builder: (context, state) => NutritionProfileScreen(
+                    profile: profileSession.value,
+                    onCancel: () => context.pop(),
+                    onSave: (profile) {
+                      profileSession.value = profile;
+                      context.pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profil disimpan untuk sesi ini.'),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
