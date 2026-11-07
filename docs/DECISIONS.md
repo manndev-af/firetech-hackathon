@@ -1,5 +1,18 @@
 # NutriLens AI — Register Keputusan
 
+## Scanner backend — keputusan pengganti, 7 November 2026
+
+Pengguna menyetujui change `add-scanner-consumption-backend`. Untuk jalur scanner ini, arah DEC-004/005/006 di bawah dipertahankan sebagai riwayat dan diganti oleh:
+
+- Identifikasi dan estimasi foto memakai satu panggilan DeepSeek Vision per operasi scan; OCR dan gambar label dikirim bersama. Tidak ada automatic provider retry. Ketersediaan model/akun perlu diverifikasi pada live test.
+- Angka foto adalah `model_estimate`, angka label `label_extracted_unverified`; keduanya bukan klaim data nutrisi terverifikasi. Null tidak diganti nol. Profil hanya memengaruhi penjelasan, bukan nilai sumber.
+- LLM mengusulkan unit/basis dari allowlist backend; backend memvalidasi basis. Koreksi quantity memakai kalkulasi Decimal deterministik dari basis tersimpan, tanpa panggilan LLM baru.
+- Scanner berarti konsumsi: analisis valid langsung menjadi jurnal, dapat dikoreksi jumlah atau dihapus. Explore tidak menambah konsumsi.
+- RAG SQL mengambil profil, ringkasan catatan sebelumnya, riwayat dan referensi reviewed sebelum panggilan yang sama. Respons mencakup ringkasan singkat `ttsSummary` untuk TTS frontend.
+- Identitas MVP menggunakan user dummy development yang di-seed dengan password hash, tanpa endpoint login. Domain API tidak aktif di produksi.
+
+Field profil mengikuti screen Flutter yang ada, ditambah penyimpanan preferensi audio. Integrasi frontend, playback TTS, serta perubahan copy privasi session-only dilakukan tim frontend. Scope dan verifikasi implementasi ada di `server/README.md` dan artifacts OpenSpec; keputusan ini bukan bukti live API atau model accuracy telah diuji.
+
 > Status dokumen: working register, belum menjadi baseline rilis yang disetujui. Catatan ini memisahkan arahan yang ditegaskan pengguna dari rekomendasi dan hal yang masih terbuka.
 
 Baca bersama [SUMMARY.md](SUMMARY.md), [PRD.md](PRD.md), [FRD.md](FRD.md), dan [architecture.md](architecture.md). Keputusan baru ditambahkan saat tim/pengguna menetapkan arahnya. Jangan menafsirkan keberadaan keputusan di sini sebagai bukti fitur telah diimplementasikan.
