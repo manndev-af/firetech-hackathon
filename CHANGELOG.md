@@ -5,6 +5,17 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Added
+
+- Halaman pembuka animasi (Splash Screen) pada `app/lib/features/splash/splash_screen.dart`:
+  - Menampilkan logo resmi aplikasi (`assets/icons/iconaplikasi.png`) dengan animasi fade-in dan scale halus, nama merek `nutrisee`, badge `Personalized Nutrition AI`, tagline *"Pahami kandungan, pilih sesuai prioritasmu"*, serta indikator loading berputar.
+  - Penentuan rute awal (`initialLocation: AppRoutes.splash`) dengan navigasi cerdas setelah durasi splash: mengarahkan pengguna ke Beranda jika profil nutrisi sudah terisi, atau ke halaman Login/Onboarding jika profil belum diatur.
+  - Tahan terhadap reflow layar sempit (320 px) dan pembesaran font (2.0x) tanpa overflow layout.
+- Pembaruan ikon launcher aplikasi Android (`ic_launcher.png` dan `ic_launcher_round.png`) menggantikan ikon default Flutter:
+  - Dihasilkan dari aset logo resmi `assets/icons/iconaplikasi.png` dalam berbagai resolusi standar (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+  - Pembaruan `AndroidManifest.xml` dengan nama aplikasi launcher `NutriSee` serta dukungan `android:roundIcon`.
+  - Integrasi splash layar awal native Android (`launch_background.xml` dan `drawable-v21/launch_background.xml`) menampilkan ikon NutriSee di tengah latar putih untuk transisi mulus saat aplikasi pertama kali dibuka.
+
 ### Changed
 
 - Halaman Jelajahi (`ExploreScreen`), Perbandingan (`CompareScreen`), dan Konsultasi AI (`AssistantScreen`) diperbarui secara terstruktur:

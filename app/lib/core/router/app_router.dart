@@ -17,6 +17,7 @@ import '../../features/history/history_screen.dart';
 import '../../features/explore/explore_screen.dart';
 import '../../features/explore/compare_screen.dart';
 import '../../features/explore/assistant_screen.dart';
+import '../../features/splash/splash_screen.dart';
 import '../../features/scanner/scanner_screen.dart';
 import '../../features/scanner/scan_result_screen.dart';
 import '../../providers/local_app_state.dart';
@@ -28,8 +29,13 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: AppRoutes.login,
+  initialLocation: AppRoutes.splash,
   routes: [
+    GoRoute(
+      path: AppRoutes.splash,
+      name: AppRouteNames.splash,
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: AppRoutes.onboarding,
       name: AppRouteNames.onboarding,
@@ -273,14 +279,6 @@ final appRouter = GoRouter(
         );
       },
     ),
-    // GoRoute(
-    //   path: AppRoutes.splash,
-    //   name: AppRouteNames.splash,
-    //   builder: (context, state) => const RoutePlaceholderScreen(
-    //     title: 'Splash',
-    //     description: 'Titik masuk NutriLens AI.',
-    //   ),
-    // ),
     // GoRoute(
     //   path: AppRoutes.onboarding,
     //   name: AppRouteNames.onboarding,
