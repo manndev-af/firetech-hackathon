@@ -99,3 +99,8 @@ Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi b
 
 - Prompt v3 meminta bahasa obrolan sopan dengan sapaan kamu, kata sehari-hari, kalimat pendek dan tanpa jargon/bahasa laporan. Pro/cons juga diarahkan sederhana. Template fallback dipermudah; tidak ada request tambahan atau perubahan frontend.
 - OpenAPI, panduan consumer dan design/specs diselaraskan. `pnpm test`: 10 lolos, satu integrasi dilewati tanpa TEST_DATABASE_URL; `pnpm build` lolos. Live test sebelumnya menguji v2, bukan bukti keterbacaan output v3; tidak memanggil provider lagi untuk perubahan kata ini. Record lama tidak diubah.
+
+## Revisi resolusi gambar scanner
+
+- Atas permintaan pengguna, normalisasi food/label menjadi JPEG tepat 544 x 544 dengan contain dan padding putih, orientasi dikoreksi tanpa crop. Raw OCR dan batas upload tetap berlaku. Detail kecil pada label dapat berkurang; penghematan token aktual bergantung pada provider.
+- Tes preprocessing menguji kedua mode, downscale/upscale, rasio, padding, JPEG, buffer asli dan OCR. Verifikasi: `pnpm test` 11 lolos, satu integrasi dilewati tanpa TEST_DATABASE_URL; `pnpm build`, OpenSpec strict dan diff check lolos. Tidak ada live provider test baru. OpenAPI, design, handoff dan changelog diperbarui.

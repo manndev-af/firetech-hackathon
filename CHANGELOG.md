@@ -7,6 +7,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Gambar scanner food/label kini dinormalisasi ke JPEG 544 x 544 dengan rasio asli dan padding putih tanpa crop untuk membatasi ukuran input vision. Raw OCR dan validasi upload tetap berlaku; kontrak OpenAPI dan panduan scanner diselaraskan.
+
 - Prompt TTS scanner v3 dan template fallback memakai bahasa Indonesia sehari-hari yang lebih mudah dipahami, dengan sapaan kamu, kalimat pendek dan arahan menghindari jargon/bahasa laporan. Kontrak OpenAPI dan panduan frontend diperbarui.
 
 - Respons konsumsi menyediakan `pros`/`cons` dari insight tersimpan untuk kartu Kelebihan/Kekurangan. Prompt v2 mempertegas personalisasi dari retrieval dan ringkasan TTS atas pro/cons; fallback lokal mencoba insight yang sama. Unit/transport tests lolos dan dua mode service live 9Router lolos tanpa menambah jurnal fixture. Flutter tidak diubah.
