@@ -7,6 +7,26 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Validasi pesan dan history assistant general/pattern, parser JSON lokal 64 KiB serta penghilangan payload chat dari log sebelum parsing. API POST `{API_PREFIX}/v1/assistant/messages` aktif: prompt assistant terpisah, satu dispatch teks, sumber tervalidasi dan agregasi Decimal tujuh tanggal lokal tanpa write database. OpenAPI dan ASSISTANT_API.md menjelaskan general/pattern, cold start dan handoff Flutter.
+
+### Added
+
+- Service compare dua gambar memakai satu dispatch vision dan retrieval read-only. Normalisasi per sajian/per 100 g/per 100 ml, selisih B-minus-A dan sorotan prioritas dihitung dengan Decimal; unknown tetap null. Ringkasan/TTS memakai template lokal bila evidence atau basis tidak mendukung narasi.
+
+- Validasi upload compare dua gambar, batas multipart termasuk chunked upload, kontrak request OpenAPI/handoff dan penghilangan payload compare dari log development. Route POST `{API_PREFIX}/v1/comparisons` aktif dengan dummy owner dan slot inferensi bersama scanner; tidak menyimpan konsumsi atau hasil compare.
+
+### Changed
+
+- Decoder gambar, transport JSON vision dan tipe input kalkulasi nutrisi scanner dipisahkan untuk pemakaian ulang compare; kontrak dan perilaku scanner tetap dipertahankan.
+
+### Fixed
+
+- Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
+- Parser saran label Flutter mengenali label bilingual, LemakJenuh dan satuan kkal/kcal tanpa mencampur energi lemak atau AKG.
+- OCR lokal opsional tidak lagi menghalangi analisis gambar oleh backend saat gagal/kosong/tanpa kata kunci; mode OCR wajib tersedia lewat dart-define SCANNER_USE_RAW_OCR=true. Batas teks diselaraskan menjadi 20.000 karakter.
+
+### Added
+
 - Service frontend integrasi backend `ProfileApi` (`app/lib/services/profile_api.dart`):
   - Berkomunikasi dengan endpoint `GET` dan `PATCH /api/v1/profile` untuk mengambil dan menyinkronkan profil nutrisi aktif serta status preferensi `audioAnalysisEnabled`.
 - Service frontend integrasi backend `JournalApi` (`app/lib/services/journal_api.dart`):
@@ -16,6 +36,24 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Perbaikan layout bar navigasi kembali (fixed pinned back button bar) pada seluruh halaman:
+  - Memperbaiki `OnboardingLayout` (`onboarding_widgets.dart`), `OnboardingFocusScreen`, dan `OnboardingPreferenceScreen`: Header navigasi kembali (`OnboardingHeader`) kini diposisikan tetap (*pinned/fixed*) di bagian atas layar di luar `SingleChildScrollView`, sehingga tombol kembali dan indikator langkah tidak ikut tergeser atau hilang saat konten di-scroll.
+  - Memperbaiki `CompareScreen` (`compare_screen.dart`): Tombol kembali (`Icons.arrow_back`) yang sebelumnya berada di dalam `ListView` kini dipindahkan ke top bar tetap (*fixed top bar*) di atas area perbandingan, menjamin tombol kembali selalu dapat diakses seketika tanpa harus scroll ke posisi paling atas.
+  - Memperbaiki `ScannerScreen` (`scanner_screen.dart`): Bar navigasi atas yang memuat tombol kembali / foto ulang dan judul mode (`Foto makananmu` / `Foto label nutrisinya` / `Periksa fotomu`) kini diposisikan tetap di luar `SingleChildScrollView`, menjaga kontrol navigasi selalu terlihat baik saat peninjauan foto maupun saat mengisi kolom catatan.
+
+- Optimasi visual dan penyederhanaan copywriting Onboarding serta Beranda:
+  - Meringkas judul hero kartu pemindaian di Beranda (`DashboardScanCard`) menjadi *"Pindai Makananmu"* yang jauh lebih ringkas, to the point, dan tidak memakan ruang berlebih.
+  - Memperpendek kalimat deskripsi kartu pemindaian menjadi *"Foto makanan atau label kemasan untuk cek nutrisi dan porsinya."*.
+  - Memperbesar dimensi visual ilustrasi piring makanan (`foodartwork.png`) pada kartu Beranda dari ukuran sebelumnya (120x105 px, tinggi 110 px) menjadi ukuran proporsional yang lebih menonjol (155x135 px, tinggi 140 px, fallback 160x145 px) sehingga seimbang dengan kartu hero.
+  - Meringkas judul teks besar (headline) dan subjudul pada alur Onboarding sebelum masuk ke beranda:
+    - `OnboardingFocusScreen`: Judul dipersingkat menjadi *"Pilih fokus nutrisimu"* (sebelumnya panjang: *"Nutrisi apa yang ingin kamu perhatikan?"*), subjudul *"Tentukan prioritas untuk memandu analisis makanan harianmu."*.
+    - `OnboardingPreferenceScreen`: Judul dipersingkat menjadi *"Pilih pola makanmu"* (sebelumnya panjang: *"Pola makan seperti apa yang kamu sukai?"*), subjudul *"Opsional. Sesuaikan dengan kebiasaan santapmu sehari-hari."*.
+    - `OnboardingFinishScreen`: Mengubah badge menjadi *"SIAP MEMULAI"* dan headline menjadi *"Makan lebih paham, setiap hari."*.
+
+- Penyempurnaan copywriting dan antarmuka Onboarding serta Beranda (iterasi sebelumnya):
+  - Memperbarui narasi dan judul pada onboarding awal (`OnboardingFocusScreen` dan `OnboardingPreferenceScreen`) serta layar masuk (`LoginScreen`) menjadi lebih lugas, rapi, dan profesional.
+  - Memperbaiki rendering aset ilustrasi piring makanan: mengekstrak citra beresolusi tinggi 1254x1254 RGBA transparan menjadi `assets/images/foodartwork.png` dan menggantikan penggunaan `SvgPicture` pada `LoginScreen`, `DashboardScanCard`, serta `OnboardingFinishScreen`, mengatasi kendala kegagalan render SVG akibat keterbatasan parsing raster pattern base64 pada `flutter_svg`.
+
 - Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
   - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
   - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
@@ -23,6 +61,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
   - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
   - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
   - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+
+- Logging request/response development server (`server/src/logs`):
+  - Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
 
 - Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
   - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
@@ -44,6 +85,18 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
   - Integrasi splash layar awal native Android (`launch_background.xml` dan `drawable-v21/launch_background.xml`) menampilkan ikon NutriSee di tengah latar putih untuk transisi mulus saat aplikasi pertama kali dibuka.
 
 ### Changed
+
+- Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
+  - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
+  - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
+  - `AnalysisApi`: Refaktor request scan mengarah ke `POST /api/v1/scans` menggunakan multipart form data, menangani kode status `201 Created` dan `200 OK`, dengan pemetaan bersih via `ScanHistoryEntry.fromBackend` serta mempertahankan fallback lokal saat offline.
+  - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
+  - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
+  - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+
+- Raw OCR scanner sementara nonaktif secara default melalui `SCANNER_USE_RAW_OCR=false`: label dianalisis dari gambar, tanpa OCR pada retrieval/payload/validasi evidence. Set true mengembalikan gambar + OCR wajib; data OCR yang disertakan tetap tersimpan dan menjadi fingerprint. Prompt v4, OpenAPI, contoh environment dan handoff diselaraskan.
+
+- Rate limiter global API dinonaktifkan atas permintaan pengguna agar validasi X-Forwarded-For dari express-rate-limit tidak mengganggu request melalui proxy. Batas concurrency dua operasi scanner tetap berlaku; OpenAPI dan panduan backend diselaraskan.
 
 - Proposal scanner diselaraskan dengan konfigurasi provider, preprocessing 544 × 544 dan gaya TTS v3 yang sudah diterapkan. Handoff Flutter kini mencakup alur multipart, mapping field/nutrisi nullable, koreksi quantity, idempotency dan penanganan error; tidak mengubah endpoint atau frontend.
 

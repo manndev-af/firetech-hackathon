@@ -30,7 +30,7 @@ export function dayBounds(date: string, timezone: string) {
   return { start, end };
 }
 
-export function totals(entry: Pick<FoodEntry, Nutrient | 'quantity' | 'baseQuantity'>) {
+export function totals(entry: Record<Nutrient, Prisma.Decimal | number | string | null> & { quantity: Prisma.Decimal | number | string; baseQuantity: Prisma.Decimal | number | string }) {
   return Object.fromEntries(nutrients.map(key => [key, entry[key] === null ? null : new Prisma.Decimal(entry[key]!).mul(entry.quantity).div(entry.baseQuantity).toDecimalPlaces(6).toNumber()])) as Record<Nutrient, number | null>;
 }
 

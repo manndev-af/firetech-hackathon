@@ -6,9 +6,11 @@ class OnboardingLayout extends StatelessWidget {
   const OnboardingLayout({
     required this.content,
     required this.footer,
+    this.header,
     this.bottomSpace = 24,
     super.key,
   });
+  final Widget? header;
   final List<Widget> content;
   final List<Widget> footer;
   final double bottomSpace;
@@ -22,30 +24,47 @@ class OnboardingLayout extends StatelessWidget {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(24, 16, 24, bottomSpace),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ...content,
-                            const SizedBox(height: 40),
-                            const Spacer(),
-                            ...footer,
-                          ],
-                        ),
-                      ),
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (header != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+                    child: header!,
                   ),
-                );
-              },
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              24,
+                              header != null ? 12 : 16,
+                              24,
+                              bottomSpace,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ...content,
+                                  const SizedBox(height: 40),
+                                  const Spacer(),
+                                  ...footer,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
