@@ -175,59 +175,80 @@ class _AssistantScreenState extends State<AssistantScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Fixed top app bar: tombol kembali dan identitas roomchat tetap di atas (tidak ikut ter-scroll)
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 20, 10),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: AppColors.border, width: 1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: 'Kembali',
+                    onPressed: () => context.pop(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.mint,
+                    ),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.heroBackground,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Asisten nutrisi',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _conversationActive && _mode == 'pattern'
+                              ? 'Fokus gula · pola dari catatanmu'
+                              : _conversationActive && _mode == 'compare'
+                              ? 'Perbandingan dua pilihan · trade-off AI'
+                              : 'Pilih makanan yang ingin kamu pahami',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      tooltip: 'Kembali',
-                      onPressed: () => context.pop(),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.mint,
-                      ),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.heroBackground,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Asisten nutrisi',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _conversationActive && _mode == 'pattern'
-                        ? 'Fokus gula · pola dari catatanmu'
-                        : _conversationActive && _mode == 'compare'
-                        ? 'Perbandingan dua pilihan · trade-off AI'
-                        : 'Pilih makanan yang ingin kamu pahami',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (!_conversationActive) ...[
-                    const SizedBox(height: 18),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: const Text(
+                    if (!_conversationActive) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Text(
                         'Tanya tentang pilihan makanan, porsi, atau kandungan gizi. Jawaban memakai data nutrisi yang tersedia.',
                         style: TextStyle(
                           color: AppColors.textSecondary,
