@@ -1,6 +1,6 @@
 # Proposal
 
-Status: scope disetujui pengguna dan backend sudah diimplementasikan. Revisi seed setelah apply juga telah disetujui: password dummy minimal 5 karakter dan profil demo lengkap tanpa null. Frontend tetap di luar scope. Verifikasi menggunakan provider mock; live smoke test DeepSeek masih tertunda.
+Status: scope disetujui pengguna dan backend sudah diimplementasikan. Revisi seed setelah apply juga telah disetujui: password dummy minimal 5 karakter dan profil demo lengkap tanpa null. Frontend tetap di luar scope. Verifikasi provider mock dan live smoke test service DeepSeek melalui 9Router telah dijalankan; hasil/batas uji ada di README backend dan tasks.
 
 ## Why
 
@@ -18,6 +18,7 @@ Scanner perlu backend yang mengubah foto makanan atau foto label beserta OCR dan
 - Konteks retrieval mencakup subtotal hari lokal sebelum waktu konsumsi, maksimal lima catatan relevan dalam tujuh hari sebelumnya, dan maksimal tiga referensi reviewed. KnowledgeChunk berisi parafrasa edukasi FDA; isi tidak otomatis berubah mengikuti preferensi. Preferensi/tag dan teks scan menentukan referensi yang dipilih. Riwayat dan referensi dibatasi pada konteks sekitar 8.000 karakter.
 - Hasil valid langsung disimpan sebagai konsumsi. Koreksi jumlah porsi menghitung ulang deterministik dari basis tersimpan tanpa panggilan DeepSeek; scan gagal tidak masuk jurnal.
 - Tambahkan `ttsSummary` berbahasa Indonesia untuk dibacakan frontend: ringkas, mudah dipahami, fokus pada insight utama dan trade-off. Dihasilkan dalam respons DeepSeek yang sama, disimpan bersama konsumsi, dan tidak memerlukan layanan audio backend atau request LLM tambahan.
+- Klarifikasi consumer setelah uji live: respons entry menyediakan `pros`/`cons` sebagai alias advantages/tradeoffs tersimpan untuk kartu Kelebihan/Kekurangan. Prompt meminta hubungan konkret dengan profil/retrieval; `ttsSummary` merangkum pro, cons dan ketidakpastian bagi user, dengan penjelasan nutrisi singkat bila didukung. Fallback mencoba insight yang sama tanpa panggilan provider tambahan. Frontend tetap tidak diubah.
 - Tetapkan batas sumber data: angka dari foto adalah estimasi model; ekstraksi OCR/gambar belum otomatis terverifikasi. Nilai hilang tetap null. Personalisasi mengubah insight, bukan nilai sumber.
 - Pengguna telah menyetujui perubahan arah DEC-004/005/006 untuk jalur scanner: DeepSeek untuk identifikasi/estimasi, saran satuan dari LLM dengan validasi backend, dan kalkulasi porsi tetap deterministik. Keputusan lama dipertahankan sebagai riwayat di DECISIONS.md.
 
@@ -39,4 +40,4 @@ Tidak ada spec OpenSpec yang sudah tersedia.
 - Gunakan Express, AJV, Prisma/MySQL, Node test runner yang tersedia; tambahkan parsing multipart dan decoder gambar hanya bila diperlukan. DeepSeek memakai HTTP native. Tidak ada microservice, deployment, training model, atau penyimpanan gambar permanen dalam MVP ini.
 - Migration dan seed telah diterapkan pada database lokal yang dikonfigurasi pengguna. Profil seed memiliki 13 field terisi, satu user/profil dan tiga referensi; seed ulang telah diverifikasi tidak menggandakan atau menimpa profil.
 - Analisis pola mingguan terstruktur, memori koreksi identitas/porsi dan alternatif personal dari riwayat masih ide lanjutan, belum termasuk change ini. Retrieval tujuh hari saat ini mengambil catatan relevan, bukan membangun fitur analisis pola mingguan tersendiri.
-- Status verifikasi rinci dicatat pada tasks setelah pemeriksaan akhir. Live DeepSeek, integrasi frontend, serta archive tidak dianggap selesai.
+- Status verifikasi rinci dicatat pada tasks setelah pemeriksaan akhir. Live service food/label melalui 9Router lolos; HTTP multipart/persistensi live, integrasi frontend, audit retry internal router serta archive tidak dianggap selesai.

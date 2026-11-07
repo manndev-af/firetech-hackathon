@@ -1,6 +1,6 @@
 # Tasks
 
-Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi backend dan tes mock/database terisolasi selesai; migration serta seed telah diterapkan pada database lokal pengguna. Password dummy 5–128 karakter dan profil fixture lengkap tanpa null sudah diverifikasi. Tidak ada perubahan `app/`; login tidak termasuk. Live smoke test 8.2 tetap belum dijalankan sesuai cakupan tes mock yang diminta pengguna. Checklist diperbarui setelah pemeriksaan akhir, sebelum commit.
+Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi backend dan tes mock/database terisolasi selesai; migration serta seed telah diterapkan pada database lokal pengguna. Password dummy 5–128 karakter dan profil fixture lengkap tanpa null sudah diverifikasi. Live smoke test 8.2 telah dijalankan setelah pengguna mengonfigurasi 9Router dan mengizinkan uji: kedua mode lolos validasi service dengan satu dispatch backend per mode. Tidak ada perubahan `app/`; login tidak termasuk. Progres 28/28; batas uji tercatat di bagian terakhir.
 
 ## 1. Kontrak dan keputusan produk
 
@@ -52,7 +52,7 @@ Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi b
 ## 8. Integrasi dan handoff backend
 
 - [x] 8.1 Jalankan pnpm test, pnpm build, pnpm lint serta tes integrasi MySQL terisolasi dengan provider mock; verifikasi scan food/label, deduplikasi, jumlah porsi, summary, production guard, dan route starter/OpenAPI tetap bekerja.
-- [ ] 8.2 Setelah akses provider dan pengiriman fixture nonpribadi diizinkan, jalankan smoke test satu request per mode menggunakan model vision yang tersedia; catat model, status, latensi, batas observasi, dan tidak melakukan retry otomatis. Jika akses belum tersedia, laporkan blocker tanpa mengklaim integrasi live lolos.
+- [x] 8.2 Setelah akses provider dan pengiriman fixture nonpribadi diizinkan, jalankan smoke test satu request per mode menggunakan model vision yang tersedia; catat model, status, latensi, batas observasi, dan tidak melakukan retry otomatis. Jika akses belum tersedia, laporkan blocker tanpa mengklaim integrasi live lolos.
 - [x] 8.3 Serahkan OpenAPI dan contoh request/response food/label/quantity/daily serta profile identity/personalization/audio beserta cara memakai dummy seed kepada tim frontend; sertakan mapping ValueNotifier audio ke audioAnalysisEnabled, kewajiban PATCH hanya field kelompok yang diedit, dan kebutuhan memperbarui copy privasi session-only sebelum integrasi; verifikasi seluruh kontrak tersedia, git diff pekerjaan ini tidak mengubah app/, dan seluruh dokumentasi menjelaskan batas estimasi serta scope development.
 
 ## Workflow follow-up
@@ -78,3 +78,24 @@ Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi b
 - Verifikasi database lokal: satu user, satu profil dengan 13 field terisi dan nol field null, tiga referensi reviewed. Seed kedua mempertahankan ID, password hash, profil dan jumlah record. `.env` tetap diabaikan Git dan tidak diubah.
 - Integrasi terakhir memakai database MariaDB 10.4.32 terisolasi melalui provider Prisma MySQL; proses database tes dihentikan setelah selesai. Oracle MySQL 8 belum diuji.
 - Task 8.2 tetap belum dicentang; tidak ada request live DeepSeek. Progres 27/28. Commit diizinkan pengguna dan dipisah menurut fitur; tidak push atau archive.
+
+## Live smoke test setelah konfigurasi 9Router — 7 November 2026
+
+- Pengguna mengizinkan uji live. Endpoint `/v1/models` pada 9Router lokal merespons 200, model konfigurasi `ds/deepseek-v4-flash-vision-exp` terdaftar dengan vision=true. Request generation ke `http://localhost:20128/v1/chat/completions`; kedua response melaporkan model `deepseek-flash` dan finish_reason=stop.
+- Food: crop foto nasi/ayam dari aset repo tanpa identitas pribadi, satu dispatch backend, HTTP 200, 7.066 ms, validasi core lolos dan TTS fallback template. Nilai foto tetap estimasi, bukan hasil pengukuran.
+- Label: gambar sintetis nonproduk dan raw OCR identik, satu dispatch backend, HTTP 200, 3.330 ms, validasi core lolos; delapan nutrient sesuai angka fixture, TTS dari model.
+- Retrieval database aktual berjalan sebelum request: profil allowlist dan tiga referensi tersedia, riwayat nol. Nama/usia/ukuran tubuh/audio/email/password tidak dikirim. Tidak menambah FoodEntry/ScanRequest; konsumsi pengguna tidak diubah.
+- Batas observasi: uji live pada service dan retrieval, bukan HTTP multipart/persistensi live, kualitas OCR produk nyata, akurasi nutrisi foto, atau audit retry/fallback internal 9Router. HTTP/persistensi memiliki tes provider mock terpisah. Backend tidak melakukan retry/repair call.
+- Task 8.2 kini selesai, progres 28/28. Bagian verifikasi sebelumnya dipertahankan sebagai riwayat. Tidak commit/push/archive otomatis.
+
+## Klarifikasi pro/cons consumer setelah live test
+
+- `data.pros`/`data.cons` diekspos sebagai alias dari analysis.advantages/tradeoffs pada scan/list/detail/quantity. Data lama tidak dimigrasi atau dikirim ulang ke LLM. Frontend tetap memakai preview lokal dan tidak diubah; mapping untuk kartu Kelebihan/Kekurangan dijelaskan di SCANNER_API.md.
+- Prompt `scanner-2026-11-v2` memperjelas personalisasi pro/cons berdasarkan profil dan riwayat yang tersedia; summary merangkum satu pro, satu con dan ketidakpastian. Jika model summary invalid, fallback mencoba kalimat insight lengkap sebelum template umum. Hanya satu panggilan provider.
+- Tes terbaru: `pnpm test` 10 lolos, satu integrasi dilewati karena TEST_DATABASE_URL tidak diisi; test directory database terisolasi lama tidak tersedia. Mapping respons, fallback yang mengandung fokus/pro/cons, batas summary dan preservasi quantity diuji unit; assertion integrasi alias juga ditambahkan namun tidak diklaim dijalankan pada putaran ini. `pnpm build` lolos; lint exit 0 dengan 12 warning tanpa error. OpenSpec strict dan diff check lolos.
+- Service live v2 food HTTP 200/7.811 ms, label HTTP 200/3.038 ms; satu dispatch backend per mode, kedua summary bersumber model dan pro/cons terisi. Tidak menambah jurnal fixture; retry internal 9Router dan akurasi nutrisi tidak diaudit. Bukti lama tetap historis; tidak commit/push/archive otomatis.
+
+## Revisi bahasa TTS untuk orang awam
+
+- Prompt v3 meminta bahasa obrolan sopan dengan sapaan kamu, kata sehari-hari, kalimat pendek dan tanpa jargon/bahasa laporan. Pro/cons juga diarahkan sederhana. Template fallback dipermudah; tidak ada request tambahan atau perubahan frontend.
+- OpenAPI, panduan consumer dan design/specs diselaraskan. `pnpm test`: 10 lolos, satu integrasi dilewati tanpa TEST_DATABASE_URL; `pnpm build` lolos. Live test sebelumnya menguji v2, bukan bukti keterbacaan output v3; tidak memanggil provider lagi untuk perubahan kata ini. Record lama tidak diubah.

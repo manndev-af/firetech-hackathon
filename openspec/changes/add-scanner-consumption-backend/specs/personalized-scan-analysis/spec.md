@@ -53,6 +53,10 @@ The system SHALL validate output schema, relevance, finite nonnegative nullable 
 ### Requirement: Portion-independent generated insight
 The system SHALL treat generated insight as qualitative context at scan time and keep quantity-dependent totals and statements in deterministic calculations. It MUST NOT present an old daily-context observation as a continuously updated assessment or claim a universal healthy-food score.
 
+#### Scenario: Consumer reads personalized pros and cons
+- **WHEN** an entry is serialized for scan, list, detail or quantity correction
+- **THEN** pros and cons arrays expose the stored advantages and tradeoffs, with prompt instructions to relate them to the supplied user priorities and available retrieval; insufficient evidence is explained without inventing benefits or drawbacks
+
 #### Scenario: Portion quantity changes
 - **WHEN** consumption quantity is updated
 - **THEN** totals change without another DeepSeek call and no stale quantity-specific generated claim is presented as current
@@ -69,7 +73,16 @@ The system SHALL send only the image, supplied scan text, relevant preferences, 
 - **THEN** those fields are excluded from the provider payload and no BMI, calorie target or weight target is inferred from them
 
 ### Requirement: Concise spoken summary
+
 The system SHALL request an Indonesian plain-text ttsSummary within the same DeepSeek analysis response. It MUST contain 2-3 short sentences, at most 60 words and 450 characters, emphasizing one supported personalized insight and a relevant trade-off when available. It MUST preserve material uncertainty and avoid exhaustive nutrient lists, markup, medical claims and quantity-dependent totals.
+
+#### Scenario: Speech understandable to nonexperts
+- **WHEN** the prompt requests a summary for audio playback
+- **THEN** it requests friendly everyday Indonesian, short sentences and kamu rather than formal report wording, explaining relevant nutritional terms without jargon or invented user goals/benefits
+
+#### Scenario: Speech summarizes personalized pros and cons
+- **WHEN** a scan has supported advantages and tradeoffs for the retrieved user context
+- **THEN** the prompt requests speech summarizing the main pro and con for that user, with brief nutrient context if useful, without adding unsupported claims; invalid speech attempts an insight-derived local summary before the uncertainty template
 
 #### Scenario: Successful analysis with audio disabled
 - **WHEN** a valid food or label scan completes while audioAnalysisEnabled is false

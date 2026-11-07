@@ -80,6 +80,25 @@ Respons penuh mempunyai delapan nutrient. Hari kosong berarti belum ada catatan,
 
 ## TTS dan privasi
 
+Prompt v3 mengarahkan `ttsSummary` menjadi bahasa obrolan yang ramah untuk orang awam: gunakan "kamu", "tapi", "cek lagi" dan "perkiraan"; hindari istilah laporan/teknis seperti provenance, terverifikasi, trade-off, atau "mendukung fokus protein". Jelaskan tujuan dengan bahasa sehari-hari sesuai profil, misalnya "kalau kamu lagi mengurangi gula". Tetap 2–3 kalimat, maksimal 60 kata/450 karakter, berbasis pro/cons tanpa klaim tambahan. Template terakhir juga memakai bahasa sederhana. Penilaian keterbacaan seluruh output model tetap memerlukan review manusia; instruksi gaya bukan bukti akurasi semantik.
+
+Respons scan, daftar/detail dan koreksi quantity menyediakan `data.pros` serta `data.cons` sebagai array string. Keduanya alias dari `data.analysis.advantages`/`data.analysis.tradeoffs`, bukan analisis kedua. Untuk kartu Kelebihan/Kekurangan pada `scan_result_screen.dart`, consumer dapat memakai `pros.join('\n')` dan `cons.join('\n')`. Screen saat ini masih menggunakan `_kelebihanText`/`_kekuranganText` preview lokal; integrasi HTTP/mapping tetap pekerjaan frontend, tanpa perubahan app pada backend change ini.
+
+Prompt `scanner-2026-11-v2` meminta pro/cons konkret bagi prioritas, preferensi dan konteks riwayat yang tersedia. `ttsSummary` merangkum satu pro, satu cons dan ketidakpastian relevan dalam 2–3 kalimat pendek; boleh menyebut peran protein/gula tanpa daftar angka. Ringkasan tidak menambah klaim baru, total quantity atau penilaian medis. Model tetap satu panggilan. Bila summary invalid, fallback mencoba kalimat lengkap dari insight tersimpan dan fokus pengguna; jika terlalu panjang/tidak aman formatnya, template ketidakpastian tetap dipakai. Ketika evidence tidak cukup, pro/cons menyatakan keterbatasan, bukan mengarang manfaat/kerugian. Record lama dengan arrays kosong tetap dibaca apa adanya; tidak dipanggil ulang ke provider.
+
+Contoh cuplikan service live v2 untuk fixture foto nasi/ayam (nilai model, bukan bukti medis):
+
+```json
+{
+  "pros": ["Ayam memberi protein, mendukung fokus protein pengguna."],
+  "cons": ["Bahan saus tidak jelas, sehingga risiko susu atau wijen belum bisa dinilai."],
+  "ttsSummary": "Ayam pada hidangan ini memberi protein yang mendukung fokus protein Anda, dan gulanya diperkirakan rendah. Namun bumbu bisa membuat natrium cukup tinggi, dan bahan saus belum jelas sehingga alergi susu atau wijen belum dapat dinilai. Porsi serta nilai gizi hanya estimasi dari foto, bukan pengukuran.",
+  "ttsSummarySource": "model"
+}
+```
+
+Arrays di cuplikan dipendekkan; summary live merangkum arrays lengkap. Semua insight menggunakan snapshot saat scan dan tetap sama ketika quantity diubah; hanya total nutrient dihitung ulang.
+
 Unit botol/kemasan hanya diterima bila teks takaran menyebut satu botol/kemasan secara eksplisit serta memiliki berat/volume acuan; backend tidak menebak konversi dari sajian ke seluruh kemasan. Label yang hanya menyebut gram/ml dapat mempertahankan unit gram/ml atau sajian dengan basis asli.
 
 `analysis.portion.basisSource` ditentukan backend: `model_estimate` atau `label_extracted_unverified`, terpisah dari kode `basis` per_serving/per_100g/per_100ml. Profil tidak mengubah basis atau nilai nutrient sumber.
@@ -90,4 +109,4 @@ Sebelum integrasi, ubah copy frontend yang menyatakan data session-only/tidak di
 
 RAG SQL/tag/text menyimpan context snapshot berisi profile, recordedDaily, history, references dengan ID/versi/URL sumber. Tidak ada vector DB. Riwayat estimasi tetap punya provenance; referensi menjelaskan konsep, bukan membuktikan angka nutrient model.
 
-Live DeepSeek belum diuji; tes memakai provider mock dan database terisolasi. Tidak ada perubahan Flutter dalam change ini.
+Live service DeepSeek melalui 9Router telah diuji untuk food dan label dengan fixture nonpribadi: kedua respons HTTP 200 dan lolos validasi backend, satu dispatch per mode. Uji tidak menambah konsumsi fixture; HTTP/persistensi diuji terpisah dengan provider mock. Model, latensi, hasil TTS dan batas observasi ada di [README backend](README.md#live-smoke-test-9router--7-november-2026). Tidak ada perubahan Flutter dalam change ini.
