@@ -12,7 +12,7 @@ import '../../services/local_vision.dart';
 enum ScanMode { food, label }
 
 typedef UsePhotoCallback =
-    Future<void> Function(XFile photo, ScanMode mode, {String? note});
+    Future<dynamic> Function(XFile photo, ScanMode mode, {String? note});
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({this.pickImage, this.onUsePhoto, super.key});
@@ -233,11 +233,14 @@ class _ScannerScreenState extends State<ScannerScreen>
     setState(() => _busy = true);
     final note = _noteController.text.trim();
     try {
-      await widget.onUsePhoto!(
+      final saved = await widget.onUsePhoto!(
         _photo!,
         _mode,
         note: note.isNotEmpty ? note : null,
       );
+      if (mounted && saved == true) {
+        _retake();
+      }
     } on ScanFailure catch (e) {
       if (mounted) {
         setState(() => _showingResult = false);

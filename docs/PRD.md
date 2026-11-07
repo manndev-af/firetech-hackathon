@@ -1,5 +1,7 @@
 # Product Requirements Document (PRD)
 
+> Addendum scanner, 7 November 2026: pengguna menyetujui backend scanner konsumsi otomatis, satu panggilan DeepSeek Vision dengan gambar pada kedua mode dan OCR pada label, serta personalisasi berbasis retrieval SQL. Nilai foto berstatus estimasi model; label adalah ekstraksi belum terverifikasi. Quantity dapat dikoreksi deterministik dan konsumsi dapat dihapus. Ini menggantikan rencana ONNX/verified-only khusus jalur scanner yang dijelaskan di bagian historis berikutnya. Scope development memakai seed dummy tanpa login; frontend dan TTS playback dikerjakan terpisah. Lihat DECISIONS.md dan server/README.md untuk batas implementasi.
+
 ## NutriLens AI — Personalized Nutrition Decision Support
 
 | Atribut | Nilai |

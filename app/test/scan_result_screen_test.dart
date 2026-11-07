@@ -140,7 +140,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(storage.snapshot!.drafts.single.rawOcrText, '  Gula 5 g\n');
       expect(historySession.value, isEmpty);
-      expect(find.text('Teks label terbaca'), findsOneWidget);
+      expect(find.text('Teks label terbaca'), findsNothing);
       expect(find.textContaining('Kopi 78'), findsNothing);
       expect(spoken, isEmpty);
     },
