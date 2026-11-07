@@ -13,10 +13,12 @@ class AnalysisContent extends StatefulWidget {
   const AnalysisContent({
     required this.entry,
     this.autoSpeak = false,
+    this.onQuantityChanged,
     super.key,
   });
   final ScanHistoryEntry entry;
   final bool autoSpeak;
+  final ValueChanged<double>? onQuantityChanged;
 
   @override
   State<AnalysisContent> createState() => _AnalysisContentState();
@@ -80,6 +82,7 @@ class _AnalysisContentState extends State<AnalysisContent>
   double? get _baseSodium => widget.entry.sodiumMg;
 
   double get _baseFat {
+    if (widget.entry.totalFatG != null) return widget.entry.totalFatG!;
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) return 3.5;
     if (lower.contains('nasi')) return 12.0;
@@ -88,6 +91,7 @@ class _AnalysisContentState extends State<AnalysisContent>
   }
 
   double get _baseCarbs {
+    if (widget.entry.carbohydratesG != null) return widget.entry.carbohydratesG!;
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) return 15.0;
     if (lower.contains('nasi')) return 54.0;
@@ -96,6 +100,7 @@ class _AnalysisContentState extends State<AnalysisContent>
   }
 
   double get _baseFiber {
+    if (widget.entry.fiberG != null) return widget.entry.fiberG!;
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('nasi')) return 4.8;
     return 0.0;
@@ -108,6 +113,9 @@ class _AnalysisContentState extends State<AnalysisContent>
   }
 
   String get _kelebihanText {
+    if (widget.entry.pros.isNotEmpty) {
+      return widget.entry.pros.join('\n');
+    }
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) {
       return 'Memberikan energi cepat dari karbohidrat dan gula, mengandung protein dan kalsium yang baik untuk tulang, serta praktis dikonsumsi.';
@@ -118,10 +126,15 @@ class _AnalysisContentState extends State<AnalysisContent>
     if (lower.contains('teh') || lower.contains('air')) {
       return 'Bebas kalori dan gula tambahan, sangat baik untuk menjaga hidrasi tubuh tanpa menambah beban asupan energi.';
     }
-    return 'Menyediakan asupan nutrisi yang terukur untuk mendukung kebutuhan energi dan aktivitas fisik kamu.';
+    return widget.entry.note.isNotEmpty
+        ? widget.entry.note
+        : 'Menyediakan asupan nutrisi yang terukur untuk mendukung kebutuhan energi dan aktivitas fisik kamu.';
   }
 
   String get _kekuranganText {
+    if (widget.entry.cons.isNotEmpty) {
+      return widget.entry.cons.join('\n');
+    }
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) {
       return 'Cenderung memiliki kandungan gula tambahan dan rendah serat dibanding yogurt tawar. Perhatikan asupan gula harian kamu.';
@@ -133,6 +146,11 @@ class _AnalysisContentState extends State<AnalysisContent>
       return 'Tidak menyumbang asupan makronutrisi penting seperti protein atau serat. Bukan pengganti makanan utama.';
     }
     return 'Perhatikan variasi konsumsi harian dan pastikan asupan mikronutrisi tetap tercukupi.';
+  }
+
+  void _updateServings(double newServings) {
+    setState(() => _servings = newServings);
+    widget.onQuantityChanged?.call(newServings);
   }
 
   String _formatNum(double value) =>
@@ -166,6 +184,14 @@ class _AnalysisContentState extends State<AnalysisContent>
     final carbsPercent =
         '${((_baseCarbs * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
 
+    String? photoPath = entry.photoPath;
+    if ((photoPath == null || photoPath.isEmpty) && localStorage != null) {
+      final diskFile = File('${localStorage!.directory.path}/photos/${entry.id}.jpg');
+      if (diskFile.existsSync()) {
+        photoPath = diskFile.path;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -178,9 +204,9 @@ class _AnalysisContentState extends State<AnalysisContent>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (entry.photoPath != null)
+                if (photoPath != null)
                   Image.file(
-                    File(entry.photoPath!),
+                    File(photoPath),
                     fit: BoxFit.cover,
                     errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
@@ -551,7 +577,7 @@ class _AnalysisContentState extends State<AnalysisContent>
                           ),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
-                            onTap: () => setState(() => _servings = count),
+                            onTap: () => _updateServings(count),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Text(
@@ -592,9 +618,8 @@ class _AnalysisContentState extends State<AnalysisContent>
                       tooltip: 'Kurangi porsi',
                       visualDensity: VisualDensity.compact,
                       onPressed: _servings > 1.0
-                          ? () => setState(
-                                () => _servings =
-                                    (_servings - 1.0).clamp(1.0, 10.0),
+                          ? () => _updateServings(
+                                (_servings - 1.0).clamp(1.0, 10.0),
                               )
                           : null,
                       icon: const Icon(Icons.remove_circle_outline, size: 22),
@@ -615,9 +640,8 @@ class _AnalysisContentState extends State<AnalysisContent>
                       tooltip: 'Tambah porsi',
                       visualDensity: VisualDensity.compact,
                       onPressed: _servings < 10.0
-                          ? () => setState(
-                                () => _servings =
-                                    (_servings + 1.0).clamp(1.0, 10.0),
+                          ? () => _updateServings(
+                                (_servings + 1.0).clamp(1.0, 10.0),
                               )
                           : null,
                       icon: const Icon(Icons.add_circle_outline, size: 22),
@@ -1142,19 +1166,6 @@ class _AnalysisContentState extends State<AnalysisContent>
                           color: PersonalColors.secondary,
                         ),
                       ),
-                      if (entry.rawOcrText != null) ...[
-                        const SizedBox(height: 12),
-                        const PersonalHeading('Teks label terbaca'),
-                        const SizedBox(height: 6),
-                        SelectableText(
-                          entry.rawOcrText!,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            height: 1.4,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
