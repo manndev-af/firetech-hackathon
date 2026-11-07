@@ -183,6 +183,32 @@ class HistoryEntryCard extends StatelessWidget {
                 ),
               ),
             ],
+            if (entry.userNote != null && entry.userNote!.trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.edit_note_rounded,
+                    size: 16,
+                    color: AppColors.primaryDark,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      entry.userNote!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 14),
             Wrap(
               spacing: 12,

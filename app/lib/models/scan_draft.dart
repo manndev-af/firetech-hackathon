@@ -6,6 +6,7 @@ class ScanDraft {
     required this.createdAt,
     required this.priorities,
     this.rawOcrText,
+    this.note,
   });
   final String id;
   final String photoPath;
@@ -13,6 +14,7 @@ class ScanDraft {
   final DateTime createdAt;
   final List<String> priorities;
   final String? rawOcrText;
+  final String? note;
   Map<String, dynamic> toJson() => {
     'id': id,
     'photoPath': photoPath,
@@ -20,6 +22,7 @@ class ScanDraft {
     'createdAt': createdAt.toIso8601String(),
     'priorities': priorities,
     'rawOcrText': rawOcrText,
+    if (note != null) 'note': note,
   };
   factory ScanDraft.fromJson(Map<String, dynamic> json) => ScanDraft(
     id: json['id'] as String,
@@ -28,5 +31,6 @@ class ScanDraft {
     createdAt: DateTime.parse(json['createdAt'] as String),
     priorities: List<String>.from(json['priorities'] as List),
     rawOcrText: json['rawOcrText'] as String?,
+    note: json['note'] as String?,
   );
 }

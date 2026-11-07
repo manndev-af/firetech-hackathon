@@ -17,6 +17,7 @@ class ScanResultScreen extends StatefulWidget {
     required this.photo,
     required this.mode,
     this.draft,
+    this.userNote,
     this.pipeline,
     this.api,
     this.readText,
@@ -25,6 +26,7 @@ class ScanResultScreen extends StatefulWidget {
   final XFile photo;
   final ScanMode mode;
   final ScanDraft? draft;
+  final String? userNote;
   final ScanPipeline? pipeline;
   final AnalysisApi? api;
   final Future<String> Function(String)? readText;
@@ -59,6 +61,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           'Penyimpanan lokal belum siap. Mulai ulang aplikasi sebelum memindai.',
         );
       }
+      final effectiveNote = widget.userNote ?? _draft?.note;
       if (_draft == null) {
         final pipeline =
             widget.pipeline ??
@@ -67,13 +70,20 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           widget.photo.path,
           label: widget.mode == ScanMode.label,
           priorities: profileSession.value.priorities,
+          note: effectiveNote,
         );
         await saveDraft(draft);
         _draft = draft;
       }
       // Navigating away during local processing must not start a backend request.
       if (!mounted) return;
-      final result = await (widget.api ?? AnalysisApi()).analyze(_draft!);
+      final apiResult = await (widget.api ?? AnalysisApi()).analyze(_draft!);
+      final result =
+          (effectiveNote != null &&
+                  effectiveNote.isNotEmpty &&
+                  apiResult.userNote == null)
+              ? apiResult.copyWith(userNote: effectiveNote)
+              : apiResult;
       // Retain a completed response even if the user has navigated away.
       try {
         await saveAnalysis(result);

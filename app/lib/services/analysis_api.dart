@@ -68,6 +68,8 @@ class AnalysisApi {
         'requestId': draft.id,
         'mode': draft.label ? 'label' : 'food',
         'rawOcrText': draft.rawOcrText,
+        if (draft.note != null && draft.note!.trim().isNotEmpty)
+          'userNote': draft.note!.trim(),
         'image': {'mimeType': 'image/jpeg', 'base64': base64Encode(photo)},
         'priorities': draft.priorities,
       }),
@@ -130,6 +132,7 @@ ScanHistoryEntry parseAnalysisResponse(Object? value, ScanDraft draft) {
     sugarG: nutrient('sugarG'),
     sodiumMg: nutrient('sodiumMg'),
     note: text('summary'),
+    userNote: draft.note,
     spokenSummary: spoken is String && spoken.trim().isNotEmpty
         ? spoken.trim()
         : 'Hasil analisis sudah tersedia. Periksa nama makanan, porsi, dan informasi yang belum lengkap sebelum menggunakannya.',

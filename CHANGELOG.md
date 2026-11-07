@@ -7,6 +7,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Kolom deskripsi tambahan opsional setelah memotret pada peninjauan kamera (`ScannerScreen`):
+  - Tampil di bawah pilihan mode saat foto berhasil diambil atau dipilih dari galeri, berlaku untuk mode Makanan maupun Label produk.
+  - Dilengkapi label "Deskripsi tambahan", badge penanda "Opsional", ikon pensil/catatan, pembatasan 140 karakter, dan tombol bersihkan teks.
+  - Menyediakan *hint text* kontekstual dinamis: contoh porsi & racikan masakan (*"Contoh: 1 mangkok sedang, tanpa kuah santan, sambal dipisah"*) untuk mode makanan, dan contoh varian/kemasan (*"Contoh: Varian cokelat, botol 250 ml, rasa tawar"*) untuk mode label produk.
+  - Terintegrasi penuh ke dalam `ScanDraft.note`, `ScanHistoryEntry.userNote`, payload API (`userNote`), serta ditampilkan di kartu rincian riwayat dan hasil analisis (`AnalysisContent`).
 - Halaman pembuka animasi (Splash Screen) pada `app/lib/features/splash/splash_screen.dart`:
   - Menampilkan logo resmi aplikasi (`assets/icons/iconaplikasi.png`) dengan animasi fade-in dan scale halus, nama merek `nutrisee`, badge `Personalized Nutrition AI`, tagline *"Pahami kandungan, pilih sesuai prioritasmu"*, serta indikator loading berputar.
   - Penentuan rute awal (`initialLocation: AppRoutes.splash`) dengan navigasi cerdas setelah durasi splash: mengarahkan pengguna ke Beranda jika profil nutrisi sudah terisi, atau ke halaman Login/Onboarding jika profil belum diatur.

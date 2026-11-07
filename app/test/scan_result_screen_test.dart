@@ -32,6 +32,7 @@ class PreparedPipeline extends ScanPipeline {
     String path, {
     required bool label,
     required List<String> priorities,
+    String? note,
   }) async {
     if (reject) {
       throw const ScanFailure('Makanan atau minuman belum terdeteksi.');
@@ -43,6 +44,7 @@ class PreparedPipeline extends ScanPipeline {
       createdAt: DateTime(2026, 11, 7),
       priorities: priorities,
       rawOcrText: label ? '  Gula 5 g\n' : null,
+      note: note,
     );
   }
 }

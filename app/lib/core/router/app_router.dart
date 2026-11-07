@@ -227,7 +227,7 @@ final appRouter = GoRouter(
       name: AppRouteNames.scanner,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => ScannerScreen(
-        onUsePhoto: (photo, mode) async {
+        onUsePhoto: (photo, mode, {note}) async {
           final storage = localStorage;
           if (storage != null) {
             final pipeline = ScanPipeline(storage: storage);
@@ -235,6 +235,7 @@ final appRouter = GoRouter(
               photo.path,
               label: mode == ScanMode.label,
               priorities: profileSession.value.priorities,
+              note: note,
             );
             await saveDraft(draft);
             if (!context.mounted) return;
@@ -244,6 +245,7 @@ final appRouter = GoRouter(
                   photo: photo,
                   mode: mode,
                   draft: draft,
+                  userNote: note,
                 ),
               ),
             );
@@ -251,7 +253,11 @@ final appRouter = GoRouter(
           }
           await Navigator.of(context).push<void>(
             MaterialPageRoute(
-              builder: (_) => ScanResultScreen(photo: photo, mode: mode),
+              builder: (_) => ScanResultScreen(
+                photo: photo,
+                mode: mode,
+                userNote: note,
+              ),
             ),
           );
         },

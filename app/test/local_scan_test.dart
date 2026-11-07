@@ -258,6 +258,29 @@ void main() {
     expect(json['history'], isEmpty);
   });
 
+  test('draft and history entry retain optional user note through json serialization and analysis', () {
+    final originalDraft = ScanDraft(
+      id: 'note_draft',
+      photoPath: 'test.jpg',
+      label: false,
+      createdAt: DateTime(2026, 11, 7),
+      priorities: ['Protein'],
+      note: 'Varian cokelat tanpa gula tambahan',
+    );
+    final restoredDraft = ScanDraft.fromJson(originalDraft.toJson());
+    expect(restoredDraft.note, 'Varian cokelat tanpa gula tambahan');
+
+    final parsedEntry = parseAnalysisResponse(response(), originalDraft);
+    expect(parsedEntry.userNote, 'Varian cokelat tanpa gula tambahan');
+
+    final jsonEntry = parsedEntry.toJson();
+    final restoredEntry = ScanHistoryEntry.fromJson(jsonEntry);
+    expect(restoredEntry.userNote, 'Varian cokelat tanpa gula tambahan');
+
+    final copiedEntry = restoredEntry.copyWith(userNote: 'Updated note');
+    expect(copiedEntry.userNote, 'Updated note');
+  });
+
   test('response parser preserves unknown values and rejects invalid nutrients and long audio', () {
     final pending = draft('photo');
     expect(parseAnalysisResponse(response(), pending).sugarG, isNull);
