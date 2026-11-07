@@ -40,6 +40,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Aturan Git proyek diperbarui sesuai permintaan pengguna: pekerjaan dan commit langsung di `main`, tanpa pembuatan/perpindahan branch otomatis. AGENTS, WORKSPACE, dan README menegaskan prioritas aturan proyek atas saran branch dari skill generik.
+
 - Konstanta navigasi Insight diganti menjadi Jelajahi: `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Screen Jelajahi kini terdaftar pada shell navigasi.
 
 - Seluruh halaman Flutter memakai Inter melalui tema dan TextTheme global, tanpa dependency tambahan atau unduhan font saat runtime.

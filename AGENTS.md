@@ -755,6 +755,13 @@ Before any NutriLens AI development task, read this `AGENTS.md` and the relevant
 
 Follow the [documentation rules](rules/documentation.md#changelog) for when and how to update [CHANGELOG.md](CHANGELOG.md).
 
+### Git workflow — user preference
+
+- Work and commit directly on `main` by default, as explicitly requested by the repository owner. This is standing authorization to commit to `main` when the user requests a commit.
+- Do not automatically create a feature branch or switch branches for a task or commit. Create or switch branches only when the user explicitly requests it; if a different branch is active, preserve local work and report the situation before changing branches.
+- This project instruction takes precedence over generic skill recommendations that require feature branches or prohibit commits on `main`.
+- Preserve unrelated local changes. Stage only the files/hunks within the requested commit scope. Do not push unless the user requests it.
+
 ### Current Nutrition Profile direction
 
 - Profile information may include age/age range, food preferences, and multiple nutrition priorities: Sugar Awareness, Sodium Awareness, Protein Intake, Calorie Awareness, and Balanced Nutrition.
