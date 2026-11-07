@@ -291,10 +291,10 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final extra = state.extra;
-        final showConversation = extra == true || extra is String;
+        final showConversation = extra != false;
         final mode = extra is String
             ? extra
-            : (extra == true ? 'pattern' : 'general');
+            : (extra == true ? 'general' : 'general');
         return AssistantScreen(
           showConversation: showConversation,
           initialMode: mode,
