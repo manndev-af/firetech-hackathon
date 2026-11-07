@@ -297,7 +297,7 @@ export async function callDeepSeek(
   const timer = setTimeout(() => controller.abort(), settings.timeoutMs);
   try {
     const response = await transport(
-      'https://api.deepseek.com/chat/completions',
+      `${settings.baseUrl}/chat/completions`,
       {
         method: 'POST',
         redirect: 'error',
