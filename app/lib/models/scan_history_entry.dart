@@ -156,6 +156,7 @@ class ScanHistoryEntry {
     if (userNote != null) 'userNote': userNote,
     'isIllustration': isIllustration,
     'photoPath': photoPath,
+    'photoAsset': photoAsset,
     'rawOcrText': rawOcrText,
     'spokenSummary': spokenSummary,
   };
@@ -190,6 +191,10 @@ class ScanHistoryEntry {
         userNote: json['userNote'] as String?,
         isIllustration: json['isIllustration'] as bool? ?? false,
         photoPath: json['photoPath'] as String?,
+        photoAsset: json['photoAsset'] as String? ??
+            (json['id'] == 'sample_history_yogurt' || json['id'] == 'preview-yogurt'
+                ? 'assets/images/history_yogurt.jpg'
+                : null),
         rawOcrText: json['rawOcrText'] as String?,
         spokenSummary: json['spokenSummary'] as String? ?? '',
       );
