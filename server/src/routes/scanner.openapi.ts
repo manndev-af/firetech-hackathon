@@ -12,6 +12,7 @@ export const scannerPaths = (prefix: string) => ({ [`${prefix}/v1/scans`]: { pos
   } } } },
   responses: { '201': success(entrySchema, 'Created consumption entry'), '200': success(entrySchema, 'Replay; no additional provider call'), ...errors,
     '409': errorResponse('IDEMPOTENCY_CONFLICT, SCAN_PROCESSING or DISPATCH_UNCERTAIN; do not silently retry with a new key.'),
+    '429': errorResponse('SCAN_BUSY: two scan operations are already active in this process.'),
     '410': errorResponse('ENTRY_DELETED: original scan was deleted.'), '413': errorResponse('Upload/file/field limit exceeded.'),
     '415': errorResponse('Invalid multipart content type, MIME mismatch, unsupported/undecodable image or >20 MP.'),
     '422': errorResponse('RESCAN_REQUIRED: nonfood, unclear identity or ambiguous portion basis.'),

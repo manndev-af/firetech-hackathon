@@ -7,7 +7,6 @@ import { config } from './config/config';
 import { openapi } from './config/openapi';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
-import { generalLimiter } from './middleware/rateLimiter';
 import apiRoutes from './routes';
 import { DomainError, domainErrorHandler } from './utils/domainError';
 
@@ -46,7 +45,7 @@ export const createApp = (): Application => {
     });
   });
 
-  // API routes with rate limiting
+  // API routes
   app.get(`${config.apiPrefix}/openapi.json`, (_req, res) => res.json(openapi));
   app.use(`${config.apiPrefix}/docs`, helmet({
     contentSecurityPolicy: { directives: { upgradeInsecureRequests: null } },
@@ -54,7 +53,7 @@ export const createApp = (): Application => {
     swaggerOptions: { validatorUrl: null },
     customSiteTitle: 'NutriLens API Docs',
   }));
-  app.use(config.apiPrefix, generalLimiter, apiRoutes);
+  app.use(config.apiPrefix, apiRoutes);
 
   // Error handling middleware (must be last)
   app.use(notFoundHandler);

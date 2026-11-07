@@ -15,6 +15,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Rate limiter global API dinonaktifkan atas permintaan pengguna agar validasi X-Forwarded-For dari express-rate-limit tidak mengganggu request melalui proxy. Batas concurrency dua operasi scanner tetap berlaku; OpenAPI dan panduan backend diselaraskan.
+
 - Raw OCR scanner sementara nonaktif secara default melalui `SCANNER_USE_RAW_OCR=false`: label dianalisis dari gambar, tanpa OCR pada retrieval/payload/validasi evidence. Set true mengembalikan gambar + OCR wajib; data OCR yang disertakan tetap tersimpan dan menjadi fingerprint. Prompt v4, OpenAPI, contoh environment dan handoff diselaraskan.
 
 ### Added

@@ -16,7 +16,7 @@ Backend development saja; frontend tidak diubah. Sumber kontrak lengkap: `/api/o
 | DELETE | `/api/v1/food-entries/{id}` | 204 tanpa body; key menjadi tombstone |
 | GET | `/api/v1/nutrition/daily?date=2026-11-07` | Subtotal catatan hari lokal |
 
-Semua respons JSON memakai `{success,message,data,timestamp}`. Error domain memakai `success:false`, `data:{code:"INVALID_INPUT"}` dan message aman. Pengecualian: DELETE 204 tanpa body; rate limiter starter dapat mengembalikan teks. Jangan membaca stack/error provider sebagai pesan pengguna.
+Semua respons JSON memakai `{success,message,data,timestamp}`. Error domain memakai `success:false`, `data:{code:"INVALID_INPUT"}` dan message aman. Pengecualian: DELETE 204 tanpa body. Rate limiter global dinonaktifkan; 429 SCAN_BUSY tetap berlaku untuk batas concurrency scanner. Jangan membaca stack/error provider sebagai pesan pengguna.
 
 ## Alur integrasi Flutter
 
@@ -62,7 +62,7 @@ Key nutrisi: `calories_kcal` dalam kcal, `sodium_mg` dalam mg, serta `protein_g`
 | 409 `SCAN_PROCESSING` / `DISPATCH_UNCERTAIN` | Tampilkan status tertunda/tidak pasti; jangan otomatis membuat key baru atau mengulang analisis |
 | 410 `ENTRY_DELETED` | Catatan sudah dihapus; replay tidak membuatnya kembali |
 | 422 `RESCAN_REQUIRED` | Minta foto/label lebih jelas atau makanan yang relevan; operasi baru hanya setelah tindakan pengguna |
-| 429 | Tampilkan scanner sibuk/batas request; body dapat berupa teks, bukan JSON |
+| 429 `SCAN_BUSY` | Tampilkan scanner sibuk; dua operasi scan sedang aktif dalam proses backend |
 | 502, 503, 504 atau gangguan jaringan | Tampilkan kegagalan/status belum pasti; jangan otomatis mengganti key. Replay key yang sama tidak mengirim ulang provider; kegagalan terminal tetap gagal |
 | 204 DELETE | Sukses tanpa body; jangan parse JSON |
 
