@@ -111,6 +111,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pumpAndSettle();
     expect(find.textContaining('Personalized Nutrition Trade-Off'), findsOneWidget);
+
+    // Verify fixed back button remains visible and hit-testable even after scrolling
+    expect(find.byTooltip('Kembali').hitTestable(), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_back).hitTestable(), findsOneWidget);
   });
 
   testWidgets('AssistantScreen in pattern mode loads consumption pattern analysis', (

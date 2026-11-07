@@ -23,6 +23,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Tombol kembali (panah back) dan identitas roomchat pada asisten nutrisi AI (`AssistantScreen`) dijadikan fixed (statis) di bagian atas layar:
+  - Tombol panah kembali beserta judul dan status konteks percakapan ditempatkan di top bar tetap di luar area scrollable, sehingga tidak ikut ter-scroll ke atas saat pesan percakapan memanjang.
+  - Pengguna dapat menekan tombol kembali kapan saja dengan mudah tanpa perlu menggulir ke paling atas layar chat.
+
 - Halaman Jelajahi (`ExploreScreen`), Perbandingan (`CompareScreen`), dan Konsultasi AI (`AssistantScreen`) diperbarui secara terstruktur:
   - Navigasi atas tetap (`TopNav`) disematkan pada halaman Jelajahi dengan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee`, seragam dengan Beranda, Profil, dan Riwayat.
   - Tiga kartu navigasi utama ditata rapi dengan ikon Material bertema dan badge informatif tanpa emotikon: "Bandingkan dua pilihan", "Lihat pola catatanku", dan "Tanya soal makanan".
