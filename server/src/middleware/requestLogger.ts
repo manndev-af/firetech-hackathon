@@ -3,6 +3,7 @@ import { resolve, join } from 'node:path';
 import { Request, Response, RequestHandler } from 'express';
 import morgan from 'morgan';
 import { config } from '../config/config';
+import { isAssistantPath } from '../validation/assistant';
 
 const privateField = /^(authorization|cookie|setcookie|.*password.*|.*secret.*|.*token|.*apikey|name|email|age|heightcm|weightkg|allergies|otherallergies|rawocrtext|description|usernote|image|base64|buffer|stack|context|profile)$/i;
 
@@ -39,7 +40,7 @@ export function createRequestLogger(directory = resolve(__dirname, '../../src/lo
     });
   } } });
   return (req, res, next) => {
-    if (req.path.replace(/\/+$/, '').toLowerCase() === `${config.apiPrefix}/v1/comparisons`.toLowerCase()) res.locals.omitDebugPayload = true;
+    if (req.path.replace(/\/+$/, '').toLowerCase() === `${config.apiPrefix}/v1/comparisons`.toLowerCase() || isAssistantPath(req.path)) res.locals.omitDebugPayload = true;
     const send = res.send;
     res.send = function (body) {
       let payload: unknown = body;
