@@ -15,6 +15,7 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
   process.env.DEMO_USER_EMAIL = process.env.SEED_USER_EMAIL;
   process.env.SEED_USER_PASSWORD = 'synthetic-test-password';
   process.env.DEEPSEEK_API_KEY = 'mock-only';
+  process.env.DEEPSEEK_BASE_URL = 'https://deepseek.integration.test';
   require('ts-node/register');
   const sharp = require('sharp');
   const { seed } = require('../prisma/seed');
@@ -30,7 +31,7 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
   let providerDelay = 25;
   let captured;
   global.fetch = async (url, options) => {
-    if (url !== 'https://api.deepseek.com/chat/completions') return realFetch(url, options);
+    if (url !== 'https://deepseek.integration.test/chat/completions') return realFetch(url, options);
     calls++;
     const request = JSON.parse(options.body);
     captured = JSON.parse(request.messages[1].content[0].text);
@@ -42,7 +43,7 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
       portion: { baseQuantity: 1, unitCode: 'porsi', displayLabel: '1 porsi', basis: 'per_serving', originalServingText: mode === 'label' ? 'Takaran saji 100 g' : null, referenceWeightG: 100, referenceVolumeMl: null },
       nutrients: Object.fromEntries(nutrients.map(key => [key, key === 'protein_g' ? 5 : null])),
       evidence: Object.fromEntries(nutrients.map(key => [key, key === 'protein_g' && mode === 'label' ? { origin: 'ocr', text: 'Protein 5 g' } : null])),
-      warnings: ['Data sintetis untuk pengujian.'], advantages: [], tradeoffs: [], citationIds: [],
+      warnings: ['Data sintetis untuk pengujian.'], advantages: ['Protein mendukung fokus protein Anda.'], tradeoffs: ['Gula belum diketahui untuk menilai fokus gula Anda.'], citationIds: [],
       ttsSummary: 'Nilai nutrisi masih berupa perkiraan. Periksa porsi dan data yang belum lengkap.',
     };
     return Response.json({ choices: [{ finish_reason: 'stop', message: { content: invalid ? '{broken' : JSON.stringify(analysis) } }] });
@@ -130,6 +131,8 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
       assert.equal(entry.nutrients.protein_g, 5);
       assert.equal(entry.nutrients.sugar_g, null);
       assert.equal(entry.context.recordedDaily.entryCount, 0);
+      assert.deepEqual(entry.pros, entry.analysis.advantages);
+      assert.deepEqual(entry.cons, entry.analysis.tradeoffs);
       assert.equal(calls, 1);
       delete process.env.DEEPSEEK_API_KEY;
       assert.equal((await scan(key)).status, 200);
@@ -142,6 +145,8 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
         assert.equal(value.nutrients.protein_g, 5 * quantity);
         assert.equal(value.nutrients.sugar_g, null);
         assert.equal(value.ttsSummary, entry.ttsSummary);
+        assert.deepEqual(value.pros, entry.pros);
+        assert.deepEqual(value.cons, entry.cons);
       }
       assert.equal((await patch(`/food-entries/${entry.id}/quantity`, { quantity: 0 })).status, 400);
       assert.equal(calls, 1);

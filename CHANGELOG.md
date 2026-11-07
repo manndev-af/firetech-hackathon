@@ -7,6 +7,12 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Prompt TTS scanner v3 dan template fallback memakai bahasa Indonesia sehari-hari yang lebih mudah dipahami, dengan sapaan kamu, kalimat pendek dan arahan menghindari jargon/bahasa laporan. Kontrak OpenAPI dan panduan frontend diperbarui.
+
+- Respons konsumsi menyediakan `pros`/`cons` dari insight tersimpan untuk kartu Kelebihan/Kekurangan. Prompt v2 mempertegas personalisasi dari retrieval dan ringkasan TTS atas pro/cons; fallback lokal mencoba insight yang sama. Unit/transport tests lolos dan dua mode service live 9Router lolos tanpa menambah jurnal fixture. Flutter tidak diubah.
+
+- Live smoke test 9Router untuk food dan label lolos validasi service dengan satu dispatch backend per mode (HTTP 200; 7.066/3.330 ms). Retrieval aktual ikut sebelum request; tidak menambah jurnal fixture. Hasil dan batas uji dicatat di README backend; ini bukan pengukuran akurasi nutrisi atau audit retry internal router.
+
 - Base URL DeepSeek kini dibaca dari `DEEPSEEK_BASE_URL` pada environment backend; endpoint tidak lagi ditetapkan langsung di service. Template environment, panduan setup dan tes konfigurasi URL diselaraskan.
 
 - Profil seed development kini berisi fixture lengkap tanpa field null untuk demo, termasuk identitas, personalisasi, alergi, audio, dan timezone. Seed ulang tetap mempertahankan koreksi profil yang sudah ada; tidak membuat konsumsi atau hasil scan fiktif.

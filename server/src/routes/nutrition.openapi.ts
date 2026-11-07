@@ -32,17 +32,19 @@ export const success = (schema: object, description = 'Success') => ({ descripti
 export const jsonBody = (schema: object, example?: object) => ({ required: true, content: { 'application/json': { schema: openapiSchema(schema), ...(example ? { example } : {}) } } });
 export const dateParameter = { name: 'date', in: 'query', required: false, schema: { type: 'string', format: 'date' }, description: 'Local date in profile timezone, 2000-01-01 through 2100-12-30.' };
 export const nutrientValues = { type: 'object', required: [...nutrients], properties: Object.fromEntries(nutrients.map(key => [key, { type: 'number', nullable: true, minimum: 0 }])) };
-export const entrySchema = { type: 'object', required: ['id', 'consumedAt', 'mode', 'title', 'quantity', 'baseQuantity', 'baseNutrients', 'nutrients', 'provenance', 'analysis', 'context', 'ttsSummary', 'ttsSummarySource'], properties: {
+export const entrySchema = { type: 'object', required: ['id', 'consumedAt', 'mode', 'title', 'quantity', 'baseQuantity', 'baseNutrients', 'nutrients', 'provenance', 'analysis', 'context', 'pros', 'cons', 'ttsSummary', 'ttsSummarySource'], properties: {
   id: { type: 'string', format: 'uuid' }, consumedAt: { type: 'string', format: 'date-time' }, mode: { type: 'string', enum: ['food', 'label'] },
   title: { type: 'string' }, description: { type: 'string' }, rawOcrText: { type: 'string', nullable: true },
   quantity: { type: 'number', minimum: 0.000001, maximum: 10000 }, baseQuantity: { type: 'number', minimum: 0.000001 },
   baseNutrients: nutrientValues, nutrients: nutrientValues,
   provenance: { type: 'string', enum: ['model_estimate', 'label_extracted_unverified'] },
+  pros: { type: 'array', items: { type: 'string' }, description: 'Personalized advantages, alias of analysis.advantages. Empty on legacy records if none stored.' },
+  cons: { type: 'array', items: { type: 'string' }, description: 'Personalized drawbacks/trade-offs, alias of analysis.tradeoffs. Empty on legacy records if none stored.' },
   analysis: openapiSchema({ ...analysisSchema, required: [...analysisSchema.required, 'ttsSummary', 'ttsSummarySource'], properties: {
     ...analysisSchema.properties, ttsSummary: { type: 'string', maxLength: 450 }, ttsSummarySource: { type: 'string', enum: ['model', 'template'] },
   } }),
   context: { type: 'object', description: 'Scan-time retrieved profile allowlist, recordedDaily with completeness, bounded history and cited references. Not a live assessment.' },
-  ttsSummary: { type: 'string', maxLength: 450, description: 'Indonesian plain speech, 2-3 sentences, <=60 words. No serving totals; available with audio off.' },
+  ttsSummary: { type: 'string', maxLength: 450, description: 'Friendly everyday Indonesian using kamu, understandable to nonexperts; no jargon or formal report tone. Summarizes personalized pros/cons and material uncertainty, 2-3 short sentences, <=60 words. No serving totals; available with audio off. Invalid model summary uses local insight-derived text when format permits, otherwise uncertainty template.' },
   ttsSummarySource: { type: 'string', enum: ['model', 'template'] }, model: { type: 'string' }, promptVersion: { type: 'string' },
   createdAt: { type: 'string', format: 'date-time' }, updatedAt: { type: 'string', format: 'date-time' },
 } };

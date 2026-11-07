@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'test';
 require('ts-node/register');
 const { Prisma } = require('../src/generated/prisma/client');
 const { mergeProfile } = require('../src/services/profile.service');
-const { dayBounds, totals, summarize } = require('../src/services/journal.service');
+const { dayBounds, totals, summarize, serializeEntry } = require('../src/services/journal.service');
 const { nutrients, priorities, allergens, preferences, patterns } = require('../src/validation/nutrition');
 const { validateAnalysis, spokenSummary, callDeepSeek } = require('../src/services/deepseek.service');
 
@@ -109,6 +109,31 @@ test('speech remains concise with local fallback only', () => {
   assert.equal(validateAnalysis(input, 'food', '', []).ttsSummarySource, 'template');
 });
 
+test('personalized pros/cons are exposed and reused by concise fallback speech', () => {
+  const input = fixture();
+  input.nutrients.protein_g = 5;
+  input.advantages = ['Protein membantu memenuhi fokus protein Anda.'];
+  input.tradeoffs = ['Gula belum diketahui sehingga fokus gula belum dapat dinilai.'];
+  input.ttsSummary = '**invalid summary**';
+  const analysis = validateAnalysis(input, 'food', '', [], ['Gula', 'Protein']);
+  assert.equal(analysis.ttsSummarySource, 'template');
+  assert.match(analysis.ttsSummary, /memperhatikan gula dan protein/);
+  assert.match(analysis.ttsSummary, /Protein membantu/);
+  assert.match(analysis.ttsSummary, /Gula belum diketahui/);
+  assert.ok(analysis.ttsSummary.length <= 450 && analysis.ttsSummary.split(/\s+/).length <= 60);
+  const entry = { ...Object.fromEntries(nutrients.map(key => [key, null])), quantity: new Prisma.Decimal(1), baseQuantity: new Prisma.Decimal(1), analysis };
+  const serialized = serializeEntry(entry);
+  assert.deepEqual(serialized.pros, analysis.advantages);
+  assert.deepEqual(serialized.cons, analysis.tradeoffs);
+  entry.quantity = new Prisma.Decimal(2);
+  assert.equal(serializeEntry(entry).ttsSummary, serialized.ttsSummary);
+  const limited = validateAnalysis(fixture(), 'food', '', []);
+  assert.match(limited.advantages[0], /Data belum cukup/);
+  assert.match(limited.tradeoffs[0], /Data belum cukup/);
+  const tooLong = fixture(); tooLong.advantages = ['kata '.repeat(90)]; delete tooLong.ttsSummary;
+  assert.ok(validateAnalysis(tooLong, 'food', '', []).ttsSummary.length <= 450);
+});
+
 test('DeepSeek transport receives image and OCR once and rejects bad responses without retry', async () => {
   process.env.DEEPSEEK_API_KEY = 'test-only-not-real';
   process.env.DEEPSEEK_BASE_URL = 'https://deepseek.test/v1/';
@@ -122,6 +147,8 @@ test('DeepSeek transport receives image and OCR once and rejects bad responses w
     assert.match(body.messages[1].content[0].text, /rawOcrText/);
     assert.match(body.messages[1].content[1].image_url.url, /^data:image\/jpeg;base64,/);
     assert.match(body.messages[0].content, /ttsSummary/);
+    assert.match(body.messages[0].content, /context.profile.priorities/);
+    assert.match(body.messages[0].content, /Ringkas advantages dan tradeoffs/);
     return Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(fixture('label')) } }] });
   };
   const input = { mode: 'label', image: Buffer.from('synthetic'), description: '', rawOcrText: 'Takaran saji 100 g' };

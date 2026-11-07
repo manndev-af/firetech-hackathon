@@ -41,6 +41,7 @@ export function serializeEntry(entry: FoodEntry) {
     quantity: entry.quantity.toNumber(), baseQuantity: entry.baseQuantity.toNumber(),
     baseNutrients: Object.fromEntries(nutrients.map(key => [key, entry[key]?.toNumber() ?? null])),
     nutrients: totals(entry), provenance: entry.provenance, analysis,
+    pros: analysis.advantages ?? [], cons: analysis.tradeoffs ?? [],
     ttsSummary: analysis.ttsSummary, ttsSummarySource: analysis.ttsSummarySource,
     context: entry.context, model: entry.model, promptVersion: entry.promptVersion,
     createdAt: entry.createdAt, updatedAt: entry.updatedAt };
