@@ -172,8 +172,9 @@ class _ScannerScreenState extends State<ScannerScreen>
     try {
       await _acceptPhoto(await camera.takePicture());
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => _photoError = 'Foto belum berhasil diambil. Coba lagi.');
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -197,11 +198,12 @@ class _ScannerScreenState extends State<ScannerScreen>
               ));
       if (photo != null) await _acceptPhoto(photo);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _photoError =
               'Foto tidak dapat dibuka. Pilih gambar lain dari galeri.',
         );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -280,9 +282,10 @@ class _ScannerScreenState extends State<ScannerScreen>
                                     ? 'Foto label nutrisinya'
                                     : 'Foto makananmu',
                                 style: const TextStyle(
-                                  fontSize: 21,
-                                  height: 1.4,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 24,
+                                  height: 1.35,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ),
@@ -297,7 +300,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                             child: _preview(),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                         Text(
                           review
                               ? 'Pastikan foto jelas dan tidak terpotong.'
@@ -305,7 +308,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                               ? 'Pastikan komposisi, angka, dan takaran saji terbaca.'
                               : 'Posisikan makanan di tengah, dengan cahaya yang cukup.',
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 15,
                             height: 1.5,
                             color: AppColors.textSecondary,
                           ),
@@ -325,9 +328,20 @@ class _ScannerScreenState extends State<ScannerScreen>
                                 ),
                                 selected: _mode == mode,
                                 selectedColor: AppColors.mint,
-                                labelStyle: const TextStyle(
-                                  fontSize: 14,
+                                labelStyle: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: _mode == mode
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                   color: AppColors.primaryDark,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: _mode == mode
+                                        ? AppColors.cyan
+                                        : AppColors.border,
+                                  ),
                                 ),
                                 onSelected: _busy
                                     ? null
@@ -351,21 +365,39 @@ class _ScannerScreenState extends State<ScannerScreen>
                         ],
                         const SizedBox(height: 20),
                         if (review) ...[
-                          FilledButton(
+                          FilledButton.icon(
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.heroBackground,
-                              minimumSize: const Size(double.infinity, 52),
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 54),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             onPressed: _busy ? null : _usePhoto,
-                            child: Text(
+                            icon: const Icon(Icons.arrow_forward_rounded),
+                            label: Text(
                               widget.onUsePhoto == null
                                   ? 'Selesai'
                                   : 'Gunakan foto',
                             ),
                           ),
-                          TextButton(
+                          const SizedBox(height: 8),
+                          TextButton.icon(
                             onPressed: _busy ? null : _retake,
-                            child: const Text('Foto ulang'),
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Foto ulang'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primaryDark,
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ] else
                           Wrap(
@@ -378,6 +410,17 @@ class _ScannerScreenState extends State<ScannerScreen>
                                 onPressed: _busy ? null : _gallery,
                                 icon: const Icon(Icons.photo_library_outlined),
                                 label: const Text('Galeri'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.primaryDark,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 12,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                               Semantics(
                                 label: 'Ambil foto',
@@ -385,8 +428,8 @@ class _ScannerScreenState extends State<ScannerScreen>
                                 child: Tooltip(
                                   message: 'Ambil foto',
                                   child: SizedBox(
-                                    width: 72,
-                                    height: 72,
+                                    width: 76,
+                                    height: 76,
                                     child: FilledButton(
                                       key: const Key('camera-shutter'),
                                       onPressed:
@@ -398,25 +441,30 @@ class _ScannerScreenState extends State<ScannerScreen>
                                           : _capture,
                                       style: FilledButton.styleFrom(
                                         shape: const CircleBorder(),
-                                        padding: const EdgeInsets.all(7),
+                                        padding: const EdgeInsets.all(5),
                                         backgroundColor:
                                             AppColors.heroBackground,
+                                        elevation: 3,
                                       ),
                                       child: _busy
                                           ? const SizedBox(
-                                              width: 24,
-                                              height: 24,
+                                              width: 26,
+                                              height: 26,
                                               child: CircularProgressIndicator(
-                                                strokeWidth: 2,
+                                                strokeWidth: 2.5,
                                                 color: Colors.white,
                                               ),
                                             )
                                           : Container(
-                                              width: 48,
-                                              height: 48,
-                                              decoration: const BoxDecoration(
+                                              width: 56,
+                                              height: 56,
+                                              decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: AppColors.heroBackground,
+                                                  width: 3,
+                                                ),
                                               ),
                                             ),
                                     ),
@@ -513,18 +561,100 @@ class _ScannerScreenState extends State<ScannerScreen>
           final ratio = landscape
               ? _camera!.value.aspectRatio
               : 1 / _camera!.value.aspectRatio;
-          return SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: constraints.maxHeight * ratio,
-                height: constraints.maxHeight,
-                child: CameraPreview(_camera!),
+          final isLabel = _mode == ScanMode.label;
+          return Stack(
+            fit: StackFit.expand,
+            alignment: Alignment.center,
+            children: [
+              SizedBox.expand(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: constraints.maxHeight * ratio,
+                    height: constraints.maxHeight,
+                    child: CameraPreview(_camera!),
+                  ),
+                ),
               ),
-            ),
+              const Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.all(28),
+                  child: CustomPaint(
+                    painter: _ViewfinderOverlayPainter(),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: .55),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.cyan,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isLabel ? 'Deteksi Label Gizi' : 'Deteksi Makanan AI',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
     );
   }
+}
+
+class _ViewfinderOverlayPainter extends CustomPainter {
+  const _ViewfinderOverlayPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.cyan.withValues(alpha: .85)
+      ..strokeWidth = 3.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    const cornerLength = 26.0;
+
+    // Top-left
+    canvas.drawLine(const Offset(0, cornerLength), Offset.zero, paint);
+    canvas.drawLine(Offset.zero, const Offset(cornerLength, 0), paint);
+
+    // Top-right
+    canvas.drawLine(Offset(size.width - cornerLength, 0), Offset(size.width, 0), paint);
+    canvas.drawLine(Offset(size.width, 0), Offset(size.width, cornerLength), paint);
+
+    // Bottom-left
+    canvas.drawLine(Offset(0, size.height - cornerLength), Offset(0, size.height), paint);
+    canvas.drawLine(Offset(0, size.height), Offset(cornerLength, size.height), paint);
+
+    // Bottom-right
+    canvas.drawLine(Offset(size.width - cornerLength, size.height), Offset(size.width, size.height), paint);
+    canvas.drawLine(Offset(size.width, size.height), Offset(size.width, size.height - cornerLength), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ViewfinderOverlayPainter oldDelegate) => false;
 }
