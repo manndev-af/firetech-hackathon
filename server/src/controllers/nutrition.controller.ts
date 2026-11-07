@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 import { ApiResponse } from '../utils/apiResponse';
 import { DomainError } from '../utils/domainError';
 import { getProfile, updateProfile } from '../services/profile.service';
+import { createScan } from '../services/scan.service';
 import { dailySummary, deleteEntry, getEntry, listEntries, localDate, serializeEntry, updateQuantity } from '../services/journal.service';
+import { readScanInput } from '../middleware/scanUpload';
 
 const owner = (res: Response): string => res.locals.userId;
 const id = (req: Request): string => {
@@ -12,6 +14,14 @@ const id = (req: Request): string => {
 };
 export async function readProfile(_req: Request, res: Response) { return ApiResponse.success(res, await getProfile(owner(res))); }
 export async function patchProfile(req: Request, res: Response) { return ApiResponse.success(res, await updateProfile(owner(res), req.body)); }
+export async function scan(req: Request, res: Response) {
+  res.locals.scanRunning = true;
+  try {
+    const input = await readScanInput(req);
+    const result = await createScan(owner(res), input);
+    return ApiResponse.success(res, result.entry, result.replay ? 'Scan sebelumnya.' : 'Konsumsi tercatat.', result.replay ? 200 : 201);
+  } finally { delete req.file; res.locals.scanRunning = false; res.locals.releaseScanSlot?.(); }
+}
 export async function entries(req: Request, res: Response) {
   const profile = await getProfile(owner(res));
   return ApiResponse.success(res, await listEntries(owner(res), profile.timezone, req.query));

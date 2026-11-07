@@ -1,4 +1,5 @@
 import { nutrients } from '../validation/nutrition';
+import { analysisSchema } from '../services/deepseek.service';
 export function openapiSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(openapiSchema);
   if (!value || typeof value !== 'object') return value;
@@ -37,7 +38,9 @@ export const entrySchema = { type: 'object', required: ['id', 'consumedAt', 'mod
   quantity: { type: 'number', minimum: 0.000001, maximum: 10000 }, baseQuantity: { type: 'number', minimum: 0.000001 },
   baseNutrients: nutrientValues, nutrients: nutrientValues,
   provenance: { type: 'string', enum: ['model_estimate', 'label_extracted_unverified'] },
-  analysis: { type: 'object', description: 'Immutable scan-time analysis snapshot.' },
+  analysis: openapiSchema({ ...analysisSchema, required: [...analysisSchema.required, 'ttsSummary', 'ttsSummarySource'], properties: {
+    ...analysisSchema.properties, ttsSummary: { type: 'string', maxLength: 450 }, ttsSummarySource: { type: 'string', enum: ['model', 'template'] },
+  } }),
   context: { type: 'object', description: 'Scan-time retrieved profile allowlist, recordedDaily with completeness, bounded history and cited references. Not a live assessment.' },
   ttsSummary: { type: 'string', maxLength: 450, description: 'Indonesian plain speech, 2-3 sentences, <=60 words. No serving totals; available with audio off.' },
   ttsSummarySource: { type: 'string', enum: ['model', 'template'] }, model: { type: 'string' }, promptVersion: { type: 'string' },
