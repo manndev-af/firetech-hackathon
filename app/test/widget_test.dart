@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilens/app.dart';
 import 'package:nutrilens/core/router/app_router.dart';
@@ -26,19 +27,15 @@ void main() {
   }
 
   testWidgets(
-    'Google prototype opens onboarding without an authenticated session',
+    'Login screen opens onboarding without an authenticated session',
     (tester) async {
       await start(tester);
       expect(find.byType(TextFormField), findsNothing);
       expect(find.byType(FilledButton), findsOneWidget);
       expect(find.text('Daftar'), findsNothing);
-      expect(find.text('Prototipe · login belum terhubung'), findsOneWidget);
-      final image = tester.widget<Image>(find.byType(Image));
-      expect(
-        (image.image as AssetImage).assetName,
-        'assets/images/login_reference.png',
-      );
-      await tap(tester, 'Lanjutkan dengan Google');
+      expect(find.text('nutrisee'), findsOneWidget);
+      expect(find.byType(SvgPicture), findsOneWidget);
+      await tap(tester, 'Masuk');
       expect(find.byType(OnboardingFocusScreen), findsOneWidget);
       expect(
         appRouter.routeInformationProvider.value.uri.path,
@@ -62,7 +59,7 @@ void main() {
     'focus and preference selections survive back and appear on finish',
     (tester) async {
       await start(tester);
-      await tap(tester, 'Lanjutkan dengan Google');
+      await tap(tester, 'Masuk');
       await tap(tester, 'Protein');
       await tap(tester, 'Lanjutkan');
       expect(find.byType(OnboardingPreferenceScreen), findsOneWidget);
@@ -111,7 +108,7 @@ void main() {
 
   testWidgets('skipping clears the optional preference', (tester) async {
     await start(tester);
-    await tap(tester, 'Lanjutkan dengan Google');
+    await tap(tester, 'Masuk');
     await tap(tester, 'Natrium');
     await tap(tester, 'Lanjutkan');
     await tap(tester, 'Praktis dan cepat');
@@ -145,7 +142,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final semantics = tester.ensureSemantics();
       await start(tester);
-      await tap(tester, 'Lanjutkan dengan Google');
+      await tap(tester, 'Masuk');
       await tap(tester, 'Keseimbangan');
       final choice = find.byWidgetPredicate(
         (widget) =>

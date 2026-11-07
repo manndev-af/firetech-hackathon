@@ -34,7 +34,7 @@ class OnboardingFocusScreen extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       const Text(
-        'Ketuk satu pilihan untuk lanjut.',
+        'Pilih salah satu prioritas nutrisi utamamu.',
         style: onboardingBodyStyle,
       ),
       const SizedBox(height: 36),

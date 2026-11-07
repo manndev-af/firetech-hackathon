@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/theme/app_colors.dart';
 
@@ -16,7 +17,7 @@ class DashboardScanCard extends StatelessWidget {
       boxShadow: [
         BoxShadow(
           color: AppColors.heroBackground.withValues(alpha: 0.18),
-          blurRadius: 16,
+          blurRadius: 18,
           offset: const Offset(0, 6),
         ),
       ],
@@ -25,9 +26,9 @@ class DashboardScanCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: Colors.white.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
@@ -35,7 +36,7 @@ class DashboardScanCard extends StatelessWidget {
             style: const TextStyle(
               color: AppColors.mint,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
           ),
@@ -43,66 +44,54 @@ class DashboardScanCard extends StatelessWidget {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final image = Semantics(
-              image: true,
-              label: 'Ilustrasi semangkuk makanan',
-              child: ExcludeSemantics(
-                child: AspectRatio(
-                  aspectRatio: 162 / 128,
-                  child: ClipRect(
-                    child: LayoutBuilder(
-                      builder: (context, imageConstraints) {
-                        final scale = imageConstraints.maxWidth / 162;
-                        return Stack(
-                          children: [
-                            Positioned(
-                              left: -184 * scale,
-                              top: -230 * scale,
-                              width: 390 * scale,
-                              height: 844 * scale,
-                              child: Image.asset(
-                                'assets/images/dashboard_reference.png',
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            );
-            const title = Text(
+            const titleWidget = Text(
               'Apa isi\npiringmu?',
               style: TextStyle(
                 color: AppColors.surface,
                 fontSize: 28,
-                height: 1.35,
-                fontWeight: FontWeight.w600,
+                height: 1.25,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
               ),
             );
+
+            final imageWidget = Semantics(
+              image: true,
+              label: 'Ilustrasi semangkuk makanan',
+              child: SvgPicture.asset(
+                'assets/images/foodartwork.svg',
+                height: 110,
+                fit: BoxFit.contain,
+              ),
+            );
+
             if (constraints.maxWidth < 260 ||
                 MediaQuery.textScalerOf(context).scale(14) > 20) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  title,
+                  titleWidget,
                   const SizedBox(height: 12),
-                  SizedBox(width: 180, child: image),
+                  SizedBox(width: 140, child: imageWidget),
                 ],
               );
             }
+
             return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Expanded(child: title),
-                Expanded(child: image),
+                const Expanded(child: titleWidget),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 120,
+                  height: 105,
+                  child: imageWidget,
+                ),
               ],
             );
           },
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         const Text(
           'Foto makanan atau label gizinya untuk memahami isi dan porsinya.',
           style: TextStyle(
@@ -111,7 +100,7 @@ class DashboardScanCard extends StatelessWidget {
             height: 1.4,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
         FilledButton(
           onPressed: onScan,
           style: FilledButton.styleFrom(
@@ -136,7 +125,7 @@ class DashboardScanCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     fontSize: 15,
                   ),
                 ),
