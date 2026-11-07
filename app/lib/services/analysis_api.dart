@@ -11,11 +11,7 @@ import 'local_vision.dart';
 class AnalysisApi {
   AnalysisApi({
     String? baseUrl,
-  }) : baseUrl = baseUrl ??
-            const String.fromEnvironment(
-              'ANALYSIS_BASE_URL',
-              defaultValue: String.fromEnvironment('API_BASE_URL'),
-            );
+  }) : baseUrl = resolveDefaultBaseUrl(baseUrl);
 
   final String baseUrl;
   bool get configured => baseUrl.trim().isNotEmpty;
@@ -27,10 +23,11 @@ class AnalysisApi {
       );
     }
     final base = Uri.parse(baseUrl);
-    final localDebug =
-        kDebugMode &&
-        {'localhost', '127.0.0.1', '10.0.2.2'}.contains(base.host);
-    if (base.scheme != 'https' && !(localDebug && base.scheme == 'http')) {
+    final allowHttp = kDebugMode ||
+        {'localhost', '127.0.0.1', '10.0.2.2'}.contains(base.host) ||
+        base.host.startsWith('192.168.') ||
+        base.host.startsWith('10.');
+    if (base.scheme != 'https' && !(allowHttp && base.scheme == 'http')) {
       throw const ScanFailure(
         'Alamat layanan analisis harus menggunakan koneksi aman.',
       );
@@ -38,6 +35,9 @@ class AnalysisApi {
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15);
     try {
+      if (kDebugMode) {
+        debugPrint('[AnalysisApi] Mengirim permintaan scan ke ${base.resolve(ApiEndpoints.scans)}');
+      }
       return await _request(
         client,
         base.resolve(ApiEndpoints.scans),
@@ -45,7 +45,10 @@ class AnalysisApi {
       ).timeout(const Duration(seconds: 45));
     } on ScanFailure {
       rethrow;
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AnalysisApi] Gagal menghubungi backend: $e');
+      }
       throw const ScanFailure(
         'Analisis belum berhasil. Foto dan teks tetap tersimpan; coba lagi saat koneksi tersedia.',
       );

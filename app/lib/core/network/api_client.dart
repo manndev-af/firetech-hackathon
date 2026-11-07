@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../utils/api_exception.dart';
 import 'api_interceptor.dart';
 
@@ -58,6 +60,9 @@ class ApiClient {
     final uri = baseUri.resolve(path);
     final boundary = '----NutriLensBoundary${DateTime.now().microsecondsSinceEpoch}';
     try {
+      if (kDebugMode) {
+        debugPrint('[ApiClient] POST (Multipart) $uri');
+      }
       final request = await _httpClient.openUrl('POST', uri);
       request.headers.set(HttpHeaders.contentTypeHeader, 'multipart/form-data; boundary=$boundary');
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
@@ -105,6 +110,9 @@ class ApiClient {
   }) async {
     final uri = baseUri.resolve(path);
     try {
+      if (kDebugMode) {
+        debugPrint('[ApiClient] $method $uri');
+      }
       final request = await _httpClient.openUrl(method, uri);
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
       var requestHeaders = Map<String, String>.of(headers);
