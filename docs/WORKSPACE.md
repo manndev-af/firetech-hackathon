@@ -214,3 +214,7 @@ Catatan historis: panduan sebelumnya menyarankan branch fitur dari `development`
 ## Batas bukti saat ini
 
 Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyatakan bahwa alur produk, classifier, lookup nutrisi, model terlatih, API NutriLens, atau integrasi perangkat telah selesai atau diuji. Periksa kode dan hasil verifikasi terbaru sebelum membuat klaim implementasi.
+
+### Log debugging backend
+
+`server/src/middleware/requestLogger.ts` mencatat request/response development melalui Morgan ke `server/src/logs/requests-YYYY-MM-DD.log` (UTC). Folder dibuat saat server development berjalan dan diabaikan Git. Isi disamarkan serta dibatasi; tidak menyimpan gambar mentah. Lihat [panduan log backend](../server/README.md#log-debugging-request-dan-response) untuk batas data dan perintah pemantauan.

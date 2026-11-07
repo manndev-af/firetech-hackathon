@@ -411,6 +411,19 @@ MIT
 
 **Happy Coding! 🚀**
 
+## Log debugging request dan response
+
+Pada `NODE_ENV=development`, Morgan menulis satu baris JSON per respons selesai ke `server/src/logs/requests-YYYY-MM-DD.log` (tanggal UTC), termasuk method, path/query, status, durasi, header/body request, body respons JSON, serta MIME/ukuran upload. Logger dipasang sebelum parser agar error validasi/parser juga tercatat. Log konsol tetap tersedia. Folder dibuat otomatis, termasuk ketika menjalankan build dari `dist`; log diabaikan Git.
+
+Tujuan log: debugging integrasi request/response Flutter dengan API. Nilai key terstruktur untuk otorisasi/cookie/password/token/API key, identitas pribadi, OCR/deskripsi pengguna, gambar/base64, stack, profil dan snapshot context disamarkan. Upload gambar hanya dicatat sebagai MIME/ukuran. Teks di field lain seperti judul makanan, pro/cons dan TTS masih dapat berisi informasi konsumsi; jangan membagikan log mentah. Tiap string dibatasi 4.000 karakter, body/header/query dibatasi sekitar 32.000 karakter, kedalaman dan array juga dibatasi. Respons non-JSON/stream tidak direkam isinya. Log debug file tidak aktif pada production/test.
+
+File dipisah per hari tanpa pembersihan otomatis; hapus log lama setelah debugging. Pantau langsung dari PowerShell:
+
+```powershell
+Get-Content .\src\logs\requests-YYYY-MM-DD.log -Wait
+```
+
+
 ### Koreksi label - 8 November 2026
 
 Untuk scan label baru dengan basis `per_serving`, keluaran model `20 g` atau `200 ml` dinormalisasi ke `baseQuantity: 1`, `unitCode: porsi`, dengan massa/volume asli pada `referenceWeightG`/`referenceVolumeMl`. Jadi `quantity: 1` berarti satu sajian, bukan satu gram/ml. Basis `per_100g`/`per_100ml` tetap memakai satuan sumber. Entri lama tidak ditulis ulang; scan ulang bila basis entri lama salah.

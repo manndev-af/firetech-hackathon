@@ -21,6 +21,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
+
 - Service frontend integrasi backend `ProfileApi` (`app/lib/services/profile_api.dart`):
   - Berkomunikasi dengan endpoint `GET` dan `PATCH /api/v1/profile` untuk mengambil dan menyinkronkan profil nutrisi aktif serta status preferensi `audioAnalysisEnabled`.
 - Service frontend integrasi backend `JournalApi` (`app/lib/services/journal_api.dart`):
