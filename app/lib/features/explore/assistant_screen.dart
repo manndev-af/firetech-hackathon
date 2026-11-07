@@ -112,7 +112,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
         );
       }
@@ -176,10 +176,12 @@ class _AssistantScreenState extends State<AssistantScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
+              child: SingleChildScrollView(
                 controller: _scrollController,
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-                children: [
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
@@ -369,18 +371,19 @@ class _AssistantScreenState extends State<AssistantScreen> {
                       ),
                     ] else ...[
                       _Prompt(
-                        text: 'Bagaimana membandingkan dua camilan?',
-                        onTap: () => _sendMessage('Bagaimana membandingkan dua camilan?'),
+                        text: 'Berapa batas konsumsi gula harian?',
+                        onTap: () => _sendMessage('Berapa batas konsumsi gula harian?'),
                       ),
                       _Prompt(
-                        text: 'Apa yang perlu diperhatikan pada minuman?',
-                        onTap: () => _sendMessage('Apa yang perlu diperhatikan pada minuman?'),
+                        text: 'Tips memilih makanan tinggi protein',
+                        onTap: () => _sendMessage('Tips memilih makanan tinggi protein'),
                       ),
                     ],
                   ],
                 ],
               ),
             ),
+          ),
             if (showChatInput)
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
