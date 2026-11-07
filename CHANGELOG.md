@@ -7,6 +7,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Removed
 
+- Scaffold kosong food_search, food_journal, dan recipes di Flutter dihapus karena belum diperlukan.
+
 - Halaman register Flutter, route/nama/path `/register`, akses Daftar pada login dan navigasi placeholder, serta pengujian khusus register dihapus atas permintaan pengguna.
 
 ### Added
