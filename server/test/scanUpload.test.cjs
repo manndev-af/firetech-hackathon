@@ -46,3 +46,11 @@ test('label OCR is optional while disabled and required when reenabled', async (
     else process.env.SCANNER_USE_RAW_OCR = previous;
   }
 });
+test('shared image decoder rejects corrupt, MIME-mismatched and oversized images', async () => {
+  const { normalizeImage } = require('../src/middleware/scanUpload');
+  await assert.rejects(normalizeImage({ buffer: Buffer.from('not an image'), mimetype: 'image/jpeg' }), { code: 'INVALID_IMAGE', statusCode: 415 });
+  const png = await sharp({create:{width:10,height:20,channels:3,background:'#fff'}}).png().toBuffer();
+  await assert.rejects(normalizeImage({buffer:png,mimetype:'image/jpeg'}), {code:'INVALID_IMAGE_TYPE'});
+  const large = await sharp({create:{width:5000,height:4001,channels:3,background:'#fff'}}).png().toBuffer();
+  await assert.rejects(normalizeImage({buffer:large,mimetype:'image/png'}), {code:'INVALID_IMAGE'});
+});

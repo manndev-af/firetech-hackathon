@@ -132,6 +132,27 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
   const file = req.file;
   if (!file || !file.size)
     throw new DomainError("IMAGE_REQUIRED", "Satu gambar wajib diunggah.");
+  const image = await normalizeImage(file);
+  return {
+    key: key.toLowerCase(),
+    mode,
+    description,
+    rawOcrText,
+    quantity,
+    consumedAt,
+    image,
+    original: file.buffer,
+    fingerprintMetadata: {
+      mode,
+      description,
+      rawOcrText,
+      quantity: req.body.quantity ?? null,
+      consumedAt: req.body.consumedAt ?? null,
+    },
+  };
+}
+
+export async function normalizeImage(file: Pick<Express.Multer.File, "buffer" | "mimetype">): Promise<Buffer> {
   try {
     const decoder = sharp(file.buffer, {
       limitInputPixels: 20000000,
@@ -151,7 +172,7 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
         "Format aktual dan MIME harus JPEG atau PNG yang sama.",
         415,
       );
-    const image = await decoder
+    return await decoder
       .rotate()
       .resize({
         width: 1600,
@@ -161,23 +182,6 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
       })
       .jpeg({ quality: 85 })
       .toBuffer();
-    return {
-      key: key.toLowerCase(),
-      mode,
-      description,
-      rawOcrText,
-      quantity,
-      consumedAt,
-      image,
-      original: file.buffer,
-      fingerprintMetadata: {
-        mode,
-        description,
-        rawOcrText,
-        quantity: req.body.quantity ?? null,
-        consumedAt: req.body.consumedAt ?? null,
-      },
-    };
   } catch (error) {
     if (error instanceof DomainError) throw error;
     throw new DomainError(

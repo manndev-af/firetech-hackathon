@@ -5,6 +5,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Changed
+
+- Decoder gambar, transport JSON vision dan tipe input kalkulasi nutrisi scanner dipisahkan untuk pemakaian ulang compare; kontrak dan perilaku scanner tetap dipertahankan.
+
 ### Fixed
 
 - Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
