@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../core/network/api_endpoints.dart';
+import '../core/utils/uuid_generator.dart';
 import '../models/scan_draft.dart';
 import '../models/scan_history_entry.dart';
 import 'local_vision.dart';
@@ -77,7 +78,8 @@ class AnalysisApi {
       'multipart/form-data; boundary=$boundary',
     );
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    request.headers.set('Idempotency-Key', draft.id);
+    final idempotencyKey = isValidUuid(draft.id) ? draft.id : generateUuidV4();
+    request.headers.set('Idempotency-Key', idempotencyKey);
 
     void writeField(String name, String value) {
       request.write('--$boundary\r\n');

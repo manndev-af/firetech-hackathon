@@ -37,7 +37,7 @@ void main() {
     }
   });
   ScanDraft draft(String photo) => ScanDraft(
-    id: 'scan_test',
+    id: '108ca11c-e9ae-4f66-b671-5689d998ff19',
     photoPath: photo,
     label: true,
     createdAt: DateTime(2026, 11, 7),
@@ -312,7 +312,7 @@ void main() {
       addTearDown(() => server.close(force: true));
       final handled = server.first.then((request) async {
         expect(request.uri.path, '/api/v1/scans');
-        expect(request.headers.value('Idempotency-Key'), 'scan_test');
+        expect(request.headers.value('Idempotency-Key'), '108ca11c-e9ae-4f66-b671-5689d998ff19');
         expect(request.headers.contentType?.mimeType, 'multipart/form-data');
         final rawBody = await utf8.decodeStream(request);
         expect(rawBody, contains('name="mode"'));
@@ -326,7 +326,7 @@ void main() {
           'success': true,
           'message': 'Scan recorded',
           'data': {
-            'id': 'scan_test',
+            'id': '108ca11c-e9ae-4f66-b671-5689d998ff19',
             'consumedAt': '2026-11-07T00:00:00.000Z',
             'mode': 'label',
             'title': 'Produk',
