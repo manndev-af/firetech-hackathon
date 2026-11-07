@@ -7,6 +7,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Fixed
 
+- Parser saran label Flutter mengenali label bilingual, LemakJenuh dan satuan kkal/kcal tanpa mencampur energi lemak atau AKG.
+
 - Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
 
 ### Changed
