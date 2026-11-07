@@ -28,15 +28,12 @@ class _AnalysisContentState extends State<AnalysisContent>
     with WidgetsBindingObserver {
   final _speech = SummarySpeech.shared;
   String? _audioError;
-  // Always track servings relative to 1 base serving (never accumulates
-  // across backend recalculations). When the backend returns a recalculated
-  // entry the nutrients are already scaled; we reset to 1.0 so the local
-  // multiplier doesn't stack on top of the already-scaled values.
   double _servings = 1.0;
 
   @override
   void initState() {
     super.initState();
+    _servings = widget.entry.quantity > 0 ? widget.entry.quantity : 1.0;
     WidgetsBinding.instance.addObserver(this);
     analysisAudioSession.addListener(_preferenceChanged);
     if (widget.autoSpeak) {
@@ -49,12 +46,8 @@ class _AnalysisContentState extends State<AnalysisContent>
   @override
   void didUpdateWidget(covariant AnalysisContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // When the parent rebuilds with a new entry (e.g. after backend
-    // recalculates nutrients for a different quantity), reset the local
-    // servings multiplier to 1 so we don't double-multiply values that the
-    // backend already scaled.
-    if (oldWidget.entry != widget.entry) {
-      _servings = 1.0;
+    if (oldWidget.entry.id != widget.entry.id) {
+      _servings = widget.entry.quantity > 0 ? widget.entry.quantity : 1.0;
     }
   }
 
@@ -92,39 +85,46 @@ class _AnalysisContentState extends State<AnalysisContent>
     }
   }
 
-  double get _baseCalories => widget.entry.energyKcal ?? 0.0;
-  double get _baseProtein => widget.entry.proteinG ?? 0.0;
-  double? get _baseSugar => widget.entry.sugarG;
-  double? get _baseSodium => widget.entry.sodiumMg;
+  double get _qty => (widget.entry.quantity > 0) ? widget.entry.quantity : 1.0;
 
-  double get _baseFat {
-    if (widget.entry.totalFatG != null) return widget.entry.totalFatG!;
+  double get _unitCalories => (widget.entry.energyKcal ?? 0.0) / _qty;
+  double get _unitProtein => (widget.entry.proteinG ?? 0.0) / _qty;
+  double? get _unitSugar =>
+      widget.entry.sugarG != null ? widget.entry.sugarG! / _qty : null;
+  double? get _unitSodium =>
+      widget.entry.sodiumMg != null ? widget.entry.sodiumMg! / _qty : null;
+
+  double get _unitFat {
+    if (widget.entry.totalFatG != null) return widget.entry.totalFatG! / _qty;
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) return 3.5;
     if (lower.contains('nasi')) return 12.0;
     if (lower.contains('teh') || lower.contains('air')) return 0.0;
-    return (_baseCalories * 0.25) / 9.0;
+    return (_unitCalories * 0.25) / 9.0;
   }
 
-  double get _baseCarbs {
-    if (widget.entry.carbohydratesG != null) return widget.entry.carbohydratesG!;
+  double get _unitCarbs {
+    if (widget.entry.carbohydratesG != null) {
+      return widget.entry.carbohydratesG! / _qty;
+    }
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('yogurt')) return 15.0;
     if (lower.contains('nasi')) return 54.0;
     if (lower.contains('teh') || lower.contains('air')) return 0.0;
-    return (_baseCalories * 0.5) / 4.0;
+    return (_unitCalories * 0.5) / 4.0;
   }
 
-  double get _baseFiber {
-    if (widget.entry.fiberG != null) return widget.entry.fiberG!;
+  double get _unitFiber {
+    if (widget.entry.fiberG != null) return widget.entry.fiberG! / _qty;
     final lower = widget.entry.name.toLowerCase();
     if (lower.contains('nasi')) return 4.8;
     return 0.0;
   }
 
   String get _scoreText {
-    if (_baseCalories <= 0) return '9.0/10 Alami';
-    if (_baseCalories < 200) return '8.2/10 Sehat';
+    final cal = _unitCalories * _servings;
+    if (cal <= 0) return '9.0/10 Alami';
+    if (cal < 200) return '8.2/10 Sehat';
     return '8.5/10 Seimbang';
   }
 
@@ -182,23 +182,23 @@ class _AnalysisContentState extends State<AnalysisContent>
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
-    final totalCalories = (_baseCalories * _servings).round();
-    final proteinStr = _baseProtein > 0
-        ? '${_formatNum(_baseProtein * _servings)} g'
+    final totalCalories = (_unitCalories * _servings).round();
+    final proteinStr = _unitProtein > 0
+        ? '${_formatNum(_unitProtein * _servings)} g'
         : (entry.proteinG == 0 ? '0 g' : 'Belum tersedia');
-    final fatStr = _baseFat > 0
-        ? '${_formatNum(_baseFat * _servings)} g'
-        : (_baseCalories == 0 ? '0 g' : 'Belum tersedia');
-    final carbsStr = _baseCarbs > 0
-        ? '${_formatNum(_baseCarbs * _servings)} g'
-        : (_baseCalories == 0 ? '0 g' : 'Belum tersedia');
+    final fatStr = _unitFat > 0
+        ? '${_formatNum(_unitFat * _servings)} g'
+        : (_unitCalories == 0 ? '0 g' : 'Belum tersedia');
+    final carbsStr = _unitCarbs > 0
+        ? '${_formatNum(_unitCarbs * _servings)} g'
+        : (_unitCalories == 0 ? '0 g' : 'Belum tersedia');
 
     final proteinPercent =
-        '${((_baseProtein * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+        '${((_unitProtein * 4 / (_unitCalories > 0 ? _unitCalories : 1)) * 100).clamp(5, 95).round()}%';
     final fatPercent =
-        '${((_baseFat * 9 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+        '${((_unitFat * 9 / (_unitCalories > 0 ? _unitCalories : 1)) * 100).clamp(5, 95).round()}%';
     final carbsPercent =
-        '${((_baseCarbs * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+        '${((_unitCarbs * 4 / (_unitCalories > 0 ? _unitCalories : 1)) * 100).clamp(5, 95).round()}%';
 
     String? photoPath = entry.photoPath;
     if ((photoPath == null || photoPath.isEmpty) && localStorage != null) {
@@ -207,6 +207,10 @@ class _AnalysisContentState extends State<AnalysisContent>
         photoPath = diskFile.path;
       }
     }
+    final isYogurtSample = entry.id == 'sample_history_yogurt' ||
+        entry.id == 'preview-yogurt' ||
+        entry.name.toLowerCase().contains('yogurt');
+    final effectiveAsset = entry.photoAsset ?? (isYogurtSample ? 'assets/images/history_yogurt.jpg' : null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -220,15 +224,21 @@ class _AnalysisContentState extends State<AnalysisContent>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (photoPath != null)
+                if (photoPath != null && File(photoPath).existsSync())
                   Image.file(
                     File(photoPath),
                     fit: BoxFit.cover,
                     errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
-                else if (entry.photoAsset != null)
+                else if (photoPath != null)
+                  Image.file(
+                    File(photoPath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, error, stack) => _buildPhotoFallback(),
+                  )
+                else if (effectiveAsset != null)
                   Image.asset(
-                    entry.photoAsset!,
+                    effectiveAsset,
                     fit: BoxFit.cover,
                     errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
@@ -799,8 +809,8 @@ class _AnalysisContentState extends State<AnalysisContent>
               _buildSecondaryRow(
                 icon: Icons.eco_rounded,
                 label: 'Serat',
-                value: _baseFiber > 0
-                    ? '${_formatNum(_baseFiber * _servings)} g'
+                value: _unitFiber > 0
+                    ? '${_formatNum(_unitFiber * _servings)} g'
                     : '0 g',
                 subtext: 'Proporsi serat alami',
                 color: const Color(0xFF16A34A),
@@ -809,8 +819,8 @@ class _AnalysisContentState extends State<AnalysisContent>
               _buildSecondaryRow(
                 icon: Icons.cookie_outlined,
                 label: 'Gula',
-                value: _baseSugar != null
-                    ? '${_formatNum(_baseSugar! * _servings)} g'
+                value: _unitSugar != null
+                    ? '${_formatNum(_unitSugar! * _servings)} g'
                     : 'Belum tersedia',
                 subtext: 'Gula alami & tambahan',
                 color: const Color(0xFFDB2777),
@@ -819,8 +829,8 @@ class _AnalysisContentState extends State<AnalysisContent>
               _buildSecondaryRow(
                 icon: Icons.grain_outlined,
                 label: 'Natrium',
-                value: _baseSodium != null
-                    ? '${(_baseSodium! * _servings).round()} mg'
+                value: _unitSodium != null
+                    ? '${(_unitSodium! * _servings).round()} mg'
                     : 'Belum tersedia',
                 subtext: 'Batas harian aman',
                 color: const Color(0xFF0D9488),
