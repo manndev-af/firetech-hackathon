@@ -83,8 +83,8 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           (effectiveNote != null &&
                   effectiveNote.isNotEmpty &&
                   apiResult.userNote == null)
-              ? apiResult.copyWith(userNote: effectiveNote)
-              : apiResult;
+              ? apiResult.copyWith(userNote: effectiveNote, savedAt: DateTime.now())
+              : apiResult.copyWith(savedAt: DateTime.now());
       // Retain a completed response even if the user has navigated away.
       try {
         await saveAnalysis(result);

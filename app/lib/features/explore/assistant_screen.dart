@@ -213,10 +213,12 @@ class _AssistantScreenState extends State<AssistantScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          _conversationActive && _mode == 'pattern'
-                              ? 'Fokus gula · pola dari catatanmu'
-                              : _conversationActive && _mode == 'compare'
-                              ? 'Perbandingan dua pilihan · trade-off AI'
+                          _conversationActive
+                              ? (_mode == 'pattern'
+                                  ? 'Fokus gula · pola dari catatanmu'
+                                  : _mode == 'compare'
+                                      ? 'Perbandingan dua pilihan · trade-off AI'
+                                      : 'Konsultasi nutrisi · online')
                               : 'Pilih makanan yang ingin kamu pahami',
                           style: const TextStyle(
                             color: AppColors.primary,
