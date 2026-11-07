@@ -52,7 +52,7 @@ class BottomNav extends StatelessWidget {
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: 28,
+                  top: 24,
                   bottom: 4,
                   child: Row(
                     children: [
@@ -94,27 +94,44 @@ class BottomNav extends StatelessWidget {
                   ),
                 ),
 
-                // Floating center button
+                // Floating center button with theme gradient and ring
                 Positioned(
-                  top: 8,
+                  top: 20,
                   left: 0,
                   right: 0,
                   child: Center(
-                    child: Material(
-                      color: primary,
-                      elevation: 5,
-                      shape: const CircleBorder(), // <-- Tambahkan ini untuk membuat bentuk lingkaran sempurna
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: onAddTap,
-                        child: const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: Icon(
-                            Icons.camera_alt_outlined,
-                            color: Colors.white,
-                            size: 36,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.cyan, AppColors.heroBackground],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(color: Colors.white, width: 3.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.heroBackground.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: onAddTap,
+                          child: const Center(
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 26,
+                            ),
                           ),
                         ),
                       ),
@@ -143,22 +160,21 @@ class BottomNavPainter extends CustomPainter {
     final center = width / 2;
 
     const radius = 28.0;
-    const top = 28.0;
-    const notchHalfWidth = 46.0;
-    const notchTransition = 20.0;
-    const notchDepth = 74.0;
+    const top = 20.0;
+    const notchRadius = 34.0;
+    const notchDepth = 80.0;
 
     final path = Path();
 
     // Start top-left
     path.moveTo(radius, top);
 
-    // Left notch curve
-    path.lineTo(center - notchHalfWidth - notchTransition, top);
+    // Left notch curve: smoothly cradle the camera button
+    path.lineTo(center - notchRadius - 14, top);
     path.cubicTo(
-      center - notchHalfWidth + 4,
+      center - notchRadius + 2,
       top,
-      center - notchHalfWidth + 4,
+      center - notchRadius,
       notchDepth,
       center,
       notchDepth,
@@ -166,11 +182,11 @@ class BottomNavPainter extends CustomPainter {
 
     // Right notch curve
     path.cubicTo(
-      center + notchHalfWidth - 4,
+      center + notchRadius,
       notchDepth,
-      center + notchHalfWidth - 4,
+      center + notchRadius - 2,
       top,
-      center + notchHalfWidth + notchTransition,
+      center + notchRadius + 14,
       top,
     );
 
@@ -202,6 +218,13 @@ class BottomNavPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(path, paint);
+
+    // Draw subtle border matching design theme
+    final strokePaint = Paint()
+      ..color = AppColors.border.withValues(alpha: 0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    canvas.drawPath(path, strokePaint);
   }
 
   @override
