@@ -267,26 +267,30 @@ class _CompareScreenState extends State<CompareScreen> {
       backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Fixed top bar with back arrow: stays pinned when scrolling
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  tooltip: 'Kembali',
+                  onPressed: () => context.pop(),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.mint,
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: AppColors.heroBackground,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      tooltip: 'Kembali',
-                      onPressed: () => context.pop(),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.mint,
-                      ),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.heroBackground,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
                   Text(
                     _showSummary
                         ? 'Dua pilihan,\nbasis yang sama.'

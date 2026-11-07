@@ -34,9 +34,8 @@ class OnboardingPreferenceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => OnboardingLayout(
+    header: OnboardingHeader(step: 2, onBack: onBack),
     content: [
-      OnboardingHeader(step: 2, onBack: onBack),
-      const SizedBox(height: 16),
       const Text(
         'Pilih pola\nmakanmu',
         style: onboardingTitleStyle,

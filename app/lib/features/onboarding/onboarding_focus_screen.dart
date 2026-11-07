@@ -24,10 +24,9 @@ class OnboardingFocusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => OnboardingLayout(
+    header: OnboardingHeader(step: 1, onBack: onBack),
     bottomSpace: 96,
     content: [
-      OnboardingHeader(step: 1, onBack: onBack),
-      const SizedBox(height: 16),
       const Text(
         'Pilih fokus\nnutrisimu',
         style: onboardingTitleStyle,

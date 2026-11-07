@@ -16,6 +16,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Perbaikan layout bar navigasi kembali (fixed pinned back button bar) pada seluruh halaman:
+  - Memperbaiki `OnboardingLayout` (`onboarding_widgets.dart`), `OnboardingFocusScreen`, dan `OnboardingPreferenceScreen`: Header navigasi kembali (`OnboardingHeader`) kini diposisikan tetap (*pinned/fixed*) di bagian atas layar di luar `SingleChildScrollView`, sehingga tombol kembali dan indikator langkah tidak ikut tergeser atau hilang saat konten di-scroll.
+  - Memperbaiki `CompareScreen` (`compare_screen.dart`): Tombol kembali (`Icons.arrow_back`) yang sebelumnya berada di dalam `ListView` kini dipindahkan ke top bar tetap (*fixed top bar*) di atas area perbandingan, menjamin tombol kembali selalu dapat diakses seketika tanpa harus scroll ke posisi paling atas.
+  - Memperbaiki `ScannerScreen` (`scanner_screen.dart`): Bar navigasi atas yang memuat tombol kembali / foto ulang dan judul mode (`Foto makananmu` / `Foto label nutrisinya` / `Periksa fotomu`) kini diposisikan tetap di luar `SingleChildScrollView`, menjaga kontrol navigasi selalu terlihat baik saat peninjauan foto maupun saat mengisi kolom catatan.
+
 - Optimasi visual dan penyederhanaan copywriting Onboarding serta Beranda:
   - Meringkas judul hero kartu pemindaian di Beranda (`DashboardScanCard`) menjadi *"Pindai Makananmu"* yang jauh lebih ringkas, to the point, dan tidak memakan ruang berlebih.
   - Memperpendek kalimat deskripsi kartu pemindaian menjadi *"Foto makanan atau label kemasan untuk cek nutrisi dan porsinya."*.
