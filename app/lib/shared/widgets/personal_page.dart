@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import 'navigation/top_nav.dart';
 
 /// Palette supplied for the Profile and History designs.
 abstract final class PersonalColors {
@@ -48,18 +49,7 @@ class PersonalPage extends StatelessWidget {
                   MediaQuery.viewInsetsOf(context).bottom == 0;
               return Column(
                 children: [
-                  if (onBack != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          tooltip: 'Kembali',
-                          onPressed: onBack,
-                          icon: const Icon(Icons.arrow_back_rounded),
-                        ),
-                      ),
-                    ),
+                  TopNav(onBack: onBack),
                   Expanded(
                     child: ListView(
                       controller: controller,
@@ -72,17 +62,6 @@ class PersonalPage extends StatelessWidget {
                         dockFooter ? 24 : 140,
                       ),
                       children: [
-                        if (onBack == null)
-                          const Text(
-                            'nutrilens',
-                            style: TextStyle(
-                              color: PersonalColors.primary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        const SizedBox(height: 16),
                         Text(
                           title,
                           style: const TextStyle(
@@ -98,6 +77,7 @@ class PersonalPage extends StatelessWidget {
                           style: const TextStyle(
                             color: PersonalColors.secondary,
                             height: 1.5,
+                            fontSize: 14,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -109,21 +89,7 @@ class PersonalPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (dockFooter)
-                    Material(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          24,
-                          12,
-                          24,
-                          MediaQuery.viewInsetsOf(context).bottom > 0
-                              ? 12
-                              : 120,
-                        ),
-                        child: footer!,
-                      ),
-                    ),
+                  if (dockFooter) footer!,
                 ],
               );
             },
@@ -139,28 +105,31 @@ class PersonalCard extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(24),
-    decoration: BoxDecoration(
-      color: Colors.white,
+  Widget build(BuildContext context) => Material(
+    color: Colors.white,
+    shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: PersonalColors.border),
+      side: const BorderSide(color: PersonalColors.border, width: 1.2),
     ),
-    child: Material(color: Colors.transparent, child: child),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: child,
+    ),
   );
 }
 
 class PersonalHeading extends StatelessWidget {
-  const PersonalHeading(this.title, {super.key});
-  final String title;
+  const PersonalHeading(this.text, {super.key});
+  final String text;
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Text(
-      title,
+      text,
       style: const TextStyle(
         fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: PersonalColors.ink,
       ),
     ),

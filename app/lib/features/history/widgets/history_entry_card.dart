@@ -164,57 +164,6 @@ class HistoryEntryCard extends StatelessWidget {
                           height: 1.4,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: [
-                          if (entry.energyKcal != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF4ED),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(0xFFFFD8BF),
-                                ),
-                              ),
-                              child: Text(
-                                '🔥 ${entry.energyKcal!.round()} kkal',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFFEA580C),
-                                ),
-                              ),
-                            ),
-                          if (entry.proteinG != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEFF6FF),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(0xFFBFDBFE),
-                                ),
-                              ),
-                              child: Text(
-                                '🥚 ${entry.proteinG!.round()} g protein',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF2563EB),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -298,13 +247,6 @@ class _HistoryEntryDetailState extends State<HistoryEntryDetail> {
     if (_baseCalories <= 0) return '9.0/10 Alami';
     if (_baseCalories < 200) return '8.2/10 Sehat';
     return '8.5/10 Seimbang';
-  }
-
-  List<String> get _tags {
-    if (widget.entry.packaged) {
-      return ['#packaged-product', '#tercatat-riwayat', '#label-ocr', '#nutrilens'];
-    }
-    return ['#makanan-sehat', '#tercatat-riwayat', '#seimbang', '#nutrilens'];
   }
 
   String get _kelebihanText {
@@ -469,35 +411,6 @@ class _HistoryEntryDetailState extends State<HistoryEntryDetail> {
                       ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // Tags
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final tag in _tags)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Text(
-                        tag,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryDark,
-                        ),
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: 24),

@@ -7,6 +7,15 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Komponen navbar atas bersama (`TopNav` pada `app/lib/shared/widgets/navigation/top_nav.dart`) ditambahkan:
+  - Bersifat fixed di atas layar dan menjadi shared component seperti halnya `BottomNav`.
+  - Menggunakan logo resmi aplikasi dari aset (`assets/icons/iconaplikasi.png`) dan menampilkan nama aplikasi `nutrisee`.
+  - Disematkan secara konsisten pada layar Profil, Riwayat (`PersonalPage`), serta halaman hasil scan (`ScanResultScreen`).
+- Penghapusan seluruh tag hashtag (`#tag`) yang tidak berfungsi pada tampilan hasil foto (`ScanResultScreen`) dan rincian riwayat (`HistoryEntryDetail`).
+- Penghapusan penggunaan emotikon/emoji pada seluruh badge aplikasi:
+  - Badge pil pada kartu riwayat (`HistoryEntryCard`) kini bersih tanpa emoji (`🔥`, `🥚`), mengutamakan keterbacaan teks dan tata letak yang profesional.
+  - Memastikan seluruh status dan indikator hanya menggunakan ikon vektor Material bertema.
+
 - Layout dan output tampilan riwayat (`HistoryEntryDetail` dan `HistoryEntryCard`) diselaraskan menyerupai output hasil foto kamera:
   - Tampilan detail riwayat menampilkan foto hero dengan badge AI, judul 24 px, kalori 32 px, skor kesehatan (`8.0+/10`), kartu makronutrisi berikon (Protein, Lemak, Karbohidrat), badge mikronutrisi (Serat, Gula, Natrium), kartu analisis trade-off (`Kelebihan` dan `Kekurangan`), serta kontrol interaktif porsi (`1`, `2`, `3`, `4` dan stepper `-` / `+`) yang mengalikan nilai gizi secara reaktif.
   - Kartu daftar riwayat diperbarui dengan sudut 22 px, pil informasi kalori dan protein, serta tipografi yang jelas dan mudah dibaca.
