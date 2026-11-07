@@ -11,6 +11,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Dashboard NutriLens sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
+- Ilustrasi dashboard lokal dari ekspor pengguna dan pengujian empty state, ringkasan, data hilang, callback, serta teks besar.
+
 - Alur onboarding Flutter sesuai tiga referensi pengguna: pilihan fokus nutrisi, preferensi opsional dengan Lewati dulu, dan ringkasan selesai dinamis menuju beranda. Pilihan dipertahankan saat kembali antar-langkah, masih berupa state UI tanpa penyimpanan/profil engine.
 - Route `/onboarding`, komponen pilihan aksesibel, ilustrasi selesai lokal dari ekspor pengguna, dan pengujian navigasi/pilihan/layar sempit. Tombol Google membuka alur demo; autentikasi Google belum terhubung.
 
@@ -29,6 +32,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Mekanisme CHANGELOG untuk melacak perubahan penting dalam bagian Unreleased sebelum rilis.
 
 ### Changed
+
+- Dashboard contoh toko diganti kartu scan dan Hari ini; fokus onboarding diteruskan ke label kartu. Navigasi bawah tetap menggunakan desain dan callback sebelumnya sesuai permintaan pengguna.
 
 - Login Flutter mengikuti referensi terbaru dengan ilustrasi lokal, latar putih, dan tombol tunggal Lanjutkan dengan Google; form email/kata sandi dihapus. Status prototipe tetap terlihat dan integrasi Google belum terhubung. Pengujian UI serta panduan aset diperbarui.
 

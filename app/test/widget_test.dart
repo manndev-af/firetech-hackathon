@@ -4,6 +4,7 @@ import 'package:nutrilens/app.dart';
 import 'package:nutrilens/core/router/app_router.dart';
 import 'package:nutrilens/core/router/route_paths.dart';
 import 'package:nutrilens/features/auth/login_screen.dart';
+import 'package:nutrilens/features/dashboard/dashboard_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_focus_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_preference_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_finish_screen.dart';
@@ -97,6 +98,10 @@ void main() {
       await tap(tester, 'Ke beranda');
       expect(appRouter.routeInformationProvider.value.uri.path, AppRoutes.home);
       expect(find.byType(MainScaffold), findsOneWidget);
+      expect(
+        tester.widget<DashboardScreen>(find.byType(DashboardScreen)).focus,
+        'Protein',
+      );
     },
   );
 
