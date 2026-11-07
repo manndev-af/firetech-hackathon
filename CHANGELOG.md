@@ -7,7 +7,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
-- Validasi pesan dan history assistant general/pattern, parser JSON lokal 64 KiB serta penghilangan payload chat dari log sebelum parsing.
+- Validasi pesan dan history assistant general/pattern, parser JSON lokal 64 KiB serta penghilangan payload chat dari log sebelum parsing. Service assistant memakai prompt terpisah, satu dispatch teks, sumber tervalidasi dan agregasi Decimal tujuh tanggal lokal tanpa write database.
 
 ### Added
 
