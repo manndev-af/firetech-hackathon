@@ -88,6 +88,36 @@ void main() {
     );
   });
 
+  test('containsNutritionKeywords identifies Indonesian and English nutrition facts terms', () {
+    expect(containsNutritionKeywords('INFORMASI NILAI GIZI\nTakaran Saji 100g\nEnergi 120 kkal'), isTrue);
+    expect(containsNutritionKeywords('Total Fat 5g, Protein 10g, Sodium 200mg'), isTrue);
+    expect(containsNutritionKeywords('Karbohidrat total 15g, gula 2g'), isTrue);
+    expect(containsNutritionKeywords('Buku Cerita Bergambar Anak'), isFalse);
+    expect(containsNutritionKeywords('Sepatu Olahraga Pria Ukuran 42'), isFalse);
+    expect(containsNutritionKeywords(''), isFalse);
+  });
+
+  test('label mode throws ScanFailure when OCR text lacks nutrition keywords', () async {
+    final input = File('${directory.path}/input_non_food.jpg');
+    await input.writeAsBytes([1, 2]);
+    final pipeline = ScanPipeline(
+      storage: storage,
+      checkFood: (_) async => throw StateError('Label must bypass food gate'),
+      readText: (_) async => 'Toko Buku Gramedia\nNovel Fiksi 2026',
+      resize: (_, label) async => Uint8List.fromList([3, 4]),
+    );
+    await expectLater(
+      pipeline.prepare(input.path, label: true, priorities: ['Gula']),
+      throwsA(
+        isA<ScanFailure>().having(
+          (e) => e.message,
+          'message',
+          contains('Tabel nilai gizi tidak ditemukan'),
+        ),
+      ),
+    );
+  });
+
   test('rejected food stops before compression or creating a draft', () async {
     final input = File('${directory.path}/input.jpg');
     await input.writeAsBytes([1, 2]);

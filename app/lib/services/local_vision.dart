@@ -15,6 +15,52 @@ class VisionLabel {
   final double confidence;
 }
 
+abstract final class LocalVisionService {
+  static bool containsNutritionKeywords(String text) =>
+      _hasNutritionKeywords(text);
+}
+
+bool containsNutritionKeywords(String text) => _hasNutritionKeywords(text);
+
+bool _hasNutritionKeywords(String text) {
+  final lower = text.toLowerCase();
+  const keywords = [
+    'informasi nilai gizi',
+    'nilai gizi',
+    'nutrition facts',
+    'nutrition information',
+    'takaran saji',
+    'sajian per kemasan',
+    'jumlah per sajian',
+    'serving size',
+    'servings per container',
+    'energi total',
+    'energi',
+    'kalori',
+    'calories',
+    'energy',
+    'kkal',
+    'kcal',
+    'lemak total',
+    'lemak jenuh',
+    'lemak',
+    'fat',
+    'saturated fat',
+    'protein',
+    'karbohidrat total',
+    'karbohidrat',
+    'carbohydrate',
+    'gula',
+    'sugar',
+    'sugars',
+    'natrium',
+    'sodium',
+    'garam',
+    'salt',
+  ];
+  return keywords.any((k) => lower.contains(k));
+}
+
 /// Initial tunable policy, not a measured accuracy guarantee. Do not accept
 /// containers such as Cup/Bottle: an empty cup is not evidence of a drink.
 bool acceptsFoodPhoto(

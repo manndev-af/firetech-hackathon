@@ -214,4 +214,51 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'tapping Simpan ke Riwayat button saves and pops with confirmation',
+    (tester) async {
+      final api = ReadyApi();
+      var popped = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ScanResultScreen(
+                          photo: XFile('photo'),
+                          mode: ScanMode.label,
+                          pipeline: PreparedPipeline(),
+                          api: api,
+                        ),
+                      ),
+                    );
+                    popped = true;
+                  },
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('save-to-history-button')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('save-to-history-button')));
+      await tester.pumpAndSettle();
+
+      expect(popped, isTrue);
+      expect(
+        find.textContaining('tersimpan ke Riwayat konsumsi.'),
+        findsOneWidget,
+      );
+    },
+  );
 }

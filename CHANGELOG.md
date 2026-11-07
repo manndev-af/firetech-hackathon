@@ -7,6 +7,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Validasi kata kunci nilai gizi OCR label kemasan: fungsi `containsNutritionKeywords` memvalidasi keberadaan istilah tabel gizi dalam bahasa Indonesia maupun Inggris (antara lain `informasi nilai gizi, nilai gizi, takaran saji, energi, kalori, lemak, protein, karbohidrat, gula, natrium, nutrition facts, calories, fat, sugar, sodium`). Jika tidak ada kata kunci yang cocok, pemrosesan label langsung melempar `ScanFailure` lokal tanpa membuang kuota/request ke AI.
+- Penanganan kegagalan deteksi objek makanan/minuman dan label gizi tidak lagi berpindah ke halaman baru, melainkan menampilkan dialog popup peringatan yang bersih dan rapi langsung di layar kamera (`ScannerScreen`) dengan tombol "Foto Ulang" untuk kembali ke jendela bidik kamera dengan cepat.
+- Tombol aksi utama di bagian bawah layar hasil scan (`ScanResultScreen`) diubah menjadi tombol "Simpan ke Riwayat" yang berlabuh di footer bawah layar (`footer:` pada `PersonalPage`), menggantikan opsi navigasi foto lain dan mempertegas fungsi pemindaian sebagai pencatatan konsumsi pengguna, lengkap dengan notifikasi konfirmasi SnackBar mengambang. Eksplorasi perbandingan dan konsultasi diarahkan ke fitur Jelajah.
+- Tampilan rincian riwayat produk kemasan (`HistoryEntryDetail`) disatukan sepenuhnya menggunakan `AnalysisContent` sehingga memiliki tata letak kartu yang identik dengan foto makanan segar: foto hero dengan badge AI, kalori 32 px, skor kesehatan, kartu makronutrisi berikon, badge mikronutrisi, selector porsi interaktif (stepper + chip 1-4), analisis trade-off personal (Kelebihan & Kekurangan), dan pemutar suara TTS kesimpulan singkat.
+
 - Beranda (`DashboardScreen`, `DashboardScanCard`, `DashboardHistory`) diperbarui secara menyeluruh mengikuti hierarki visual dan prinsip Personalized Nutrition:
   - Navigasi atas tetap (`TopNav`) menampilkan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee` secara konsisten dengan layar lainnya.
   - Sapaan kontekstual waktu (`SELAMAT PAGI / SIANG / SORE / MALAM`), tipografi utama yang mudah dibaca (`Makan dengan lebih paham.`), dan penanda fokus nutrisi personal.
