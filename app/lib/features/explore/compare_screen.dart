@@ -46,6 +46,70 @@ class _CompareScreenState extends State<CompareScreen> {
     _compareApi = widget.compareApi ?? CompareApi.withDefaultBase();
   }
 
+  String _buildRecommendationText() {
+    final signals = _comparisonResult?.prioritySignals ?? [];
+    final higherSignals = signals.where((s) => s.direction == 'higher').toList();
+    final lowerSignals = signals.where((s) => s.direction == 'lower').toList();
+
+    // 1. Jika keduanya higher
+    if (higherSignals.isNotEmpty && lowerSignals.isEmpty) {
+      return 'Kedua pilihan direkomendasikan dan dapat menjadi opsi yang baik untuk memenuhi kebutuhan energimu. Tetap konsumsi dalam batasan wajar dan perhatikan takaran porsi harianmu.';
+    }
+
+    // 2. Jika keduanya lower
+    if (lowerSignals.isNotEmpty && higherSignals.isEmpty) {
+      return 'Kedua pilihan direkomendasikan terutama bagi yang ingin membatasi asupan harian (rendah kalori atau gula). Tetap konsumsi dalam batasan wajar agar kebutuhan gizi harian tetap seimbang dan terpenuhi.';
+    }
+
+    // 3. Jika salah satu higher
+    if (higherSignals.isNotEmpty && lowerSignals.isNotEmpty) {
+      final highSig = higherSignals.first;
+      final nutrientName = _formatNutrientLabel(highSig.priority ?? highSig.nutrientKey);
+      return 'Direkomendasikan memilih Pilihan B karena memiliki kandungan $nutrientName yang lebih tinggi untuk mendukung kebutuhan nutrisimu, sementara Pilihan A memiliki kandungan yang lebih rendah. Tetap konsumsi dalam batasan wajar.';
+    }
+
+    // Periksa perbedaan jika sinyal prioritas belum ada dari backend
+    if (_comparisonResult != null) {
+      final diffs = _comparisonResult!.differences.values.whereType<double>().toList();
+      final hasHigher = diffs.any((d) => d > 0);
+      final hasLower = diffs.any((d) => d < 0);
+      if (hasHigher && !hasLower) {
+        return 'Kedua pilihan direkomendasikan dan dapat menjadi opsi yang baik untuk memenuhi kebutuhan energimu. Tetap konsumsi dalam batasan wajar dan perhatikan takaran porsi harianmu.';
+      }
+      if (hasLower && !hasHigher) {
+        return 'Kedua pilihan direkomendasikan terutama bagi yang ingin membatasi asupan harian (rendah kalori atau gula). Tetap konsumsi dalam batasan wajar agar kebutuhan gizi harian tetap seimbang dan terpenuhi.';
+      }
+      if (hasHigher && hasLower) {
+        return 'Direkomendasikan memilih Pilihan B karena memiliki kandungan nutrisi yang lebih tinggi untuk mendukung kebutuhan harianmu, sementara Pilihan A lebih rendah. Tetap konsumsi dalam batasan wajar.';
+      }
+    }
+
+    // Fallback awal (misal saat pratinjau sebelum API merespons)
+    return 'Direkomendasikan memilih Pilihan A jika mengutamakan kandungan protein yang lebih tinggi, sementara Pilihan B lebih bersahabat untuk menjaga asupan kalori dan gula. Tetap konsumsi keduanya dalam batasan wajar.';
+  }
+
+  String _formatNutrientLabel(String key) {
+    switch (key.toLowerCase()) {
+      case 'protein':
+      case 'protein_g':
+        return 'protein';
+      case 'gula':
+      case 'sugar_g':
+        return 'gula';
+      case 'kalori':
+      case 'calories_kcal':
+        return 'kalori';
+      case 'natrium':
+      case 'sodium_mg':
+        return 'natrium';
+      case 'serat':
+      case 'fiber_g':
+        return 'serat';
+      default:
+        return 'nutrisi';
+    }
+  }
+
   Future<void> _runComparison() async {
     if (_imageA == null || _imageB == null || _isComparing) return;
 
@@ -535,7 +599,7 @@ class _CompareScreenState extends State<CompareScreen> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                'Rekomendasi (Mending yang Mana?):',
+                                'Rekomendasi',
                                 style: TextStyle(
                                   color: AppColors.textPrimary,
                                   fontSize: 14.5,
@@ -546,11 +610,7 @@ class _CompareScreenState extends State<CompareScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            _comparisonResult != null && _comparisonResult!.prioritySignals.isNotEmpty
-                                ? _comparisonResult!.prioritySignals
-                                    .map((s) => '• ${s.reason ?? "${s.nutrientKey}: ${s.direction}"}')
-                                    .join('\n')
-                                : '• Pilihan B lebih bersahabat untuk target rendah kalori & gula harian.\n• Pilihan A memberi sedikit lebih banyak protein, tetapi dengan kalori dan gula yang lebih tinggi.',
+                            _buildRecommendationText(),
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,

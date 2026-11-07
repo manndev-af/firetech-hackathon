@@ -94,7 +94,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
               '• Pilihan A: Mengandung 12 g gula dan 4 g protein (130 kkal).\n\n'
               'Trade-off Utama:\n'
               'Pilihan B memotong gula hingga 50%, sedangkan Pilihan A hanya unggul 1 g protein namun membawa tambahan 6 g gula.\n\n'
-              'Kesimpulan (Mending yang mana?):\n'
+              'Rekomendasi:\n'
               'Jika prioritasmu adalah membatasi gula, Pilihan B jauh lebih rasional. Namun jika kamu baru selesai berolahraga berat dan butuh asupan protein segera, Pilihan A bisa dipertimbangkan.',
           time: now.subtract(const Duration(minutes: 1)),
         ),
@@ -324,16 +324,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                     ),
                     const SizedBox(height: 12),
                     _Prompt(
-                      text: 'Bagaimana membandingkan dua camilan?',
-                      onTap: () => _sendMessage('Bagaimana membandingkan dua camilan?'),
-                    ),
-                    _Prompt(
-                      text: 'Apa yang perlu diperhatikan pada minuman?',
-                      onTap: () => _sendMessage('Apa yang perlu diperhatikan pada minuman?'),
-                    ),
-                    _Prompt(
-                      text: 'Berapa batas konsumsi gula harian?',
-                      onTap: () => _sendMessage('Berapa batas konsumsi gula harian?'),
+                      text: 'Tips memilih camilan sehat',
+                      onTap: () => _sendMessage('Tips memilih camilan sehat'),
                     ),
                     _Prompt(
                       text: 'Tips memilih makanan tinggi protein',
@@ -448,8 +440,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                       ),
                     ] else ...[
                       _Prompt(
-                        text: 'Berapa batas konsumsi gula harian?',
-                        onTap: () => _sendMessage('Berapa batas konsumsi gula harian?'),
+                        text: 'Tips memilih camilan sehat',
+                        onTap: () => _sendMessage('Tips memilih camilan sehat'),
                       ),
                       _Prompt(
                         text: 'Tips memilih makanan tinggi protein',
