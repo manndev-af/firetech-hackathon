@@ -350,62 +350,69 @@ class _ScannerScreenState extends State<ScannerScreen>
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final previewHeight = (constraints.maxHeight * .58).clamp(
-                230.0,
-                480.0,
-              );
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Fixed Top Bar: stays pinned when scrolling
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            IconButton.filledTonal(
-                              tooltip: review ? 'Foto ulang' : 'Kembali',
-                              style: IconButton.styleFrom(
-                                backgroundColor: AppColors.background,
-                                foregroundColor: AppColors.primaryDark,
-                              ),
-                              onPressed: _busy
-                                  ? null
-                                  : review
-                                  ? _retake
-                                  : () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back_rounded),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                review
-                                    ? 'Periksa fotomu'
-                                    : isLabel
-                                    ? 'Foto label nutrisinya'
-                                    : 'Foto makananmu',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  height: 1.35,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
+                        IconButton.filledTonal(
+                          tooltip: review ? 'Foto ulang' : 'Kembali',
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.background,
+                            foregroundColor: AppColors.primaryDark,
+                          ),
+                          onPressed: _busy
+                              ? null
+                              : review
+                              ? _retake
+                              : () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_rounded),
                         ),
-                        const SizedBox(height: 24),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(28),
-                          child: Container(
-                            height: previewHeight,
-                            color: AppColors.background,
-                            child: _preview(),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            review
+                                ? 'Periksa fotomu'
+                                : isLabel
+                                ? 'Foto label nutrisinya'
+                                : 'Foto makananmu',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              height: 1.35,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final previewHeight = (constraints.maxHeight * .58).clamp(
+                          230.0,
+                          480.0,
+                        );
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(28),
+                                child: Container(
+                                  height: previewHeight,
+                                  color: AppColors.background,
+                                  child: _preview(),
+                                ),
+                              ),
                         const SizedBox(height: 20),
                         Text(
                           review
@@ -585,14 +592,17 @@ class _ScannerScreenState extends State<ScannerScreen>
                           ),
                       ],
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
-    );
+    ),
+  ),
+),
+);
   }
 
   Widget _buildNoteField(bool isLabel) {
