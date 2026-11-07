@@ -62,7 +62,21 @@ Dashboard menampilkan empty state selama belum diberi ringkasan catatan. Widget 
 
 ## 4. Alur Fungsional Utama (P0)
 
-### Pembaruan implementasi Profil/Riwayat — 7 November 2026
+### Revisi interaksi Profil/Riwayat — 7 November 2026
+
+Revisi Profil terbaru: pengguna dapat menyimpan informasi diri tanpa memilih prioritas nutrisi. Edit profil hanya mengubah nama/usia/tinggi/berat; personalisasi hanya mengubah prioritas/pilihan makanan/alergi. Lihat detail langsung menampilkan input editable inline, tanpa modal dan langkah edit kedua. Simpan menerapkan bagian aktif, Kembali membatalkan dengan konfirmasi bila draft berubah, lalu tampilan kembali ke ringkasan. Pengujian memastikan bagian lain tetap utuh dan form dapat digunakan pada 320 px dengan skala teks 2.
+
+Pembaruan setelah permintaan contoh: route Riwayat menampilkan fixture secara default agar pengguna dapat langsung meninjau foto, ringkasan, dan detail. Flag `UI_PREVIEW=false` mematikan contoh; state kosong dan pengecualian fixture dari riwayat nyata tetap tersedia. Ini menggantikan kebutuhan aktivasi manual pada catatan berikut.
+
+Arahan pengguna terbaru: Profil menyajikan sebagian personalisasi, detail lengkap melalui tombol, serta sakelar audio. Preferensi audio bertahan lintas tab dalam sesi; TTS belum terhubung. Riwayat tidak lagi memiliki filter; foto lokal/thumbnail dan ringkasan menjadi konten utama. Sumber/basis tetap tersedia di detail dengan label Asal data/Acuan perhitungan. Preview desain tidak memiliki banner demo, diaktifkan hanya melalui `UI_PREVIEW=true`, dan tidak mengisi data pengguna. Status integrasi kamera/penyimpanan/engine tidak berubah. Catatan perilaku lama di bawah bersifat historis.
+
+### Perluasan Profil/Riwayat — 7 November 2026
+
+Status terbaru menggantikan catatan implementasi awal berikut: field tinggi/berat opsional, pola makan, preferensi halal, dan pencatatan alergi tersedia dalam sesi. FR-15 tersedia pada tingkat form opsional, tanpa kalkulasi target tubuh. FR-16 hanya terpenuhi untuk pencatatan: status belum diisi dibedakan dari tidak ada alergi yang diketahui; pencocokan alergen belum diimplementasikan. Nama/usia/pilihan tambahan dapat dikosongkan, minimal satu prioritas tetap wajib. Batal/Kembali memberi konfirmasi jika draft berubah. Perubahan onboarding mempertahankan field tambahan.
+
+Riwayat menerima snapshot tampilan dengan nilai nullable, sumber, basis, porsi, waktu, dan prioritas saat dicatat. Preview berisi tersedia secara eksplisit, terpisah dari data pengguna dan berlabel ilustrasi. Filter jenis/tanggal serta detail bekerja; penyimpanan hasil nyata dan API riwayat belum tersedia. Lihat [audit dan verifikasi](PROFILE_HISTORY_AUDIT.md).
+
+### Pembaruan implementasi Profil/Riwayat awal — 7 November 2026
 
 UI `/profile` dan `/profile/nutrition` menyediakan nama (maksimal 60 karakter), usia opsional (bilangan bulat 1–120 untuk validasi input, bukan batas medis/segmentasi), minimal satu dari lima prioritas nutrisi, serta preferensi makanan opsional. Simpan menerapkan draft ke state sesi; Batal membuang perubahan draft. Pilihan onboarding mengisi profil sesi dan label fokus Home mengikuti prioritas yang disimpan. Profil tidak dikirim ke server, tidak bertahan setelah restart, dan belum memengaruhi engine/insight. FR-15/16 tetap belum diimplementasikan.
 

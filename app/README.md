@@ -51,13 +51,27 @@ Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboa
 
 ## Profil dan Riwayat
 
+Revisi Profil terbaru: ikon Edit profil membuka nama, usia, tinggi, dan berat langsung di halaman. Lihat detail pada Personalisasi membuka seluruh form prioritas, pilihan makanan, dan alergi di bawah judulnya, tanpa bottom sheet atau tombol Edit tambahan. Tombol Simpan/Kembali berada di akhir form; data kedua bagian dipertahankan secara terpisah. Selesai mengedit mengembalikan halaman ke ringkasan. Uraian bottom sheet di catatan sebelumnya sudah digantikan.
+
+Revisi review pengguna 7 November 2026 menggantikan uraian UI awal berikut: Profil menampilkan ringkasan lalu Lihat detail, serta sakelar Audio analisis aktif/nonaktif dalam sesi. TTS belum terintegrasi. Riwayat memakai foto dan ringkasan singkat, tanpa filter atau label demo. `ScanHistoryEntry.photoPath` menerima file foto lokal; file tidak tersedia memiliki fallback. Asal data dan Acuan perhitungan dapat dibuka di detail.
+
+Riwayat terisi kini langsung terlihat saat menjalankan `flutter run`, sesuai permintaan review pengguna. Tiga contoh: yogurt stroberi, nasi/ayam/sayur, dan teh tawar, lengkap dengan foto, porsi, ringkasan, serta detail analisis. Router memakai `UI_PREVIEW` dengan default `true`; jalankan `flutter run --dart-define=UI_PREVIEW=false` untuk melihat state tanpa fixture. Angka/foto hanya bahan review desain, bukan hasil analisis/kamera nyata, dan tidak masuk ke penyimpanan atau ringkasan pengguna. Font Inter memakai ukuran menurut peran 24/18/16/14. Sumber foto dan hasil review ada dalam [audit](../docs/PROFILE_HISTORY_AUDIT.md#revisi-setelah-review-pengguna).
+
+### Catatan implementasi awal
+
 Pembaruan 7 November 2026 menggantikan status navigasi/profil pada uraian dashboard terdahulu:
 
 - Tab History membuka `/history`; Profile membuka `/profile`; editor berada di `/profile/nutrition`. Home tetap branch pertama. Insight dan tombol kamera memberi pemberitahuan belum tersedia, bukan membuka route yang tidak ada.
-- `features/profile/` memuat ringkasan/pengaturan dan editor profil. Nama/usia opsional, lima prioritas bisa dipilih jamak, dan preferensi dapat dikosongkan. Simpan memvalidasi dan menerapkan draft; Batal membuangnya.
+- `features/profile/` memuat ringkasan dan editor lima bagian: prioritas jamak, preferensi/pola makan/halal, alergi, nama/usia, serta tinggi/berat. Semua selain minimal satu prioritas bersifat opsional. Simpan memvalidasi draft; Batal/Kembali meminta konfirmasi jika ada perubahan. Tinggi/berat tidak menghitung BMI atau target kalori. Pencocokan alergen belum tersedia.
 - Model `models/nutrition_profile.dart` serta notifier sesi pada router menghubungkan onboarding, profil, dan label fokus dashboard. State tidak disimpan ke disk atau server dan hilang setelah restart. Profil belum diterapkan ke engine.
-- `features/history/history_screen.dart` menyediakan filter jenis, tanggal, reset, dan empty state. Tidak ada data contoh, daftar hasil tersimpan, atau API riwayat. Tombol Mulai pindai menjelaskan kamera belum tersedia.
-- Komponen bersama dan palet khusus layar baru berada di `shared/widgets/personal_page.dart`, mengikuti palet teal–mint pengguna. Figcraft menjadi referensi dan tidak dimodifikasi. TTS, tinggi/berat, alergi, dan penyimpanan permanen belum ditambahkan.
+- `features/history/history_screen.dart` menyediakan filter jenis/tanggal, reset, empty state, dan detail snapshot. Lihat contoh riwayat membuka preview berlabel ilustrasi yang terpisah dari catatan pengguna. Sumber/basis/porsi ditampilkan dan null tetap Belum tersedia. API serta penyimpanan hasil nyata belum tersedia; Mulai pindai menjelaskan kamera belum tersedia.
+- Komponen bersama berada di `shared/widgets/personal_page.dart`, memakai token teal/mint dan font Inter aplikasi. Figcraft tidak dimodifikasi. TTS dan penyimpanan permanen belum tersedia. Rincian perubahan, bukti pengujian, serta batasnya ada di [audit Profil/Riwayat](../docs/PROFILE_HISTORY_AUDIT.md).
+
+Ekspor enam preview PNG dari widget Flutter (hasil lokal di `build/ui-audit/after/`, tidak dilacak Git):
+
+```bash
+flutter test --no-pub test/profile_history_preview_test.dart --dart-define=EXPORT_UI_PREVIEWS=true
+```
 
 ## Font global Inter
 

@@ -16,6 +16,7 @@ import '../../features/explore/assistant_screen.dart';
 
 // In-memory UI state only; no account, disk storage, or nutrition-engine input.
 final profileSession = ValueNotifier<NutritionProfile>(NutritionProfile());
+final analysisAudioSession = ValueNotifier<bool>(false);
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
@@ -28,11 +29,9 @@ final appRouter = GoRouter(
       builder: (context, state) => OnboardingScreen(
         onComplete: (focus, preference) {
           final current = profileSession.value;
-          profileSession.value = NutritionProfile(
-            name: current.name,
-            age: current.age,
-            priorities: [focus],
-            preference: preference,
+          profileSession.value = current.withOnboardingChoices(
+            focus,
+            preference,
           );
         },
       ),
@@ -83,7 +82,11 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.history,
               name: AppRouteNames.history,
-              builder: (context, state) => const HistoryScreen(),
+              builder: (context, state) => const HistoryScreen(
+                // The current design-review build opens populated history.
+                // Fixtures remain separate from actual saved records.
+                preview: bool.fromEnvironment('UI_PREVIEW', defaultValue: true),
+              ),
             ),
           ],
         ),
@@ -97,7 +100,8 @@ final appRouter = GoRouter(
                     valueListenable: profileSession,
                     builder: (context, profile, _) => ProfileScreen(
                       profile: profile,
-                      onEdit: () => context.push(AppRoutes.nutritionProfile),
+                      audioPreference: analysisAudioSession,
+                      onSave: (value) => profileSession.value = value,
                     ),
                   ),
               routes: [
@@ -110,11 +114,6 @@ final appRouter = GoRouter(
                     onSave: (profile) {
                       profileSession.value = profile;
                       context.pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profil disimpan untuk sesi ini.'),
-                        ),
-                      );
                     },
                   ),
                 ),
