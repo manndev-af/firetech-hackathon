@@ -90,7 +90,9 @@ final appRouter = GoRouter(
                             : (isPreview
                                 ? historyPreviewData(DateTime.now())
                                 : <ScanHistoryEntry>[]);
-                        final recent = entries.isNotEmpty ? entries.first : null;
+                        final sortedEntries = List<ScanHistoryEntry>.from(entries)
+                          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+                        final recent = sortedEntries.isNotEmpty ? sortedEntries.first : null;
 
                         DailyNutritionSummary? summary = serverDailySummary;
                         if (summary == null && entries.isNotEmpty) {
