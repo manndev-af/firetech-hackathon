@@ -14,19 +14,12 @@ class MainScaffold extends StatelessWidget {
       extendBody: true,
 
       bottomNavigationBar: BottomNav(
-        currentIndex: const [0, 2, 3][navigationShell.currentIndex],
+        currentIndex: navigationShell.currentIndex,
 
         onTap: (index) {
-          if (index == 1) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Insight belum tersedia.')),
-            );
-            return;
-          }
-          final branch = const {0: 0, 2: 1, 3: 2}[index]!;
           navigationShell.goBranch(
-            branch,
-            initialLocation: branch == navigationShell.currentIndex,
+            index,
+            initialLocation: index == navigationShell.currentIndex,
           );
         },
 
