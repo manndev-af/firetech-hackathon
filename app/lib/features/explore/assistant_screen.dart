@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/api_exception.dart';
 import '../../services/assistant_api.dart';
 
 class AssistantScreen extends StatefulWidget {
@@ -28,7 +27,6 @@ class _ChatMessage {
     required this.time,
     this.sources = const [],
     this.warnings = const [],
-    this.isError = false,
   });
 
   final bool isUser;
@@ -36,7 +34,6 @@ class _ChatMessage {
   final DateTime time;
   final List<CitationSource> sources;
   final List<String> warnings;
-  final bool isError;
 }
 
 class _AssistantScreenState extends State<AssistantScreen> {
@@ -152,7 +149,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
     final history = <AssistantHistoryItem>[];
     for (int i = 0; i < _messages.length - 1; i++) {
       final msg = _messages[i];
-      if (!msg.isError && msg.text.trim().isNotEmpty) {
+      if (msg.text.trim().isNotEmpty) {
         history.add(
           AssistantHistoryItem(
             role: msg.isUser ? 'user' : 'assistant',
@@ -584,9 +581,7 @@ class _MessageBubble extends StatelessWidget {
               Text(
                 message.text,
                 style: TextStyle(
-                  color: isUser
-                      ? Colors.white
-                      : (message.isError ? const Color(0xFFE11D48) : AppColors.textPrimary),
+                  color: isUser ? Colors.white : AppColors.textPrimary,
                   fontSize: 14,
                   height: 1.45,
                   fontWeight: isUser ? FontWeight.w500 : FontWeight.w400,

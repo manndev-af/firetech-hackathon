@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nutrilens/core/router/app_router.dart';
 import 'package:nutrilens/core/router/route_paths.dart';
 import 'package:nutrilens/core/theme/app_theme.dart';
 import 'package:nutrilens/features/explore/assistant_screen.dart';

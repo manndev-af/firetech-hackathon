@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutrilens/core/network/api_client.dart';
 import 'package:nutrilens/models/daily_nutrition_summary.dart';
 import 'package:nutrilens/models/nutrition_profile.dart';
 import 'package:nutrilens/services/journal_api.dart';

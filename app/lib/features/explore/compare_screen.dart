@@ -206,7 +206,7 @@ class _CompareScreenState extends State<CompareScreen> {
           ),
           child: const Icon(
             Icons.warning_amber_rounded,
-            color: const Color(0xFFE11D48),
+            color: Color(0xFFE11D48),
             size: 28,
           ),
         ),
