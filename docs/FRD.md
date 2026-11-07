@@ -192,3 +192,7 @@ Fallback label: OCR perangkat bersifat opsional secara default; kegagalan OCR ti
 ### Backend compare - 8 November 2026
 
 POST `{API_PREFIX}/v1/comparisons` sudah diimplementasikan: dua gambar dan metadata eksplisit, satu dispatch vision dengan retrieval profil, tanpa write konsumsi. Normalisasi Decimal per sajian/per 100 g/per 100 ml dan selisih B-minus-A mempertahankan null. Basis tidak tersedia ditandai unavailable; tidak ada ranking universal. Narasi/TTS invalid atau evidence ditolak memakai template. Kriteria penerimaan dan mapping Flutter ada di [COMPARE_API.md](../server/COMPARE_API.md); frontend dan API asisten belum diimplementasikan.
+
+### API assistant - 8 November 2026
+
+Assistant backend menyediakan mode general/pattern dengan chat sesi tanpa persistensi. Pattern menghitung seluruh window tujuh tanggal lokal sampai request (maksimal 1000 entri), termasuk hari kosong; total Decimal mempertahankan null, kelengkapan dan provenance. Lima makanan tersering dihitung dari jumlah entri dengan judul yang sama, bukan rekomendasi klinis. Detail kontrak dan mapping Flutter ada di [ASSISTANT_API.md](../server/ASSISTANT_API.md). POST `{API_PREFIX}/v1/assistant/messages` aktif; Flutter tidak diubah. Mode compare tidak diterima; penghapusan navigasi compare-ke-assistant dilakukan terpisah.

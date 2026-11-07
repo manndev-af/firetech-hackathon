@@ -223,3 +223,7 @@ Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyata
 ### Backend compare - 8 November 2026
 
 Backend compare aktif melalui `server/src/routes/compare.routes.ts` dan `compare.openapi.ts`, `controllers/compare.controller.ts`, `middleware/compareUpload.ts`, serta `services/compare.service.ts`. Tes upload, provider mock, kalkulasi, read-only database dan concurrency ada di `server/test/compare.test.cjs`; OpenAPI/logging tercakup suite terkait. Handoff Flutter ada di [COMPARE_API.md](../server/COMPARE_API.md). Tidak menambah folder, schema Prisma, env atau dependency; frontend/asisten di luar change ini.
+
+### Backend assistant - 8 November 2026
+
+`server/src/validation/assistant.ts` berisi schema dan parser JSON 64 KiB sebelum parser global. `services/assistant.service.ts` menangani prompt/konteks/agregasi tujuh tanggal lokal; `controllers/assistant.controller.ts`, `routes/assistant.routes.ts` dan `assistant.openapi.ts` menyediakan POST messages serta kontraknya. Slot provider dibagi scanner/compare/assistant. Tes ada di `server/test/assistant.test.cjs`, dengan regresi OpenAPI/logger pada suite terkait. [ASSISTANT_API.md](../server/ASSISTANT_API.md) menjadi handoff Flutter; tidak ada perubahan app, Prisma, env atau dependency.
