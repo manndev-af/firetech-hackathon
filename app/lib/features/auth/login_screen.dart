@@ -4,12 +4,16 @@ import 'package:go_router/go_router.dart';
 import '../../core/router/route_paths.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../providers/local_app_state.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  void _continueWithGoogle(BuildContext context) {
-    context.go(AppRoutes.onboarding);
+  Future<void> _onLogin(BuildContext context) async {
+    await loginAsSampleUser();
+    if (context.mounted) {
+      context.go(AppRoutes.onboarding);
+    }
   }
 
   @override
@@ -22,108 +26,134 @@ class LoginScreen extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 36, 24, 40),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 36),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'nutrilens',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // The supplied export contains the entire design. Only the
-                  // food illustration region is rendered; controls stay native.
-                  Semantics(
-                    image: true,
-                    label: 'Ilustrasi semangkuk nasi, ayam, telur, dan sayuran',
-                    child: ExcludeSemantics(
-                      child: AspectRatio(
-                        aspectRatio: 342 / 310,
+                  // Header Logo & Brand
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.heroBackground.withValues(
+                                alpha: 0.12,
+                              ),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(32),
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final scale = constraints.maxWidth / 342;
-                              return Stack(
-                                children: [
-                                  Positioned(
-                                    left: -24 * scale,
-                                    top: -120 * scale,
-                                    width: 390 * scale,
-                                    height: 844 * scale,
-                                    child: Image.asset(
-                                      'assets/images/login_reference.png',
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            'assets/icons/iconaplikasi.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Kenali isi piringmu.',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 32,
-                      height: 1.2,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Pahami makananmu, sesuai hal\nyang ingin kamu perhatikan.',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 16,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 44),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () => _continueWithGoogle(context),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.surface,
-                        minimumSize: const Size.fromHeight(56),
-                        padding: const EdgeInsets.all(16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                      const SizedBox(width: 12),
+                      const Flexible(
+                        child: Text(
+                          'nutrisee',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.heroBackground,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'Lanjutkan dengan Google',
-                        textAlign: TextAlign.center,
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Food Artwork Illustration (bounded to maxWidth)
+                  Semantics(
+                    image: true,
+                    label: 'Ilustrasi semangkuk nasi, lauk, telur, dan sayuran',
+                    child: Center(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 240),
+                            child: Image.asset(
+                              'assets/images/foodartwork.png',
+                              width: constraints.maxWidth,
+                              fit: BoxFit.contain,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // Title & Subtitle
+                  const Text(
+                    'Pahami Setiap Makananmu.',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 30,
+                      height: 1.25,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Kenali kandungan nutrisi dan buat keputusan makan yang lebih sadar sesuai prioritasmu.',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 15,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  // Login Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => _onLogin(context),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.surface,
+                        minimumSize: const Size.fromHeight(56),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Masuk',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Terms and Privacy Note
                   Text(
-                    'Dengan melanjutkan, kamu menyetujui\n'
-                    'Ketentuan dan Kebijakan Privasi NutriLens.',
+                    'Dengan masuk, kamu menyetujui Ketentuan Layanan\ndan Kebijakan Privasi NutriSee.',
+                    textAlign: TextAlign.center,
                     style: AppTypography.secondary.copyWith(
                       fontSize: 12,
                       height: 1.4,
+                      color: AppColors.textSecondary,
                     ),
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    'Prototipe · login belum terhubung',
-                    style: AppTypography.secondary.copyWith(fontSize: 12),
                   ),
                 ],
               ),

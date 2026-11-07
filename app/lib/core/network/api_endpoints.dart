@@ -9,6 +9,8 @@ abstract final class ApiEndpoints {
   static const profile = '$apiPrefix/profile';
   static const foodEntries = '$apiPrefix/food-entries';
   static const dailyNutrition = '$apiPrefix/nutrition/daily';
+  static const comparisons = '$apiPrefix/comparisons';
+  static const assistantMessages = '$apiPrefix/assistant/messages';
 
   static String foodEntryDetail(String id) => '$foodEntries/$id';
   static String foodEntryQuantity(String id) => '$foodEntries/$id/quantity';

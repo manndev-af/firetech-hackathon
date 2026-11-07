@@ -27,6 +27,8 @@ export '../../providers/local_app_state.dart'
         profileSession,
         analysisAudioSession,
         dailySummarySession,
+        sampleSeededProfile,
+        loginAsSampleUser,
         syncHistoryFromBackend,
         fetchDailyNutritionFromBackend;
 
@@ -90,7 +92,9 @@ final appRouter = GoRouter(
                             : (isPreview
                                 ? historyPreviewData(DateTime.now())
                                 : <ScanHistoryEntry>[]);
-                        final recent = entries.isNotEmpty ? entries.first : null;
+                        final sortedEntries = List<ScanHistoryEntry>.from(entries)
+                          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+                        final recent = sortedEntries.isNotEmpty ? sortedEntries.first : null;
 
                         DailyNutritionSummary? summary = serverDailySummary;
                         if (summary == null && entries.isNotEmpty) {
@@ -289,10 +293,10 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final extra = state.extra;
-        final showConversation = extra == true || extra is String;
+        final showConversation = extra != false;
         final mode = extra is String
             ? extra
-            : (extra == true ? 'pattern' : 'general');
+            : (extra == true ? 'general' : 'general');
         return AssistantScreen(
           showConversation: showConversation,
           initialMode: mode,

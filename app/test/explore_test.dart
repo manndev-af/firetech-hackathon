@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nutrilens/core/router/app_router.dart';
+import 'package:nutrilens/core/router/route_paths.dart';
 import 'package:nutrilens/core/theme/app_theme.dart';
 import 'package:nutrilens/features/explore/assistant_screen.dart';
 import 'package:nutrilens/features/explore/compare_screen.dart';
@@ -39,6 +42,56 @@ void main() {
     expect(find.text('Tanya soal makanan'), findsOneWidget);
   });
 
+  testWidgets('Tapping Tanya soal makanan opens AI assistant roomchat directly', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: '/explore',
+      routes: [
+        GoRoute(
+          path: '/explore',
+          builder: (context, state) => const ExploreScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.assistant,
+          builder: (context, state) {
+            final extra = state.extra;
+            final showConversation = extra != false;
+            final mode = extra is String ? extra : 'general';
+            return AssistantScreen(
+              showConversation: showConversation,
+              initialMode: mode,
+            );
+          },
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: AppTheme.light,
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Tanya soal makanan'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Tanya soal makanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AssistantScreen), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Konsultasi nutrisi · online'), findsOneWidget);
+    expect(
+      find.textContaining('Halo! Saya asisten nutrisi NutriSee'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('CompareScreen presents camera/gallery option and supports summary', (
     tester,
   ) async {
@@ -69,7 +122,8 @@ void main() {
       find.text('Lebih sedikit gula,\nprotein juga berbeda.'),
       findsOneWidget,
     );
-    expect(find.text('Bahas pilihan ini'), findsOneWidget);
+    expect(find.text('Bahas pilihan ini'), findsNothing);
+    expect(find.text('Selesai'), findsOneWidget);
   });
 
   testWidgets('AssistantScreen in compare mode displays comparison analysis and responds to chats', (
@@ -171,10 +225,10 @@ void main() {
     expect(find.byType(TextField), findsNothing);
 
     // Tap quick prompt to start conversation
-    await tester.tap(find.text('Bagaimana membandingkan dua camilan?'));
+    await tester.tap(find.text('Tips memilih camilan sehat'));
     await tester.pump();
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.text('Bagaimana membandingkan dua camilan?'), findsOneWidget);
+    expect(find.text('Tips memilih camilan sehat'), findsWidgets);
 
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pumpAndSettle();

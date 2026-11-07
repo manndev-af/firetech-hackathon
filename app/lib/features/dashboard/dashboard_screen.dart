@@ -134,9 +134,15 @@ class _RecentAnalysisCard extends StatelessWidget {
         errorBuilder: (context, error, stackTrace) => _fallbackPhoto(),
       );
     }
-    if (entry.photoAsset != null) {
+    final isYogurtSample = entry.id == 'sample_history_yogurt' ||
+        entry.id == 'preview-yogurt' ||
+        entry.name.toLowerCase().contains('yogurt');
+    final effectiveAsset = entry.photoAsset ??
+        (isYogurtSample ? 'assets/images/history_yogurt.jpg' : null);
+
+    if (effectiveAsset != null) {
       return Image.asset(
-        entry.photoAsset!,
+        effectiveAsset,
         width: 64,
         height: 64,
         fit: BoxFit.cover,

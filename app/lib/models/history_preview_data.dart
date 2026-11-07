@@ -6,7 +6,7 @@ ScanHistoryEntry get sampleHistoryEntry {
   return ScanHistoryEntry(
     id: 'sample_history_yogurt',
     name: 'Yogurt Stroberi & Granola',
-    savedAt: DateTime(now.year, now.month, now.day, 10, 15),
+    savedAt: now.subtract(const Duration(hours: 6)),
     packaged: true,
     portion: '1 cup · 150 g',
     source: 'Label Informasi Nilai Gizi',

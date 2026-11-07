@@ -9,6 +9,7 @@ import 'package:nutrilens/features/onboarding/onboarding_focus_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_preference_screen.dart';
 import 'package:nutrilens/features/onboarding/onboarding_finish_screen.dart';
 import 'package:nutrilens/features/onboarding/widgets/onboarding_widgets.dart';
+import 'package:nutrilens/models/nutrition_profile.dart';
 import 'package:nutrilens/shared/layouts/main_scaffold.dart';
 
 void main() {
@@ -26,19 +27,15 @@ void main() {
   }
 
   testWidgets(
-    'Google prototype opens onboarding without an authenticated session',
+    'Login screen opens onboarding without an authenticated session',
     (tester) async {
       await start(tester);
       expect(find.byType(TextFormField), findsNothing);
       expect(find.byType(FilledButton), findsOneWidget);
       expect(find.text('Daftar'), findsNothing);
-      expect(find.text('Prototipe · login belum terhubung'), findsOneWidget);
-      final image = tester.widget<Image>(find.byType(Image));
-      expect(
-        (image.image as AssetImage).assetName,
-        'assets/images/login_reference.png',
-      );
-      await tap(tester, 'Lanjutkan dengan Google');
+      expect(find.text('nutrisee'), findsOneWidget);
+      expect(find.byType(Image), findsNWidgets(2));
+      await tap(tester, 'Masuk');
       expect(find.byType(OnboardingFocusScreen), findsOneWidget);
       expect(
         appRouter.routeInformationProvider.value.uri.path,
@@ -62,7 +59,7 @@ void main() {
     'focus and preference selections survive back and appear on finish',
     (tester) async {
       await start(tester);
-      await tap(tester, 'Lanjutkan dengan Google');
+      await tap(tester, 'Masuk');
       await tap(tester, 'Protein');
       await tap(tester, 'Lanjutkan');
       expect(find.byType(OnboardingPreferenceScreen), findsOneWidget);
@@ -111,7 +108,7 @@ void main() {
 
   testWidgets('skipping clears the optional preference', (tester) async {
     await start(tester);
-    await tap(tester, 'Lanjutkan dengan Google');
+    await tap(tester, 'Masuk');
     await tap(tester, 'Natrium');
     await tap(tester, 'Lanjutkan');
     await tap(tester, 'Praktis dan cepat');
@@ -145,7 +142,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final semantics = tester.ensureSemantics();
       await start(tester);
-      await tap(tester, 'Lanjutkan dengan Google');
+      await tap(tester, 'Masuk');
       await tap(tester, 'Keseimbangan');
       final choice = find.byWidgetPredicate(
         (widget) =>
@@ -158,6 +155,38 @@ void main() {
       expect(find.byType(OnboardingFinishScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
       semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'tapping Masuk loads seeded sample user profile and preserves it into home and profile',
+    (tester) async {
+      profileSession.value = NutritionProfile();
+      analysisAudioSession.value = false;
+      await start(tester);
+      await tap(tester, 'Masuk');
+      expect(profileSession.value.name, 'Pengguna Demo');
+      expect(profileSession.value.age, 25);
+      expect(profileSession.value.heightCm, 165);
+      expect(profileSession.value.weightKg, 60);
+      expect(profileSession.value.preference, 'Masakan rumahan');
+      expect(profileSession.value.eatingPattern, 'Fleksibel');
+      expect(profileSession.value.prefersHalal, isTrue);
+      expect(profileSession.value.allergyStatus, AllergyStatus.listed);
+      expect(profileSession.value.allergies, ['Susu']);
+      expect(profileSession.value.otherAllergies, 'Wijen');
+      expect(analysisAudioSession.value, isTrue);
+
+      await tap(tester, 'Lanjutkan');
+      await tap(tester, 'Lanjutkan');
+      await tap(tester, 'Ke beranda');
+      expect(appRouter.routeInformationProvider.value.uri.path, AppRoutes.home);
+      expect(profileSession.value.name, 'Pengguna Demo');
+      expect(profileSession.value.age, 25);
+      expect(profileSession.value.heightCm, 165);
+      expect(profileSession.value.weightKg, 60);
+      expect(profileSession.value.allergies, ['Susu']);
+      expect(profileSession.value.otherAllergies, 'Wijen');
     },
   );
 }
