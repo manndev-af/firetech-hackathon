@@ -11,6 +11,10 @@ flutter pub get
 flutter run
 ```
 
+## Kamera
+
+Tombol kamera tengah dan aksi scan membuka `/scan` di atas shell. Layar memakai plugin `camera` untuk preview dan foto, serta `image_picker` untuk galeri. Mode Makanan/Label produk menentukan tujuan foto. Foto diperiksa sebelum digunakan dan dapat diulang. Kamera tidak merekam audio, dilepas saat aplikasi tidak aktif atau saat review, dan menampilkan pemulihan izin/error. Capture disimpan di cache perangkat; belum menjadi riwayat permanen. Android memakai izin kamera runtime. Pengujian perangkat fisik tetap diperlukan.
+
 ## Routing
 
 Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Route tersebut kini terhubung ke tab Jelajahi pada shell navigasi. `/comparison` dan `/assistant` membuka halaman detail di atas shell; halaman asisten menerima `extra: true` untuk pintasan pola catatan yang menampilkan tampilan percakapan.
