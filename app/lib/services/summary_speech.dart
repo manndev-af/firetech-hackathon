@@ -50,7 +50,8 @@ class SummarySpeech extends ChangeNotifier {
         'name': offline.first['name'].toString(),
         'locale': offline.first['locale'].toString(),
       });
-      await _tts.setSpeechRate(.45);
+      await _tts.setPitch(1.0);
+      await _tts.setSpeechRate(0.45);
       await _tts.awaitSpeakCompletion(true);
       if (generation != _generation) return;
       activeId = id;

@@ -7,9 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:nutrilens/features/history/widgets/history_entry_card.dart';
+import 'package:nutrilens/models/history_preview_data.dart';
 import 'package:nutrilens/models/nutrition_profile.dart';
 import 'package:nutrilens/models/scan_draft.dart';
 import 'package:nutrilens/models/scan_history_entry.dart';
+import 'package:nutrilens/providers/local_app_state.dart';
 import 'package:nutrilens/services/analysis_api.dart';
 import 'package:nutrilens/services/local_storage.dart';
 import 'package:nutrilens/services/local_vision.dart';
@@ -472,5 +474,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(spoken, ['Porsi seimbang dan perhatikan minyak.']);
+  });
+
+  test('sampleHistoryEntry is seeded when storage is empty and has concise summary', () async {
+    final entry = sampleHistoryEntry;
+    expect(entry.isIllustration, isFalse);
+    expect(entry.spokenSummary.isNotEmpty, isTrue);
+    expect(entry.spokenSummary.length, lessThan(150));
+    expect(entry.userNote, isNotNull);
+
+    await initializeLocalState(storage: storage);
+    expect(historySession.value, isNotEmpty);
+    expect(historySession.value.first.id, 'sample_history_yogurt');
+    expect(historySession.value.first.spokenSummary, entry.spokenSummary);
   });
 }
