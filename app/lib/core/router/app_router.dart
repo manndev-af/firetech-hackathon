@@ -14,6 +14,7 @@ import '../../features/explore/explore_screen.dart';
 import '../../features/explore/compare_screen.dart';
 import '../../features/explore/assistant_screen.dart';
 import '../../features/scanner/scanner_screen.dart';
+import '../../features/scanner/scan_result_screen.dart';
 
 // In-memory UI state only; no account, disk storage, or nutrition-engine input.
 final profileSession = ValueNotifier<NutritionProfile>(NutritionProfile());
@@ -130,7 +131,15 @@ final appRouter = GoRouter(
       path: AppRoutes.scanner,
       name: AppRouteNames.scanner,
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ScannerScreen(),
+      builder: (context, state) => ScannerScreen(
+        onUsePhoto: (photo, mode) async {
+          await Navigator.of(context).push<void>(
+            MaterialPageRoute(
+              builder: (_) => ScanResultScreen(photo: photo, mode: mode),
+            ),
+          );
+        },
+      ),
     ),
     GoRoute(
       path: AppRoutes.comparison,
