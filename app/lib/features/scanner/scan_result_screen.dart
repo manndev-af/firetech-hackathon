@@ -7,6 +7,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import '../../core/theme/app_colors.dart';
 import 'label_extraction.dart';
 import 'scanner_screen.dart';
+import '../../shared/widgets/navigation/top_nav.dart';
 
 class ScanResultScreen extends StatefulWidget {
   const ScanResultScreen({
@@ -37,7 +38,6 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
   late String _foodSubtitle;
   late String _servingUnit;
   late String _description;
-  late List<String> _tags;
   late double _baseCalories;
   late double _baseProtein;
   late double _baseFat;
@@ -84,13 +84,6 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       _servingUnit = '240 ml per porsi';
       _description =
           'Minuman kopi susu botolan siap minum dengan rasa manis, creamy, dan sedikit pahit dari kopi. Produk ini tampak sebagai minuman kemasan yang praktis, cocok diminum dingin.';
-      _tags = [
-        '#packaged-product',
-        '#coffee',
-        '#milk',
-        '#sweetened',
-        '#ready-to-drink',
-      ];
       _baseCalories = 81.0;
       _baseProtein = 2.1;
       _baseFat = 1.9;
@@ -110,12 +103,6 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       _servingUnit = '1 porsi · 250 g';
       _description =
           'Hidangan lengkap dengan kombinasi nasi pulen, protein ayam suwir berbumbu gurih, telur rebus, dan sayuran segar berkhasiat.';
-      _tags = [
-        '#makanan-sehat',
-        '#tinggi-protein',
-        '#seimbang',
-        '#bebas-pengawet',
-      ];
       _baseCalories = 420.0;
       _baseProtein = 24.0;
       _baseFat = 12.0;
@@ -445,61 +432,30 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: IconButton.filledTonal(
-            tooltip: 'Kembali',
-            style: IconButton.styleFrom(
-              backgroundColor: AppColors.background,
-              foregroundColor: AppColors.primaryDark,
-            ),
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_rounded),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          _foodSubtitle,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
+      appBar: TopNav(
+        onBack: () => Navigator.pop(context),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton.filledTonal(
-              tooltip: _isFavorite ? 'Disukai' : 'Sukai makanan',
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.background,
-                foregroundColor:
-                    _isFavorite ? Colors.red : AppColors.primaryDark,
-              ),
-              onPressed: () {
-                setState(() => _isFavorite = !_isFavorite);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      _isFavorite
-                          ? 'Ditambahkan ke Makanan Favorit'
-                          : 'Dihapus dari Favorit',
-                    ),
-                    duration: const Duration(seconds: 1),
-                    behavior: SnackBarBehavior.floating,
+          IconButton(
+            tooltip: _isFavorite ? 'Disukai' : 'Sukai makanan',
+            onPressed: () {
+              setState(() => _isFavorite = !_isFavorite);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    _isFavorite
+                        ? 'Ditambahkan ke Makanan Favorit'
+                        : 'Dihapus dari Favorit',
                   ),
-                );
-              },
-              icon: Icon(
-                _isFavorite
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-              ),
+                  duration: const Duration(seconds: 1),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            icon: Icon(
+              _isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              color: _isFavorite ? Colors.red : AppColors.textSecondary,
             ),
           ),
         ],
@@ -587,6 +543,14 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _foodSubtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 12,
@@ -667,36 +631,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 14),
-
-                  // Tags
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final tag in _tags)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Text(
-                            tag,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryDark,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // Loading State
                   if (_loading) ...[
