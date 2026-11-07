@@ -21,6 +21,57 @@ final storageIssue = ValueNotifier<String?>(null);
 LocalStorage? localStorage;
 bool _listening = false;
 
+/// Data profil contoh pengguna awal (seeded sample user) sesuai spesifikasi backend seed:
+/// server/prisma/seed.ts (Pengguna Demo, 25 thn, 165 cm, 60 kg, 'Masakan rumahan',
+/// ['Gula', 'Protein'], 'Fleksibel', prefersHalal true, allergyStatus 'listed',
+/// allergies ['Susu'], otherAllergies 'Wijen', audioAnalysisEnabled true).
+final sampleSeededProfile = NutritionProfile(
+  name: 'Pengguna Demo',
+  age: 25,
+  heightCm: 165,
+  weightKg: 60,
+  preference: 'Masakan rumahan',
+  priorities: const ['Gula', 'Protein'],
+  eatingPattern: 'Fleksibel',
+  prefersHalal: true,
+  allergyStatus: AllergyStatus.listed,
+  allergies: const ['Susu'],
+  otherAllergies: 'Wijen',
+);
+
+/// Memuat sesi login sebagai sample user yang telah disediakan di seed backend,
+/// menyetel preferensi audio, menyimpan ke penyimpanan lokal, serta melakukan
+/// sinkronisasi asinkron dengan profil dan data riwayat backend jika server aktif.
+Future<void> loginAsSampleUser() async {
+  profileSession.value = sampleSeededProfile;
+  analysisAudioSession.value = true;
+  if (historySession.value.isEmpty) {
+    historySession.value = [sampleHistoryEntry];
+  }
+  final storage = localStorage;
+  if (storage != null) {
+    try {
+      await persistLocalState();
+    } catch (_) {}
+  }
+
+  // Coba sinkronisasi profil aktual dari backend jika server tersedia
+  ProfileApi().getProfile().then((syncResult) {
+    if (syncResult != null) {
+      profileSession.value = syncResult.profile;
+      analysisAudioSession.value = syncResult.audioEnabled;
+      if (storage != null) {
+        persistLocalState().catchError((_) {});
+      }
+    }
+  }).catchError((_) {});
+
+  // Sinkronkan riwayat dan ringkasan nutrisi harian dari backend secara asinkron
+  syncHistoryFromBackend().then((_) {
+    fetchDailyNutritionFromBackend();
+  }).catchError((_) {});
+}
+
 Future<void> initializeLocalState({LocalStorage? storage}) async {
   try {
     final candidate =
@@ -29,9 +80,12 @@ Future<void> initializeLocalState({LocalStorage? storage}) async {
     if (snapshot != null) {
       profileSession.value = snapshot.profile;
       analysisAudioSession.value = snapshot.audioEnabled;
-      historySession.value = snapshot.history.isEmpty
-          ? [sampleHistoryEntry]
-          : snapshot.history;
+      final loadedHistory = (snapshot.history.isEmpty
+              ? [sampleHistoryEntry]
+              : snapshot.history)
+          .toList()
+        ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+      historySession.value = loadedHistory;
       draftSession.value = snapshot.drafts;
     } else {
       historySession.value = [sampleHistoryEntry];
@@ -45,20 +99,25 @@ Future<void> initializeLocalState({LocalStorage? storage}) async {
       analysisAudioSession.addListener(_persist);
       _listening = true;
     }
-    // Sinkronkan profil dari backend bila tersedia secara asinkron
-    ProfileApi().getProfile().then((syncResult) {
-      if (syncResult != null) {
-        if (profileSession.value.priorities.isEmpty && profileSession.value.name.isEmpty) {
-          profileSession.value = syncResult.profile;
+    // Hanya sinkronkan data profil dari backend bila pengguna sudah pernah
+    // menyelesaikan onboarding / memiliki profil tersimpan di perangkat ini.
+    // Bila data aplikasi baru saja dihapus (snapshot == null), sesi dibiarkan
+    // kosong agar diarahkan ke alur Login / Onboarding.
+    if (snapshot != null) {
+      ProfileApi().getProfile().then((syncResult) {
+        if (syncResult != null) {
+          if (profileSession.value.priorities.isEmpty && profileSession.value.name.isEmpty) {
+            profileSession.value = syncResult.profile;
+          }
+          analysisAudioSession.value = syncResult.audioEnabled;
         }
-        analysisAudioSession.value = syncResult.audioEnabled;
-      }
-    }).catchError((_) {});
+      }).catchError((_) {});
 
-    // Sinkronkan riwayat dan ringkasan nutrisi harian dari backend secara asinkron
-    syncHistoryFromBackend().then((_) {
-      fetchDailyNutritionFromBackend();
-    }).catchError((_) {});
+      // Sinkronkan riwayat dan ringkasan nutrisi harian dari backend secara asinkron
+      syncHistoryFromBackend().then((_) {
+        fetchDailyNutritionFromBackend();
+      }).catchError((_) {});
+    }
   } catch (_) {
     storageIssue.value = 'Data lokal belum dapat dibuka. Perubahan belum disimpan; coba mulai ulang aplikasi.';
   }
@@ -81,11 +140,17 @@ Future<void> syncHistoryFromBackend({String? date}) async {
             photoPath = diskFile.path;
           }
         }
-        if (photoPath != null) {
-          existingMap[remote.id] = remote.copyWith(photoPath: photoPath);
-        } else {
-          existingMap[remote.id] = remote;
-        }
+        final isYogurtSample = remote.id == 'sample_history_yogurt' ||
+            remote.id == 'preview-yogurt' ||
+            remote.name.toLowerCase().contains('yogurt');
+        final photoAsset = local?.photoAsset ??
+            remote.photoAsset ??
+            (isYogurtSample ? 'assets/images/history_yogurt.jpg' : null);
+
+        existingMap[remote.id] = remote.copyWith(
+          photoPath: photoPath,
+          photoAsset: photoAsset,
+        );
       }
       final merged = existingMap.values.toList()
         ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
@@ -186,11 +251,20 @@ Future<void> saveAnalysis(ScanHistoryEntry entry) async {
       ? entry.copyWith(photoPath: effectivePhoto)
       : entry;
 
-  historySession.value = [
-    ...previous.where((item) => item.id != resolvedEntry.id),
-    resolvedEntry,
-  ];
-  draftSession.value = drafts.where((item) => item.id != resolvedEntry.id).toList();
+  final isYogurtSample = resolvedEntry.id == 'sample_history_yogurt' ||
+      resolvedEntry.id == 'preview-yogurt' ||
+      resolvedEntry.name.toLowerCase().contains('yogurt');
+  final finalEntry = (resolvedEntry.photoAsset == null && isYogurtSample)
+      ? resolvedEntry.copyWith(photoAsset: 'assets/images/history_yogurt.jpg')
+      : resolvedEntry;
+
+  final updatedHistory = [
+    finalEntry,
+    ...previous.where((item) => item.id != finalEntry.id),
+  ]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+
+  historySession.value = updatedHistory;
+  draftSession.value = drafts.where((item) => item.id != finalEntry.id).toList();
   try {
     await persistLocalState();
     fetchDailyNutritionFromBackend().catchError((_) {});

@@ -36,7 +36,36 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Suite pengujian unit `app/test/backend_services_test.dart`:
   - Menguji `ProfileApi` (get & patch profile) dan `JournalApi` (list, quantity update, delete, dan getDailyNutrition) beserta pemetaan `DailyNutritionSummary` secara terisolasi dengan mock HTTP server lokal.
 
-- Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
+### Changed
+
+- Perbaikan layout bar navigasi kembali (fixed pinned back button bar) pada seluruh halaman:
+  - Memperbaiki `OnboardingLayout` (`onboarding_widgets.dart`), `OnboardingFocusScreen`, dan `OnboardingPreferenceScreen`: Header navigasi kembali (`OnboardingHeader`) kini diposisikan tetap (*pinned/fixed*) di bagian atas layar di luar `SingleChildScrollView`, sehingga tombol kembali dan indikator langkah tidak ikut tergeser atau hilang saat konten di-scroll.
+  - Memperbaiki `CompareScreen` (`compare_screen.dart`): Tombol kembali (`Icons.arrow_back`) yang sebelumnya berada di dalam `ListView` kini dipindahkan ke top bar tetap (*fixed top bar*) di atas area perbandingan, menjamin tombol kembali selalu dapat diakses seketika tanpa harus scroll ke posisi paling atas.
+  - Memperbaiki `ScannerScreen` (`scanner_screen.dart`): Bar navigasi atas yang memuat tombol kembali / foto ulang dan judul mode (`Foto makananmu` / `Foto label nutrisinya` / `Periksa fotomu`) kini diposisikan tetap di luar `SingleChildScrollView`, menjaga kontrol navigasi selalu terlihat baik saat peninjauan foto maupun saat mengisi kolom catatan.
+
+- Optimasi visual dan penyederhanaan copywriting Onboarding serta Beranda:
+  - Meringkas judul hero kartu pemindaian di Beranda (`DashboardScanCard`) menjadi *"Pindai Makananmu"* yang jauh lebih ringkas, to the point, dan tidak memakan ruang berlebih.
+  - Memperpendek kalimat deskripsi kartu pemindaian menjadi *"Foto makanan atau label kemasan untuk cek nutrisi dan porsinya."*.
+  - Memperbesar dimensi visual ilustrasi piring makanan (`foodartwork.png`) pada kartu Beranda dari ukuran sebelumnya (120x105 px, tinggi 110 px) menjadi ukuran proporsional yang lebih menonjol (155x135 px, tinggi 140 px, fallback 160x145 px) sehingga seimbang dengan kartu hero.
+  - Meringkas judul teks besar (headline) dan subjudul pada alur Onboarding sebelum masuk ke beranda:
+    - `OnboardingFocusScreen`: Judul dipersingkat menjadi *"Pilih fokus nutrisimu"* (sebelumnya panjang: *"Nutrisi apa yang ingin kamu perhatikan?"*), subjudul *"Tentukan prioritas untuk memandu analisis makanan harianmu."*.
+    - `OnboardingPreferenceScreen`: Judul dipersingkat menjadi *"Pilih pola makanmu"* (sebelumnya panjang: *"Pola makan seperti apa yang kamu sukai?"*), subjudul *"Opsional. Sesuaikan dengan kebiasaan santapmu sehari-hari."*.
+    - `OnboardingFinishScreen`: Mengubah badge menjadi *"SIAP MEMULAI"* dan headline menjadi *"Makan lebih paham, setiap hari."*.
+
+- Penyempurnaan copywriting dan antarmuka Onboarding serta Beranda (iterasi sebelumnya):
+  - Memperbarui narasi dan judul pada onboarding awal (`OnboardingFocusScreen` dan `OnboardingPreferenceScreen`) serta layar masuk (`LoginScreen`) menjadi lebih lugas, rapi, dan profesional.
+  - Memperbaiki rendering aset ilustrasi piring makanan: mengekstrak citra beresolusi tinggi 1254x1254 RGBA transparan menjadi `assets/images/foodartwork.png` dan menggantikan penggunaan `SvgPicture` pada `LoginScreen`, `DashboardScanCard`, serta `OnboardingFinishScreen`, mengatasi kendala kegagalan render SVG akibat keterbatasan parsing raster pattern base64 pada `flutter_svg`.
+
+- Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
+  - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
+  - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
+  - `AnalysisApi`: Refaktor request scan mengarah ke `POST /api/v1/scans` menggunakan multipart form data, menangani kode status `201 Created` dan `200 OK`, dengan pemetaan bersih via `ScanHistoryEntry.fromBackend` serta mempertahankan fallback lokal saat offline.
+  - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
+  - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
+  - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+
+- Logging request/response development server (`server/src/logs`):
+  - Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
 
 - Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
   - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
