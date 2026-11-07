@@ -5,10 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../services/compare_api.dart';
 import '../../services/local_vision.dart';
 
 class CompareScreen extends StatefulWidget {
-  const CompareScreen({super.key, this.pickImage, this.checkFood});
+  const CompareScreen({
+    super.key,
+    this.pickImage,
+    this.checkFood,
+    this.compareApi,
+  });
 
   @visibleForTesting
   final Future<String?> Function()? pickImage;
@@ -16,17 +22,127 @@ class CompareScreen extends StatefulWidget {
   @visibleForTesting
   final Future<void> Function(String)? checkFood;
 
+  @visibleForTesting
+  final CompareApi? compareApi;
+
   @override
   State<CompareScreen> createState() => _CompareScreenState();
 }
 
 class _CompareScreenState extends State<CompareScreen> {
   final _picker = ImagePicker();
+  late final CompareApi _compareApi;
   String? _imageA;
   String? _imageB;
   bool _showSummary = false;
   bool _isPickingA = false;
   bool _isPickingB = false;
+  bool _isComparing = false;
+  ComparisonResult? _comparisonResult;
+
+  @override
+  void initState() {
+    super.initState();
+    _compareApi = widget.compareApi ?? CompareApi.withDefaultBase();
+  }
+
+  String _buildRecommendationText() {
+    final signals = _comparisonResult?.prioritySignals ?? [];
+    final higherSignals = signals.where((s) => s.direction == 'higher').toList();
+    final lowerSignals = signals.where((s) => s.direction == 'lower').toList();
+
+    // 1. Jika keduanya higher
+    if (higherSignals.isNotEmpty && lowerSignals.isEmpty) {
+      return 'Kedua pilihan direkomendasikan dan dapat menjadi opsi yang baik untuk memenuhi kebutuhan energimu. Tetap konsumsi dalam batasan wajar dan perhatikan takaran porsi harianmu.';
+    }
+
+    // 2. Jika keduanya lower
+    if (lowerSignals.isNotEmpty && higherSignals.isEmpty) {
+      return 'Kedua pilihan direkomendasikan terutama bagi yang ingin membatasi asupan harian (rendah kalori atau gula). Tetap konsumsi dalam batasan wajar agar kebutuhan gizi harian tetap seimbang dan terpenuhi.';
+    }
+
+    // 3. Jika salah satu higher
+    if (higherSignals.isNotEmpty && lowerSignals.isNotEmpty) {
+      final highSig = higherSignals.first;
+      final nutrientName = _formatNutrientLabel(highSig.priority ?? highSig.nutrientKey);
+      return 'Direkomendasikan memilih Pilihan B karena memiliki kandungan $nutrientName yang lebih tinggi untuk mendukung kebutuhan nutrisimu, sementara Pilihan A memiliki kandungan yang lebih rendah. Tetap konsumsi dalam batasan wajar.';
+    }
+
+    // Periksa perbedaan jika sinyal prioritas belum ada dari backend
+    if (_comparisonResult != null) {
+      final diffs = _comparisonResult!.differences.values.whereType<double>().toList();
+      final hasHigher = diffs.any((d) => d > 0);
+      final hasLower = diffs.any((d) => d < 0);
+      if (hasHigher && !hasLower) {
+        return 'Kedua pilihan direkomendasikan dan dapat menjadi opsi yang baik untuk memenuhi kebutuhan energimu. Tetap konsumsi dalam batasan wajar dan perhatikan takaran porsi harianmu.';
+      }
+      if (hasLower && !hasHigher) {
+        return 'Kedua pilihan direkomendasikan terutama bagi yang ingin membatasi asupan harian (rendah kalori atau gula). Tetap konsumsi dalam batasan wajar agar kebutuhan gizi harian tetap seimbang dan terpenuhi.';
+      }
+      if (hasHigher && hasLower) {
+        return 'Direkomendasikan memilih Pilihan B karena memiliki kandungan nutrisi yang lebih tinggi untuk mendukung kebutuhan harianmu, sementara Pilihan A lebih rendah. Tetap konsumsi dalam batasan wajar.';
+      }
+    }
+
+    // Fallback awal (misal saat pratinjau sebelum API merespons)
+    return 'Direkomendasikan memilih Pilihan A jika mengutamakan kandungan protein yang lebih tinggi, sementara Pilihan B lebih bersahabat untuk menjaga asupan kalori dan gula. Tetap konsumsi keduanya dalam batasan wajar.';
+  }
+
+  String _formatNutrientLabel(String key) {
+    switch (key.toLowerCase()) {
+      case 'protein':
+      case 'protein_g':
+        return 'protein';
+      case 'gula':
+      case 'sugar_g':
+        return 'gula';
+      case 'kalori':
+      case 'calories_kcal':
+        return 'kalori';
+      case 'natrium':
+      case 'sodium_mg':
+        return 'natrium';
+      case 'serat':
+      case 'fiber_g':
+        return 'serat';
+      default:
+        return 'nutrisi';
+    }
+  }
+
+  Future<void> _runComparison() async {
+    if (_imageA == null || _imageB == null || _isComparing) return;
+
+    if (widget.pickImage != null && !File(_imageA!).existsSync()) {
+      setState(() => _showSummary = true);
+      return;
+    }
+
+    setState(() => _isComparing = true);
+    try {
+      final result = await _compareApi.compareImages(
+        pathA: _imageA!,
+        pathB: _imageB!,
+      );
+      if (!mounted) return;
+      setState(() {
+        _comparisonResult = result;
+        _showSummary = true;
+      });
+    } on ScanFailure catch (e) {
+      if (mounted) {
+        await _showFoodErrorDialog(e.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        await _showFoodErrorDialog('Gagal membandingkan makanan: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isComparing = false);
+      }
+    }
+  }
 
   Future<void> _validateAndSetImage(String path, {required bool isImageA}) async {
     try {
@@ -404,11 +520,11 @@ class _CompareScreenState extends State<CompareScreen> {
                       children: [
                         Expanded(
                           child: _FoodCard(
-                            name: 'Pilihan A',
+                            name: _comparisonResult?.itemA.title ?? 'Pilihan A',
                             imagePath: _imageA!,
-                            calories: '150 kkal',
-                            sugar: '12 g',
-                            protein: 'Protein 4 g',
+                            calories: '${_comparisonResult?.nutrientA('calories_kcal')?.round() ?? 150} kkal',
+                            sugar: '${_comparisonResult?.nutrientA('sugar_g')?.round() ?? 12} g',
+                            protein: 'Protein ${_comparisonResult?.nutrientA('protein_g')?.round() ?? 4} g',
                             accentColor: const Color(0xFFEA580C),
                             backgroundColor: const Color(0xFFFFF7ED),
                             borderColor: const Color(0xFFFED7AA),
@@ -417,11 +533,11 @@ class _CompareScreenState extends State<CompareScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _FoodCard(
-                            name: 'Pilihan B',
+                            name: _comparisonResult?.itemB.title ?? 'Pilihan B',
                             imagePath: _imageB!,
-                            calories: '85 kkal',
-                            sugar: '6 g',
-                            protein: 'Protein 3 g',
+                            calories: '${_comparisonResult?.nutrientB('calories_kcal')?.round() ?? 85} kkal',
+                            sugar: '${_comparisonResult?.nutrientB('sugar_g')?.round() ?? 6} g',
+                            protein: 'Protein ${_comparisonResult?.nutrientB('protein_g')?.round() ?? 3} g',
                             accentColor: AppColors.primary,
                             backgroundColor: const Color(0xFFF0FDF4),
                             borderColor: const Color(0xFFA7F3D0),
@@ -430,14 +546,22 @@ class _CompareScreenState extends State<CompareScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const _NutrientComparisonCard(
-                      colorA: Color(0xFFEA580C),
+                    _NutrientComparisonCard(
+                      colorA: const Color(0xFFEA580C),
                       colorB: AppColors.primary,
+                      caloriesA: _comparisonResult?.nutrientA('calories_kcal') ?? 150,
+                      caloriesB: _comparisonResult?.nutrientB('calories_kcal') ?? 85,
+                      sugarA: _comparisonResult?.nutrientA('sugar_g') ?? 12,
+                      sugarB: _comparisonResult?.nutrientB('sugar_g') ?? 6,
+                      proteinA: _comparisonResult?.nutrientA('protein_g') ?? 4,
+                      proteinB: _comparisonResult?.nutrientB('protein_g') ?? 3,
                     ),
                     const SizedBox(height: 26),
-                    const Text(
-                      'Lebih sedikit gula,\nprotein juga berbeda.',
-                      style: TextStyle(
+                    Text(
+                      _comparisonResult != null && _comparisonResult!.summary.isNotEmpty
+                          ? 'Ringkasan & Trade-Off'
+                          : 'Lebih sedikit gula,\nprotein juga berbeda.',
+                      style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 22,
                         height: 1.35,
@@ -445,9 +569,11 @@ class _CompareScreenState extends State<CompareScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Pada contoh ini, Pilihan B lebih ramah gula (6 g lebih sedikit) dan lebih rendah kalori (85 kkal vs 150 kkal). Pilihan A memberi sedikit lebih banyak protein (4 g vs 3 g). Pilih sesuai fokus nutrisi yang ingin kamu utamakan.',
-                      style: TextStyle(
+                    Text(
+                      _comparisonResult != null && _comparisonResult!.summary.isNotEmpty
+                          ? _comparisonResult!.summary
+                          : 'Pada contoh ini, Pilihan B lebih ramah gula (6 g lebih sedikit) dan lebih rendah kalori (85 kkal vs 150 kkal). Pilihan A memberi sedikit lebih banyak protein (4 g vs 3 g). Pilih sesuai fokus nutrisi yang ingin kamu utamakan.',
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14.5,
                         height: 1.5,
@@ -461,10 +587,10 @@ class _CompareScreenState extends State<CompareScreen> {
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Icon(
                                 Icons.balance_rounded,
@@ -473,7 +599,7 @@ class _CompareScreenState extends State<CompareScreen> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                'Rekomendasi (Mending yang Mana?):',
+                                'Rekomendasi',
                                 style: TextStyle(
                                   color: AppColors.textPrimary,
                                   fontSize: 14.5,
@@ -482,10 +608,10 @@ class _CompareScreenState extends State<CompareScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
-                            '• Pilihan B lebih bersahabat untuk target rendah kalori & gula harian.\n• Pilihan A memberi sedikit lebih banyak protein, tetapi dengan kalori dan gula yang lebih tinggi.',
-                            style: TextStyle(
+                            _buildRecommendationText(),
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,
                               height: 1.5,
@@ -512,18 +638,43 @@ class _CompareScreenState extends State<CompareScreen> {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: _showSummary
-                      ? () => context.pop()
-                      : hasBothImages
-                      ? () => setState(() => _showSummary = true)
-                      : null,
-                  child: Text(
-                    _showSummary ? 'Selesai' : 'Lihat ringkasan',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  onPressed: _isComparing
+                      ? null
+                      : _showSummary
+                          ? () => context.pop()
+                          : hasBothImages
+                              ? _runComparison
+                              : null,
+                  child: _isComparing
+                      ? const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'Menganalisis...',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          _showSummary ? 'Selesai' : 'Lihat ringkasan',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -846,10 +997,22 @@ class _NutrientComparisonCard extends StatelessWidget {
   const _NutrientComparisonCard({
     required this.colorA,
     required this.colorB,
+    this.caloriesA = 150,
+    this.caloriesB = 85,
+    this.sugarA = 12,
+    this.sugarB = 6,
+    this.proteinA = 4,
+    this.proteinB = 3,
   });
 
   final Color colorA;
   final Color colorB;
+  final double caloriesA;
+  final double caloriesB;
+  final double sugarA;
+  final double sugarB;
+  final double proteinA;
+  final double proteinB;
 
   @override
   Widget build(BuildContext context) {
@@ -901,11 +1064,11 @@ class _NutrientComparisonCard extends StatelessWidget {
           _HorizontalCompareBar(
             title: 'Kalori',
             unit: 'kkal',
-            valueA: 150,
-            valueB: 85,
-            labelA: '150 kkal',
-            labelB: '85 kkal',
-            maxScale: 200,
+            valueA: caloriesA,
+            valueB: caloriesB,
+            labelA: '${caloriesA.round()} kkal',
+            labelB: '${caloriesB.round()} kkal',
+            maxScale: (caloriesA > caloriesB ? caloriesA : caloriesB) * 1.25 + 10,
             colorA: colorA,
             colorB: colorB,
           ),
@@ -915,11 +1078,11 @@ class _NutrientComparisonCard extends StatelessWidget {
           _HorizontalCompareBar(
             title: 'Gula',
             unit: 'g',
-            valueA: 12,
-            valueB: 6,
-            labelA: '12 g',
-            labelB: '6 g',
-            maxScale: 16,
+            valueA: sugarA,
+            valueB: sugarB,
+            labelA: '${sugarA.round()} g',
+            labelB: '${sugarB.round()} g',
+            maxScale: (sugarA > sugarB ? sugarA : sugarB) * 1.25 + 5,
             colorA: colorA,
             colorB: colorB,
           ),
@@ -929,11 +1092,11 @@ class _NutrientComparisonCard extends StatelessWidget {
           _HorizontalCompareBar(
             title: 'Protein',
             unit: 'g',
-            valueA: 4,
-            valueB: 3,
-            labelA: '4 g',
-            labelB: '3 g',
-            maxScale: 6,
+            valueA: proteinA,
+            valueB: proteinB,
+            labelA: '${proteinA.round()} g',
+            labelB: '${proteinB.round()} g',
+            maxScale: (proteinA > proteinB ? proteinA : proteinB) * 1.25 + 3,
             colorA: colorA,
             colorB: colorB,
           ),

@@ -50,6 +50,13 @@ void main() {
     expect(find.text('Ubah gambar'), findsNothing);
     expect(find.text('Perbandingan Nutrisi'), findsOneWidget);
     expect(find.text('Kalori'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Rekomendasi'),
+      200,
+    );
+    expect(find.text('Rekomendasi'), findsOneWidget);
+    expect(find.text('Rekomendasi (Mending yang Mana?):'), findsNothing);
+    expect(find.textContaining('batasan wajar'), findsOneWidget);
     expect(find.text('Selesai'), findsOneWidget);
   });
 
