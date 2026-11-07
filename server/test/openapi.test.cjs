@@ -28,6 +28,12 @@ test('Swagger serves local assets and documents working routes with a custom pre
       Object.values(path).filter(operation => operation.operationId).map(operation => operation.operationId));
     assert.equal(ids.length, 17);
     assert.equal(new Set(ids).size, ids.length);
+    assert.equal(spec.paths['/api/v1/health'].get.responses['429'], undefined);
+    assert.equal(spec.paths['/api/v1/users'].get.responses['429'], undefined);
+    const proxied = await request('/api/v1/health', { headers: { 'X-Forwarded-For': '203.0.113.7' } });
+    assert.equal(proxied.status, 200);
+    assert.equal(proxied.headers.get('ratelimit-limit'), null);
+    assert.equal(proxied.headers.get('ratelimit-policy'), null);
     const domain = await request('/api/v1/v1/profile');
     assert.equal(domain.status, 404);
     assert.equal((await domain.json()).data.code, 'DEMO_DISABLED');
