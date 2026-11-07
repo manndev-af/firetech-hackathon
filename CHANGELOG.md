@@ -5,6 +5,27 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Added
+
+- Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
+  - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
+  - Memungkinkan pengujian langsung fitur suara Text-to-Speech (TTS) lokal tanpa harus mengambil atau memindai foto makanan terlebih dahulu.
+  - Dilengkapi ringkasan kesimpulan singkat (`spokenSummary`) yang ramah aksesibilitas: *"Porsi camilan baik dengan 8 gram protein. Perhatikan 12 gram gula sesuai target harianmu."*
+
+- Kolom deskripsi tambahan opsional setelah memotret pada peninjauan kamera (`ScannerScreen`):
+  - Tampil di bawah pilihan mode saat foto berhasil diambil atau dipilih dari galeri, berlaku untuk mode Makanan maupun Label produk.
+  - Dilengkapi label "Deskripsi tambahan", badge penanda "Opsional", ikon pensil/catatan, pembatasan 140 karakter, dan tombol bersihkan teks.
+  - Menyediakan *hint text* kontekstual dinamis: contoh porsi & racikan masakan (*"Contoh: 1 mangkok sedang, tanpa kuah santan, sambal dipisah"*) untuk mode makanan, dan contoh varian/kemasan (*"Contoh: Varian cokelat, botol 250 ml, rasa tawar"*) untuk mode label produk.
+  - Terintegrasi penuh ke dalam `ScanDraft.note`, `ScanHistoryEntry.userNote`, payload API (`userNote`), serta ditampilkan di kartu rincian riwayat dan hasil analisis (`AnalysisContent`).
+- Halaman pembuka animasi (Splash Screen) pada `app/lib/features/splash/splash_screen.dart`:
+  - Menampilkan logo resmi aplikasi (`assets/icons/iconaplikasi.png`) dengan animasi fade-in dan scale halus, nama merek `nutrisee`, badge `Personalized Nutrition AI`, tagline *"Pahami kandungan, pilih sesuai prioritasmu"*, serta indikator loading berputar.
+  - Penentuan rute awal (`initialLocation: AppRoutes.splash`) dengan navigasi cerdas setelah durasi splash: mengarahkan pengguna ke Beranda jika profil nutrisi sudah terisi, atau ke halaman Login/Onboarding jika profil belum diatur.
+  - Tahan terhadap reflow layar sempit (320 px) dan pembesaran font (2.0x) tanpa overflow layout.
+- Pembaruan ikon launcher aplikasi Android (`ic_launcher.png` dan `ic_launcher_round.png`) menggantikan ikon default Flutter:
+  - Dihasilkan dari aset logo resmi `assets/icons/iconaplikasi.png` dalam berbagai resolusi standar (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+  - Pembaruan `AndroidManifest.xml` dengan nama aplikasi launcher `NutriSee` serta dukungan `android:roundIcon`.
+  - Integrasi splash layar awal native Android (`launch_background.xml` dan `drawable-v21/launch_background.xml`) menampilkan ikon NutriSee di tengah latar putih untuk transisi mulus saat aplikasi pertama kali dibuka.
+
 ### Changed
 
 - Proposal scanner diselaraskan dengan konfigurasi provider, preprocessing 544 × 544 dan gaya TTS v3 yang sudah diterapkan. Handoff Flutter kini mencakup alur multipart, mapping field/nutrisi nullable, koreksi quantity, idempotency dan penanganan error; tidak mengubah endpoint atau frontend.
@@ -25,6 +46,72 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 - Template environment backend disiapkan untuk demo lokal MySQL/XAMPP: dummy owner aktif, email/password seed contoh terisi, dan API key DeepSeek acak yang ditandai sebagai placeholder tidak valid untuk scan live.
 
+- Perapian tata letak (layout) dan desain visual lembar rincian riwayat makanan (`HistoryEntryDetail` dan `AnalysisContent`):
+  - Mengatur ulang struktur *drawer* modal bawah (`showModalBottomSheet`) dengan header tetap (*fixed top bar*) berisi *drag handle pill*, ikon riwayat, judul "Rincian Riwayat Makanan", dan tombol tutup (`Icons.close_rounded`) yang tidak ikut tergulir.
+  - Mengharmoniskan palet warna latar belakang `AppColors.background` (`#F7FBFA`) dan kartu putih bergaris tepi halus (`AppColors.border`), menghilangkan kesan kotak-kotak terpisah yang tidak teratur.
+  - Menggabungkan metrik kalori dan skor kualitas gizi dalam satu kartu informasi identitas makanan yang ringkas berdampingan dengan tanggal dan porsi awal.
+  - Memposisikan kontrol porsi (*portion stepper* dan *quick chips* 1x, 2x, 3x, 4x) secara langsung setelah metrik energi, sehingga penyesuaian porsi langsung terlihat dampaknya secara visual pada nilai energi dan nutrisi.
+  - Menyatukan makronutrisi (Protein, Lemak, Karbohidrat) dan mikronutrisi (Serat, Gula, Natrium) ke dalam satu kartu "Kandungan Nutrisi" terpadu dengan tata letak 3 kolom yang proporsional dan *reflow* otomatis pada layar sempit/skala font besar tanpa *render flex overflow*.
+  - Mengelompokkan analisis dan *trade-off* personal secara terstruktur: kartu kesimpulan AI dengan tombol putar/hentikan suara TTS, kartu ringkasan *trade-off* dengan sorotan fokus saat dicatat, serta kartu kelebihan (hijau lembut) dan kekurangan (merah muda lembut) yang elegan tanpa emotikon.
+  - Merapikan *expansion tile* "Tentang data nutrisi" dan deskripsi catatan pengguna dengan batas visual yang konsisten.
+
+
+- Perbaikan batas outline tombol kamera pada Bottom Navigation Bar (`BottomNav` & `BottomNavPainter`):
+  - Tombol aksi kamera mengambang diposisikan sejajar (`top: 20`, 56x56 px) dengan outline putih (`Border.all(color: Colors.white, width: 3.0)`) yang senada dengan warna dasar navbar, dan tidak keluar dari jalur garis tepi outline navbar.
+  - Lengkungan notch diperhalus memeluk tombol kamera dengan rapi serta diberi goresan border halus bertema pada jalur outline navigasi bawah.
+- Penyesuaian nada suara (*pitch / voice tune*) dan kecepatan bicara (*speech rate*) TTS pada `SummarySpeech`:
+  - Nada suara (*pitch*) diatur ke nilai standar alami (`1.0`).
+  - Kecepatan bicara (*speech rate*) diatur ke `0.45` (berada di antara rentang santai 0.4 dan 0.5) agar pelafalan ringkasan kesimpulan terdengar jelas, tenang, dan mudah dipahami.
+- Tombol kembali (panah back) dan identitas roomchat pada asisten nutrisi AI (`AssistantScreen`) dijadikan fixed (statis) di bagian atas layar:
+  - Tombol panah kembali beserta judul dan status konteks percakapan ditempatkan di top bar tetap di luar area scrollable, sehingga tidak ikut ter-scroll ke atas saat pesan percakapan memanjang.
+  - Pengguna dapat menekan tombol kembali kapan saja dengan mudah tanpa perlu menggulir ke paling atas layar chat.
+
+- Halaman Jelajahi (`ExploreScreen`), Perbandingan (`CompareScreen`), dan Konsultasi AI (`AssistantScreen`) diperbarui secara terstruktur:
+  - Navigasi atas tetap (`TopNav`) disematkan pada halaman Jelajahi dengan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee`, seragam dengan Beranda, Profil, dan Riwayat.
+  - Tiga kartu navigasi utama ditata rapi dengan ikon Material bertema dan badge informatif tanpa emotikon: "Bandingkan dua pilihan", "Lihat pola catatanku", dan "Tanya soal makanan".
+  - Layar "Bandingkan dua pilihan" (`CompareScreen`) menyediakan alur pemilihan foto melalui Kamera (`ImageSource.camera`) maupun Galeri (`ImageSource.gallery`), menyajikan perbandingan nilai gizi berdampingan (energi, protein, gula) dengan ringkasan kesimpulan "Mending yang mana?", serta tombol "Bahas pilihan ini" untuk melanjutkan analisis ke ruang percakapan AI.
+  - Layar "Asisten gizi" (`AssistantScreen`) menyediakan antarmuka chat AI modern untuk konsultasi gizi, analisis pola konsumsi riwayat pengguna, maupun pembahasan perbandingan dua pilihan makanan:
+    - Gelembung pesan interaktif bergaya modern (pesan pengguna dengan latar teal `AppColors.heroBackground`, jawaban AI dengan kartu putih dan badge `NutriSee AI`).
+    - Input pertanyaan (`TextField`) dengan tombol kirim responsif dan dukungan pintasan keyboard.
+    - Chip pertanyaan cepat yang dinamis dan relevan tanpa pengulangan pertanyaan yang sudah diajukan.
+    - Struktur layout menggunakan `SingleChildScrollView` untuk memastikan scrolling dan pembaruan riwayat chat akurat tanpa estimasi berlebih.
+- Validasi kata kunci nilai gizi OCR label kemasan: fungsi `containsNutritionKeywords` memvalidasi keberadaan istilah tabel gizi dalam bahasa Indonesia maupun Inggris (antara lain `informasi nilai gizi, nilai gizi, takaran saji, energi, kalori, lemak, protein, karbohidrat, gula, natrium, nutrition facts, calories, fat, sugar, sodium`). Jika tidak ada kata kunci yang cocok, pemrosesan label langsung melempar `ScanFailure` lokal tanpa membuang kuota/request ke AI.
+- Penanganan kegagalan deteksi objek makanan/minuman dan label gizi tidak lagi berpindah ke halaman baru, melainkan menampilkan dialog popup peringatan yang bersih dan rapi langsung di layar kamera (`ScannerScreen`) dengan tombol "Foto Ulang" untuk kembali ke jendela bidik kamera dengan cepat.
+- Tombol aksi utama di bagian bawah layar hasil scan (`ScanResultScreen`) diubah menjadi tombol "Simpan ke Riwayat" yang berlabuh di footer bawah layar (`footer:` pada `PersonalPage`), menggantikan opsi navigasi foto lain dan mempertegas fungsi pemindaian sebagai pencatatan konsumsi pengguna, lengkap dengan notifikasi konfirmasi SnackBar mengambang. Eksplorasi perbandingan dan konsultasi diarahkan ke fitur Jelajah.
+- Tampilan rincian riwayat produk kemasan (`HistoryEntryDetail`) disatukan sepenuhnya menggunakan `AnalysisContent` sehingga memiliki tata letak kartu yang identik dengan foto makanan segar: foto hero dengan badge AI, kalori 32 px, skor kesehatan, kartu makronutrisi berikon, badge mikronutrisi, selector porsi interaktif (stepper + chip 1-4), analisis trade-off personal (Kelebihan & Kekurangan), dan pemutar suara TTS kesimpulan singkat.
+
+- Beranda (`DashboardScreen`, `DashboardScanCard`, `DashboardHistory`) diperbarui secara menyeluruh mengikuti hierarki visual dan prinsip Personalized Nutrition:
+  - Navigasi atas tetap (`TopNav`) menampilkan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee` secara konsisten dengan layar lainnya.
+  - Sapaan kontekstual waktu (`SELAMAT PAGI / SIANG / SORE / MALAM`), tipografi utama yang mudah dibaca (`Makan dengan lebih paham.`), dan penanda fokus nutrisi personal.
+  - Kartu hero pemindaian makanan (`DashboardScanCard`) menggunakan latar teal tema (`AppColors.heroBackground`), ilustrasi semangkuk makanan, arahan pemindaian yang jelas, dan tombol aksi "Foto makanan" berwarna mint dengan ikon kamera tanpa emotikon.
+  - Kartu "Analisis Terakhir" (`_RecentAnalysisCard`) menyajikan pratinjau instan dari makanan terakhir yang dianalisis: thumbnail foto/aset, nama makanan, porsi, tanggal/waktu, ringkasan analisis trade-off 1–2 kalimat, dan badge nutrisi tanpa emotikon.
+  - Ringkasan "Nutrisi Tercatat Hari Ini" (`DashboardHistory`) menampilkan metrik gula, protein, dan energi dengan ikon Material bertema, membedakan secara tegas nilai null dari nol nyata, memberikan peringatan data nutrisi belum lengkap bila ada entri yang belum lengkap, serta mempertahankan tombol jelajah perbandingan ("Buka Jelajah  →").
+  - Penghubungan reaktif `app_router.dart` dengan `historySession` untuk menghitung `DailyNutritionSummary` hari ini dan menampilkan analisis terbaru secara otomatis.
+
+- Integrasi Flutter lokal untuk Object Detection + Image Labeling sebelum request foto makanan diperluas mencakup deteksi minuman (teh, susu, kopi, jus, smoothie, soda, air, dsb.) serta cadangan label hidangan bila object detector belum mendeteksi. Menolak objek non-makanan secara lokal agar tidak boros request ke backend. Mode label OCR membypass gate makanan, mengirim raw text OCR serta foto resized JPEG sebagai backup visual untuk LLM. Kontrak endpoint didokumentasikan di `docs/SCAN_API.md`; backend AI masih dalam pengembangan dan disiapkan siap disambungkan.
+- Profil, preferensi audio, draft scan, foto/OCR, dan hasil analisis disimpan lokal dengan snapshot backup. Riwayat dapat melanjutkan draft; fixture tidak menjadi data pengguna. Nilai contoh tidak lagi menjadi fallback hasil scan nyata.
+- Flutter TTS membacakan kesimpulan pendek (maksimal dua kalimat / 320 karakter) saat audio profil diaktifkan, bukan membacakan keseluruhan analisis panjang. Teks kesimpulan disimpan di Riwayat dan dapat dibacakan ulang secara lokal lewat TTS kapan saja melalui kartu riwayat (`HistoryEntryCard`) maupun detail analisis (`AnalysisContent`).
+- Aksesibilitas tombol audio pada `HistoryEntryCard` menggunakan penataan `Wrap` responsif yang tahan reflow layar 320 px dengan pembesaran teks, serta penanganan error audio yang ramah pengguna.
+
+- Komponen navbar atas bersama (`TopNav` pada `app/lib/shared/widgets/navigation/top_nav.dart`) ditambahkan:
+  - Bersifat fixed di atas layar dan menjadi shared component seperti halnya `BottomNav`.
+  - Menggunakan logo resmi aplikasi dari aset (`assets/icons/iconaplikasi.png`) dan menampilkan nama aplikasi `nutrisee`.
+  - Disematkan secara konsisten pada layar Profil, Riwayat (`PersonalPage`), serta halaman hasil scan (`ScanResultScreen`).
+- Penghapusan seluruh tag hashtag (`#tag`) yang tidak berfungsi pada tampilan hasil foto (`ScanResultScreen`) dan rincian riwayat (`HistoryEntryDetail`).
+- Penghapusan penggunaan emotikon/emoji pada seluruh badge aplikasi:
+  - Badge pil pada kartu riwayat (`HistoryEntryCard`) kini bersih tanpa emoji (`🔥`, `🥚`), mengutamakan keterbacaan teks dan tata letak yang profesional.
+  - Memastikan seluruh status dan indikator hanya menggunakan ikon vektor Material bertema.
+
+- Layout dan output tampilan riwayat (`HistoryEntryDetail` dan `HistoryEntryCard`) diselaraskan menyerupai output hasil foto kamera:
+  - Tampilan detail riwayat menampilkan foto hero dengan badge AI, judul 24 px, kalori 32 px, skor kesehatan (`8.0+/10`), kartu makronutrisi berikon (Protein, Lemak, Karbohidrat), badge mikronutrisi (Serat, Gula, Natrium), kartu analisis trade-off (`Kelebihan` dan `Kekurangan`), serta kontrol interaktif porsi (`1`, `2`, `3`, `4` dan stepper `-` / `+`) yang mengalikan nilai gizi secara reaktif.
+  - Kartu daftar riwayat diperbarui dengan sudut 22 px, pil informasi kalori dan protein, serta tipografi yang jelas dan mudah dibaca.
+- Tata letak komponen layar Profil (`ProfileScreen`) dirasionalisasi menjadi hierarki yang lebih intuitif dan bersih:
+  - Kartu identitas pengguna tampil elegan dengan avatar bergradien tema, nama pengguna tebal, status usia, dan tombol edit profil.
+  - Kartu personalisasi dikelompokkan secara logis ke dalam 3 sub-bagian: Fokus Nutrisi (chip badge bertema), Pola & Preferensi Makan (pilihan makanan, pola makan, preferensi halal dengan ikon jelas), dan Keamanan Makanan (informasi alergen).
+  - Pengaturan (Audio analisis dan Privasi dan data) dikemas rapi dalam kartu kontainer dengan pemisah halus.
+- Palet warna dan tombol kamera diselaraskan dengan tema aplikasi:
+  - Tombol tengah kamera pada navigasi bawah (`BottomNav`) diperbarui dengan gradien tema NutriLens (`AppColors.cyan` ke `AppColors.heroBackground`), cincin tepi putih 3.5 px, dan bayangan lembut agar serasi dengan keseluruhan antarmuka.
+  - Penyelarasan warna `PersonalColors` dengan `AppColors.mint` dan `AppColors.border`.
 - Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
 - Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
   - Kandungan gizi kini disajikan dalam format kartu dan badge berikon sesuai tema (Protein, Lemak, Karbohidrat, Serat, Gula, Natrium).

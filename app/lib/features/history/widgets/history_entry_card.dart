@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../models/scan_history_entry.dart';
+import '../../../services/summary_speech.dart';
+import '../../scanner/widgets/analysis_content.dart';
 import '../../../shared/widgets/personal_page.dart';
 
 String historyDate(DateTime date) {
@@ -43,11 +46,13 @@ class HistoryPhoto extends StatelessWidget {
     required this.entry,
     this.height = 96,
     this.width = 96,
+    this.borderRadius = 16,
     super.key,
   });
   final ScanHistoryEntry entry;
   final double height;
   final double width;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +86,7 @@ class HistoryPhoto extends StatelessWidget {
       image: true,
       child: ExcludeSemantics(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(borderRadius),
           child: SizedBox(width: width, height: height, child: photo),
         ),
       ),
@@ -97,18 +102,24 @@ class HistoryEntryCard extends StatelessWidget {
   Widget build(BuildContext context) => Material(
     color: Colors.white,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(24),
-      side: const BorderSide(color: PersonalColors.border),
+      borderRadius: BorderRadius.circular(22),
+      side: const BorderSide(color: AppColors.border, width: 1.2),
     ),
+    elevation: 0,
     clipBehavior: Clip.antiAlias,
     child: InkWell(
+      borderRadius: BorderRadius.circular(22),
       onTap: () => showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         useRootNavigator: true,
         useSafeArea: true,
-        showDragHandle: true,
-        backgroundColor: Colors.white,
+        showDragHandle: false,
+        backgroundColor: AppColors.background,
+        clipBehavior: Clip.antiAlias,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
         builder: (context) => HistoryEntryDetail(entry: entry),
       ),
       child: Padding(
@@ -119,7 +130,12 @@ class HistoryEntryCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                HistoryPhoto(entry: entry, width: 80, height: 88),
+                HistoryPhoto(
+                  entry: entry,
+                  width: 84,
+                  height: 84,
+                  borderRadius: 18,
+                ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -131,11 +147,13 @@ class HistoryEntryCard extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
+                          fontFamily: 'Inter',
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 5),
                       Text(
-                        '${entry.savedAt.hour.toString().padLeft(2, '0')}:${entry.savedAt.minute.toString().padLeft(2, '0')} \u00b7 ${entry.portion}',
+                        '${entry.savedAt.hour.toString().padLeft(2, '0')}:${entry.savedAt.minute.toString().padLeft(2, '0')} · ${entry.portion}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: PersonalColors.secondary,
@@ -148,34 +166,121 @@ class HistoryEntryCard extends StatelessWidget {
               ],
             ),
             if (entry.note.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Text(
                 entry.note,
                 style: const TextStyle(
                   fontSize: 14,
                   height: 1.5,
                   color: PersonalColors.ink,
+                  fontFamily: 'Inter',
                 ),
               ),
             ],
-            const SizedBox(height: 12),
-            const Wrap(
+            if (entry.userNote != null && entry.userNote!.trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.edit_note_rounded,
+                    size: 16,
+                    color: AppColors.primaryDark,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      entry.userNote!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(
-                  'Lihat analisis',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: PersonalColors.primary,
+                const Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Lihat analisis lengkap',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: PersonalColors.primary,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                      color: PersonalColors.primary,
+                    ),
+                  ],
+                ),
+                if (entry.spokenSummary.isNotEmpty)
+                  ListenableBuilder(
+                    listenable: SummarySpeech.shared,
+                    builder: (context, _) {
+                      final isPlaying =
+                          SummarySpeech.shared.activeId == entry.id;
+                      return TextButton.icon(
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        icon: Icon(
+                          isPlaying
+                              ? Icons.stop_circle_outlined
+                              : Icons.volume_up_outlined,
+                          size: 18,
+                          color: PersonalColors.primary,
+                        ),
+                        label: Text(
+                          isPlaying ? 'Hentikan' : 'Dengarkan',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: PersonalColors.primary,
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (isPlaying) {
+                            await SummarySpeech.shared.stop();
+                          } else {
+                            try {
+                              await SummarySpeech.shared.speak(
+                                entry.id,
+                                entry.spokenSummary,
+                              );
+                            } catch (error) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      error is StateError
+                                          ? error.message
+                                          : 'Suara belum tersedia di perangkat.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                      );
+                    },
                   ),
-                ),
-                SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 18,
-                  color: PersonalColors.primary,
-                ),
               ],
             ),
           ],
@@ -190,140 +295,105 @@ class HistoryEntryDetail extends StatelessWidget {
   final ScanHistoryEntry entry;
 
   @override
-  Widget build(BuildContext context) => FractionallySizedBox(
-    heightFactor: .9,
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HistoryPhoto(entry: entry, width: double.infinity, height: 180),
-          const SizedBox(height: 20),
-          Text(
-            entry.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${historyDate(entry.savedAt)} \u00b7 ${entry.portion}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: PersonalColors.secondary,
-            ),
-          ),
-          if (entry.note.isNotEmpty) ...[
-            const SizedBox(height: 20),
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      heightFactor: 0.94,
+      child: Container(
+        color: AppColors.background,
+        child: Column(
+          children: [
+            // Fixed Drawer Header
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: PersonalColors.soft,
-                borderRadius: BorderRadius.circular(16),
+              padding: const EdgeInsets.fromLTRB(20, 10, 16, 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: AppColors.border, width: 1),
+                ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Ringkasan · Yuk, lihat trade-off-nya',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: PersonalColors.primary,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    entry.note,
-                    style: const TextStyle(fontSize: 14, height: 1.5),
-                  ),
-                  if (entry.prioritySnapshot.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      'Fokus saat dicatat: ${entry.prioritySnapshot.join(' · ')}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: PersonalColors.secondary,
-                        height: 1.5,
+                  // Top drag pill
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4.5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: AppColors.mint,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_rounded,
+                          size: 18,
+                          color: AppColors.heroBackground,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Rincian Riwayat Makanan',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Informasi gizi & analisis trade-off',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Tutup',
+                        onPressed: () => Navigator.pop(context),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.background,
+                          minimumSize: const Size(36, 36),
+                        ),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 20,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
+              ),
+            ),
+            // Scrollable Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(18, 16, 18, 36),
+                child: AnalysisContent(entry: entry),
               ),
             ),
           ],
-          const SizedBox(height: 24),
-          const PersonalHeading('Nutrisi dalam porsi ini'),
-          for (final nutrient in [
-            (label: 'Energi', value: nutrientText(entry.energyKcal, 'kkal')),
-            (label: 'Protein', value: nutrientText(entry.proteinG, 'g')),
-            (label: 'Gula', value: nutrientText(entry.sugarG, 'g')),
-            (label: 'Natrium', value: nutrientText(entry.sodiumMg, 'mg')),
-          ])
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 16,
-                runSpacing: 4,
-                children: [
-                  Text(nutrient.label, style: const TextStyle(fontSize: 14)),
-                  Text(
-                    nutrient.value,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const Divider(color: PersonalColors.border),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: const EdgeInsets.only(bottom: 16),
-            title: const Text(
-              'Tentang data nutrisi',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Asal data: ${entry.source.isEmpty ? 'Belum dicantumkan' : entry.source}',
-                      style: const TextStyle(fontSize: 14, height: 1.5),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Acuan perhitungan: ${entry.referenceBasis}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.5,
-                        color: PersonalColors.secondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Angka di atas berlaku untuk porsi yang kamu catat.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.5,
-                        color: PersonalColors.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
+
