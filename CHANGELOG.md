@@ -7,6 +7,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Proposal scanner diselaraskan dengan konfigurasi provider, preprocessing 544 × 544 dan gaya TTS v3 yang sudah diterapkan. Handoff Flutter kini mencakup alur multipart, mapping field/nutrisi nullable, koreksi quantity, idempotency dan penanganan error; tidak mengubah endpoint atau frontend.
+
 - Gambar scanner food/label kini dinormalisasi ke JPEG 544 x 544 dengan rasio asli dan padding putih tanpa crop untuk membatasi ukuran input vision. Raw OCR dan validasi upload tetap berlaku; kontrak OpenAPI dan panduan scanner diselaraskan.
 
 - Prompt TTS scanner v3 dan template fallback memakai bahasa Indonesia sehari-hari yang lebih mudah dipahami, dengan sapaan kamu, kalimat pendek dan arahan menghindari jargon/bahasa laporan. Kontrak OpenAPI dan panduan frontend diperbarui.

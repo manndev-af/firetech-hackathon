@@ -16,6 +16,56 @@ Backend development saja; frontend tidak diubah. Sumber kontrak lengkap: `/api/o
 
 Semua respons JSON memakai `{success,message,data,timestamp}`. Error domain memakai `success:false`, `data:{code:"INVALID_INPUT"}` dan message aman. Pengecualian: DELETE 204 tanpa body; rate limiter starter dapat mengembalikan teks. Jangan membaca stack/error provider sebagai pesan pengguna.
 
+## Alur integrasi Flutter
+
+Gunakan base URL backend yang dapat dijangkau perangkat. Untuk Android Emulator standar, backend pada PC biasanya diakses lewat `http://10.0.2.2:3000`; perangkat fisik memakai alamat LAN PC yang terjangkau. Path berikut memakai `API_PREFIX=/api`. `localhost` pada perangkat menunjuk perangkat itu sendiri. DeepSeek/9Router dan API key hanya dikonfigurasi di backend.
+
+1. Ambil `GET /api/v1/profile` untuk preferensi dan `audioAnalysisEnabled`. ML Kit/OCR tetap di Flutter. Setelah foto dan deskripsi dikonfirmasi, buat satu UUID untuk operasi scan dan simpan bersama inputnya.
+2. Kirim `POST /api/v1/scans` sebagai multipart dengan header `Idempotency-Key`. Biarkan HTTP client membuat boundary `Content-Type`; unggah file biner JPEG/PNG, bukan base64 atau URL. Backend menangani resize 544 × 544.
+3. Status 201 berarti konsumsi sudah tersimpan; 200 berarti replay entry yang sama. Parse envelope lalu baca `data`. Tidak perlu endpoint simpan terpisah. Simpan foto lokal untuk preview karena backend tidak menyediakan URL foto.
+4. Saat jumlah berubah, kirim PATCH quantity dan gunakan entry hasil respons untuk memperbarui layar. Muat ulang daftar dan daily setelah koreksi/hapus. Tombol audio membacakan `ttsSummary` lewat TTS perangkat; jangan membacakan seluruh arrays pro/cons.
+
+| Field multipart | Aturan |
+|---|---|
+| `image` | Wajib satu file JPEG/PNG, MIME sesuai isi, maksimal 5 MiB dan 20 MP; total multipart maksimal 6 MiB |
+| `mode` | Wajib `food` atau `label` |
+| `rawOcrText` | Wajib tidak kosong pada label; maksimal 20.000 karakter |
+| `description` | Opsional, maksimal 1.000 karakter |
+| `quantity` | Opsional, string desimal titik tanpa eksponen, default `1`; rentang 0.000001–10000, maksimal enam digit desimal |
+| `consumedAt` | Opsional, timestamp ISO 8601 dengan zona waktu; kirim nilai tetap jika disertakan pada operasi yang mungkin diperiksa ulang |
+
+Field tambahan, termasuk `userId`, ditolak. Header/key, byte file dan metadata harus dipertahankan persis saat memeriksa ulang operasi sama. Jangan mengisi ulang consumedAt dengan waktu baru atau mengompres ulang foto pada replay.
+
+| Tampilan/state `scan_result_screen.dart` | Sumber respons |
+|---|---|
+| `_foodTitle` | `data.title` |
+| Keterangan takaran | `data.analysis.portion.displayLabel`; unit terstruktur di `unitCode`, basis di `basis` |
+| `_servings` | `data.quantity` |
+| Kartu nutrisi saat ini | `data.nutrients` sudah berupa total quantity saat ini; jangan dikalikan lagi |
+| Basis kalkulasi lokal bila diperlukan | `data.baseNutrients × quantity / data.baseQuantity`; baseQuantity tidak selalu 1 |
+| `_kelebihanText` | `data.pros.join('\n')` |
+| `_kekuranganText` | `data.cons.join('\n')` |
+| Audio | `data.ttsSummary`; sumber `data.ttsSummarySource` bernilai `model` atau `template` |
+| Peringatan/keterbatasan | `data.analysis.warnings` dan `data.provenance` |
+| Waktu catatan | `data.consumedAt`, tampilkan sesuai zona waktu profil |
+
+Key nutrisi: `calories_kcal` dalam kcal, `sodium_mg` dalam mg, serta `protein_g`, `total_fat_g`, `saturated_fat_g`, `carbohydrates_g`, `sugar_g`, `fiber_g` dalam gram. Semua dapat null; gunakan `num?` lalu konversi ke `double?` pada mapper Dart, jangan mengganti null menjadi nol. Tampilkan “Belum diketahui” atau tanda kosong yang jelas. Arrays pro/cons record lama dapat kosong. Pada daftar, entry berada di `data.entries[]`, bukan langsung `data.pros`.
+
+`data.description` adalah deskripsi input pengguna, bukan deskripsi hasil AI. API tidak menyediakan skor sehat, tags, komposisi terstruktur, favorit, atau endpoint edit nilai OCR/nutrisi setelah scan. Jangan mempertahankan preview palsu sebagai hasil API. Perubahan quantity hanya dalam unit tersimpan; jangan mengubah unit/identitas lewat PATCH quantity. Unit baru perlu operasi scan baru yang disengaja, dan penggantian catatan lama harus ditangani agar konsumsi tidak terhitung ganda. TTS dan pro/cons adalah snapshot saat scan; tidak diperbarui dari profil/riwayat terbaru ketika quantity berubah.
+
+| Status/kode | Tindakan consumer |
+|---|---|
+| 400, 413, 415 | Perbaiki metadata atau file sesuai pesan validasi |
+| 409 `IDEMPOTENCY_CONFLICT` | Input berbeda memakai key lama; perbaiki penyimpanan key/input operasi |
+| 409 `SCAN_PROCESSING` / `DISPATCH_UNCERTAIN` | Tampilkan status tertunda/tidak pasti; jangan otomatis membuat key baru atau mengulang analisis |
+| 410 `ENTRY_DELETED` | Catatan sudah dihapus; replay tidak membuatnya kembali |
+| 422 `RESCAN_REQUIRED` | Minta foto/label lebih jelas atau makanan yang relevan; operasi baru hanya setelah tindakan pengguna |
+| 429 | Tampilkan scanner sibuk/batas request; body dapat berupa teks, bukan JSON |
+| 502, 503, 504 atau gangguan jaringan | Tampilkan kegagalan/status belum pasti; jangan otomatis mengganti key. Replay key yang sama tidak mengirim ulang provider; kegagalan terminal tetap gagal |
+| 204 DELETE | Sukses tanpa body; jangan parse JSON |
+
+Backend provider timeout 45 detik; timeout HTTP Flutter perlu memberi waktu tambahan untuk upload, retrieval dan penyimpanan. Bila koneksi terputus, pertahankan operasi/input/key untuk pemeriksaan ulang; hindari retry otomatis yang membuat konsumsi ganda. Tidak ada endpoint polling status scan terpisah. Error domain dibaca dari `data.code` dan `message`, dengan fallback aman untuk respons non-JSON.
+
 ## Contoh request
 
 Perintah berikut memakai shell dengan sintaks curl standar (`curl.exe` pada Windows; tulis sebagai satu baris). Ganti key UUID untuk operasi baru; pertahankan key dan input persis untuk pemeriksaan ulang request sama.

@@ -17,6 +17,10 @@ The system SHALL accept food or label mode, one decodable bounded image, optiona
 - **WHEN** an image is oversized, undecodable, or misrepresented as an accepted type
 - **THEN** the API returns a documented input error with no provider call and no consumption entry
 
+#### Scenario: Bounded provider image dimensions
+- **WHEN** a valid image is accepted in either mode
+- **THEN** the backend corrects orientation and creates a 544 x 544 JPEG preserving aspect ratio with white padding and no cropping, while keeping label OCR text available in the same provider request
+
 ### Requirement: Relevant bounded retrieval
 The system SHALL retrieve the owner's current profile, prior consumption context, and relevant reviewed references before generation. It MUST retain source identifiers, time boundaries, and missing-data counts. Retrieval MUST exclude other owners and the current scan and MUST NOT require another generative-model call.
 
@@ -38,6 +42,10 @@ The system SHALL make at most one DeepSeek request per unique accepted scan oper
 #### Scenario: Invalid provider response or timeout
 - **WHEN** the provider times out or returns unusable structured output
 - **THEN** the API returns a documented failure without a second provider call or fabricated consumption entry
+
+#### Scenario: Configured compatible provider
+- **WHEN** a valid DEEPSEEK_BASE_URL is configured with a provider key and vision model
+- **THEN** the backend appends /chat/completions to that base URL, preserving its optional base path, and never requires Flutter to receive provider credentials
 
 ### Requirement: Explicit nutritional provenance
 The system SHALL validate output schema, relevance, finite nonnegative nullable nutrients, portion basis, units, and cited source IDs. Photo-derived nutrients MUST be labeled model estimates; label-derived values MUST remain unverified extraction until reviewed. Personal priorities MUST NOT alter source nutrient values.

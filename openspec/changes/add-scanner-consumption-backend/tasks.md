@@ -104,3 +104,9 @@ Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi b
 
 - Atas permintaan pengguna, normalisasi food/label menjadi JPEG tepat 544 x 544 dengan contain dan padding putih, orientasi dikoreksi tanpa crop. Raw OCR dan batas upload tetap berlaku. Detail kecil pada label dapat berkurang; penghematan token aktual bergantung pada provider.
 - Tes preprocessing menguji kedua mode, downscale/upscale, rasio, padding, JPEG, buffer asli dan OCR. Verifikasi: `pnpm test` 11 lolos, satu integrasi dilewati tanpa TEST_DATABASE_URL; `pnpm build`, OpenSpec strict dan diff check lolos. Tidak ada live provider test baru. OpenAPI, design, handoff dan changelog diperbarui.
+
+## Rekonsiliasi proposal dan handoff Flutter
+
+- Proposal kini secara eksplisit mencatat konfigurasi base URL/9Router, normalisasi 544 × 544, gaya TTS v3 dan mapping consumer, dengan tautan ke SCANNER_API.md. Design/specs diselaraskan untuk base URL dan dimensi gambar yang sudah diterapkan.
+- Handoff diperjelas: urutan integrasi, field multipart, mapping screen, delapan key/unit nutrisi nullable, quantity/baseQuantity, daftar entries, snapshot pro/cons/TTS, respons 204/non-JSON serta idempotency/error recovery. Skor/tags/komposisi/favorit dan edit nilai OCR tidak diklaim tersedia.
+- Ini pembaruan dokumentasi atas implementasi yang sudah ada, tanpa task backend baru atau perubahan app. Verifikasi dokumentasi: OpenSpec strict, tautan lokal yang disentuh dan diff check; tidak mengulang tes runtime atau live provider. Hasil runtime sebelumnya tetap historis; integrasi Flutter belum dilaksanakan.

@@ -22,6 +22,17 @@ Scanner perlu backend yang mengubah foto makanan atau foto label beserta OCR dan
 - Tetapkan batas sumber data: angka dari foto adalah estimasi model; ekstraksi OCR/gambar belum otomatis terverifikasi. Nilai hilang tetap null. Personalisasi mengubah insight, bukan nilai sumber.
 - Pengguna telah menyetujui perubahan arah DEC-004/005/006 untuk jalur scanner: DeepSeek untuk identifikasi/estimasi, saran satuan dari LLM dengan validasi backend, dan kalkulasi porsi tetap deterministik. Keputusan lama dipertahankan sebagai riwayat di DECISIONS.md.
 
+## Pembaruan implementasi dan handoff Flutter
+
+Rekonsiliasi 7 November 2026; perubahan berikut sudah diimplementasikan, bukan rencana tambahan:
+
+- Konfigurasi provider memakai `DEEPSEEK_BASE_URL`, `DEEPSEEK_API_KEY` dan `DEEPSEEK_MODEL` pada `server/.env`. Backend menambahkan `/chat/completions`, termasuk base path `/v1` untuk 9Router. Flutter hanya menghubungi backend Node.js; key provider tidak dikirim ke aplikasi.
+- Gambar food maupun label dinormalisasi backend ke JPEG tepat 544 × 544, orientasi dikoreksi, rasio dipertahankan dengan padding putih tanpa crop. Input tetap JPEG/PNG maksimal 5 MiB/20 MP; total multipart maksimal 6 MiB. Raw OCR label tetap dikirim bersama gambar. Resolusi kecil dapat mengurangi detail label; penghematan token bergantung provider.
+- Prompt `scanner-2026-11-v3` memakai bahasa obrolan sopan, sapaan kamu, kalimat pendek dan tanpa jargon untuk TTS. Summary merangkum pro/cons personal serta ketidakpastian dalam 2–3 kalimat, maksimal 60 kata/450 karakter. Fallback lokal tetap tersedia tanpa panggilan provider tambahan.
+- Kontrak consumer: `data.title`, `data.analysis.portion`, `data.quantity`, `data.baseNutrients`, `data.nutrients`, `data.pros`, `data.cons`, `data.ttsSummary` dan `data.ttsSummarySource`. Total pada `data.nutrients` sudah dihitung sesuai quantity; nilai null harus tampil sebagai belum diketahui. Koreksi quantity mengembalikan entry terbaru dengan insight/TTS snapshot yang sama.
+- Panduan integrasi operasional: [server/SCANNER_API.md](../../../server/SCANNER_API.md#alur-integrasi-flutter), mencakup request multipart, mapping screen, unit nutrisi, idempotency, error recovery dan batas UI yang belum didukung. OpenAPI route-local tetap sumber kontrak lengkap. Endpoint dan frontend tidak berubah dalam rekonsiliasi dokumentasi ini.
+- Verifikasi terkini: 11 tes lulus, satu integrasi dilewati tanpa `TEST_DATABASE_URL`; build dan OpenSpec strict lulus pada perubahan resolusi. Live service sebelumnya menguji prompt v2; gaya v3 dan preprocessing 544 × 544 belum diuji live bersama provider.
+
 ## Capabilities
 
 ### New Capabilities

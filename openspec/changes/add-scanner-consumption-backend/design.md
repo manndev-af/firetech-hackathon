@@ -99,6 +99,8 @@ Pertahankan envelope starter `success`, `message`, `data`, `timestamp`; domain e
 
 ### 3. Input scan dan penyimpanan sementara
 
+Provider dikonfigurasi melalui `DEEPSEEK_BASE_URL`, `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL` pada environment backend. Base URL wajib HTTP(S) tanpa embedded credentials/query/fragment; trailing slash dinormalisasi dan service menambahkan `/chat/completions`, sehingga base path `/v1` untuk 9Router tetap dipertahankan. Flutter hanya memakai API Node.js, tidak menyimpan kredensial atau menghubungi provider secara langsung. Setup dan hasil live historis ada di README backend.
+
 Multipart fields: image wajib (JPEG/PNG), mode food|label, description opsional, rawOcrText wajib nonempty pada label, consumedAt ISO8601 opsional (default waktu penerimaan yang dibekukan), quantity opsional positive (default 1). Header Idempotency-Key wajib UUID. Baseline batas: image 5 MiB dan 20 megapixel, description 1.000 karakter, OCR 20.000 karakter; total multipart dibatasi dengan overhead terukur. Tolak field tak dikenal/berulang.
 
 Parser multipart berlimit dan decoder gambar diperlukan karena express.json tidak menerima file. Validasi magic bytes dan actual decode; jangan mempercayai MIME/ekstensi. Normalize orientation, resize 544 x 544 px dengan rasio asli dan padding putih (contain), tanpa crop, strip metadata, lalu kirim data URL langsung dari backend. Jangan fetch URL dari input. Bersihkan buffer/temp files di jalur sukses, error, dan pembatalan. Tidak menyimpan image/base64 dalam MySQL; API awal tidak menjanjikan thumbnail permanen.
