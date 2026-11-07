@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/api_exception.dart';
+import '../../services/assistant_api.dart';
 
 class AssistantScreen extends StatefulWidget {
   const AssistantScreen({
     super.key,
     this.showConversation = false,
     this.initialMode,
+    this.assistantApi,
   });
 
   final bool showConversation;
   final String? initialMode;
+  final AssistantApi? assistantApi;
 
   @override
   State<AssistantScreen> createState() => _AssistantScreenState();
@@ -22,14 +26,21 @@ class _ChatMessage {
     required this.isUser,
     required this.text,
     required this.time,
+    this.sources = const [],
+    this.warnings = const [],
+    this.isError = false,
   });
 
   final bool isUser;
   final String text;
   final DateTime time;
+  final List<CitationSource> sources;
+  final List<String> warnings;
+  final bool isError;
 }
 
 class _AssistantScreenState extends State<AssistantScreen> {
+  late final AssistantApi _assistantApi;
   late bool _conversationActive;
   late String _mode;
   final TextEditingController _textController = TextEditingController();
@@ -40,6 +51,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
   @override
   void initState() {
     super.initState();
+    _assistantApi = widget.assistantApi ?? AssistantApi.withDefaultBase();
     _conversationActive = widget.showConversation;
     _mode = widget.initialMode ?? (widget.showConversation ? 'pattern' : 'general');
     _initMessages();
@@ -82,7 +94,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
               '• Pilihan A: Mengandung 12 g gula dan 4 g protein (130 kkal).\n\n'
               'Trade-off Utama:\n'
               'Pilihan B memotong gula hingga 50%, sedangkan Pilihan A hanya unggul 1 g protein namun membawa tambahan 6 g gula.\n\n'
-              'Kesimpulan (Mending yang mana?):\n'
+              'Rekomendasi:\n'
               'Jika prioritasmu adalah membatasi gula, Pilihan B jauh lebih rasional. Namun jika kamu baru selesai berolahraga berat dan butuh asupan protein segera, Pilihan A bisa dipertimbangkan.',
           time: now.subtract(const Duration(minutes: 1)),
         ),
@@ -119,34 +131,76 @@ class _AssistantScreenState extends State<AssistantScreen> {
     });
   }
 
-  void _sendMessage(String query) {
+  Future<void> _sendMessage(String query) async {
     final text = query.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _isTyping) return;
     _textController.clear();
+
+    final userMessage = _ChatMessage(
+      isUser: true,
+      text: text,
+      time: DateTime.now(),
+    );
 
     setState(() {
       _conversationActive = true;
-      _messages.add(
-        _ChatMessage(isUser: true, text: text, time: DateTime.now()),
-      );
+      _messages.add(userMessage);
       _isTyping = true;
     });
     _scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    final history = <AssistantHistoryItem>[];
+    for (int i = 0; i < _messages.length - 1; i++) {
+      final msg = _messages[i];
+      if (!msg.isError && msg.text.trim().isNotEmpty) {
+        history.add(
+          AssistantHistoryItem(
+            role: msg.isUser ? 'user' : 'assistant',
+            text: msg.text,
+          ),
+        );
+      }
+    }
+
+    try {
+      final response = await _assistantApi.sendMessage(
+        message: text,
+        mode: _mode,
+        history: history,
+      );
+
       if (!mounted) return;
-      final reply = _generateReply(text);
       setState(() {
         _isTyping = false;
         _messages.add(
-          _ChatMessage(isUser: false, text: reply, time: DateTime.now()),
+          _ChatMessage(
+            isUser: false,
+            text: response.reply,
+            time: DateTime.now(),
+            sources: response.sources,
+            warnings: response.warnings,
+          ),
         );
       });
       _scrollToBottom();
-    });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        final fallback = _generateLocalFallback(text);
+        _messages.add(
+          _ChatMessage(
+            isUser: false,
+            text: fallback,
+            time: DateTime.now(),
+          ),
+        );
+      });
+      _scrollToBottom();
+    }
   }
 
-  String _generateReply(String input) {
+  String _generateLocalFallback(String input) {
     final lower = input.toLowerCase();
     if (lower.contains('gula') || lower.contains('sugar')) {
       return 'Mengenai asupan gula: Batas aman konsumsi harian menurut Kemenkes RI adalah 50 gram (sekitar 4 sendok makan). Saat memilih makanan kemasan, perhatikan nilai "Gula Total" per takaran saji dan hindari pemanis tambahan seperti sirup jagung tinggi fruktosa.';
@@ -270,16 +324,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                     ),
                     const SizedBox(height: 12),
                     _Prompt(
-                      text: 'Bagaimana membandingkan dua camilan?',
-                      onTap: () => _sendMessage('Bagaimana membandingkan dua camilan?'),
-                    ),
-                    _Prompt(
-                      text: 'Apa yang perlu diperhatikan pada minuman?',
-                      onTap: () => _sendMessage('Apa yang perlu diperhatikan pada minuman?'),
-                    ),
-                    _Prompt(
-                      text: 'Berapa batas konsumsi gula harian?',
-                      onTap: () => _sendMessage('Berapa batas konsumsi gula harian?'),
+                      text: 'Tips memilih camilan sehat',
+                      onTap: () => _sendMessage('Tips memilih camilan sehat'),
                     ),
                     _Prompt(
                       text: 'Tips memilih makanan tinggi protein',
@@ -394,8 +440,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                       ),
                     ] else ...[
                       _Prompt(
-                        text: 'Berapa batas konsumsi gula harian?',
-                        onTap: () => _sendMessage('Berapa batas konsumsi gula harian?'),
+                        text: 'Tips memilih camilan sehat',
+                        onTap: () => _sendMessage('Tips memilih camilan sehat'),
                       ),
                       _Prompt(
                         text: 'Tips memilih makanan tinggi protein',
@@ -455,13 +501,13 @@ class _AssistantScreenState extends State<AssistantScreen> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.heroBackground,
+                      decoration: BoxDecoration(
+                        color: _isTyping ? AppColors.border : AppColors.heroBackground,
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         tooltip: 'Kirim',
-                        onPressed: () => _sendMessage(_textController.text),
+                        onPressed: _isTyping ? null : () => _sendMessage(_textController.text),
                         icon: const Icon(
                           Icons.send_rounded,
                           color: Colors.white,
@@ -538,12 +584,52 @@ class _MessageBubble extends StatelessWidget {
               Text(
                 message.text,
                 style: TextStyle(
-                  color: isUser ? Colors.white : AppColors.textPrimary,
+                  color: isUser
+                      ? Colors.white
+                      : (message.isError ? const Color(0xFFE11D48) : AppColors.textPrimary),
                   fontSize: 14,
                   height: 1.45,
                   fontWeight: isUser ? FontWeight.w500 : FontWeight.w400,
                 ),
               ),
+              if (!isUser && message.sources.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                const Divider(height: 1, color: AppColors.border),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    for (final src in message.sources)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.mint,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Sumber: ${src.title}',
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            color: AppColors.heroBackground,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+              if (!isUser && message.warnings.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  message.warnings.first,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
