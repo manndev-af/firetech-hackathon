@@ -5,16 +5,22 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Fixed
+
+- Mengatasi kendala force close / crash pada peluncuran rilis APK (`build.gradle.kts`):
+  - Menonaktifkan minifikasi R8 (`isMinifyEnabled = false`, `isShrinkResources = false`) pada mode release, mencegah pemangkasan (*stripping*) kelas-kelas native plugin Flutter (`camerax`, `path_provider`, `flutter_tts`, `google_mlkit`).
+  - Menambahkan metadata dependensi Google ML Kit (`com.google.ml.vision.DEPENDENCIES`) pada `AndroidManifest.xml` untuk model OCR dan vision labeling.
+- Mengatasi peringatan aplikasi tidak dikenal / Play Protect:
+  - Menyediakan konfigurasi penandatanganan rilis resmi (`signingConfigs.release`) dengan keystore rilis mandiri (`upload-keystore.jks`) dan fallback dinamis ke signing debug bila keystore tidak ditemukan.
+
 ### Added
 
-- Konfigurasi ProGuard dan aturan R8 release (`app/android/app/proguard-rules.pro` dan `app/android/app/build.gradle.kts`):
-  - Mengonfigurasi aturan `-dontwarn` dan `-keep` untuk Google ML Kit Text Recognition, Image Labeling, dan Object Detection sehingga proses kompilasi `flutter build apk --release` berjalan lancar tanpa error `Missing classes detected while running R8`.
-- Ekspor paket build APK Android di direktori `hasil-build`:
-  - Versi universal (`hasil-build/tanpa-split/app-release.apk` ~128 MB): Paket instalasi tunggal universal yang menggabungkan seluruh arsitektur ABI untuk kemudahan instalasi di perangkat Android apapun.
-  - Versi split ABI (`hasil-build/split-per-abi/`): Menghasilkan APK spesifik arsitektur CPU dengan ukuran jauh lebih ringan mengikuti penamaan standar Flutter:
-    - `app-arm64-v8a-release.apk` (~55.1 MB) untuk smartphone Android modern 64-bit.
-    - `app-armeabi-v7a-release.apk` (~45.0 MB) untuk smartphone Android 32-bit.
-    - `app-x86_64-release.apk` (~58.2 MB) untuk emulator Android dan Chromebook.
+- Ekspor paket build APK Android versi rilis stabil terbaru di direktori `hasil-build`:
+  - Versi universal (`hasil-build/tanpa-split/app-release.apk` ~133 MB): Paket instalasi tunggal universal yang menggabungkan seluruh arsitektur ABI untuk kemudahan instalasi di perangkat Android apapun tanpa risiko crash.
+  - Versi split ABI (`hasil-build/split-per-abi/`): Menghasilkan APK spesifik arsitektur CPU dengan ukuran jauh lebih ringan:
+    - `app-arm64-v8a-release.apk` (~60.1 MB) untuk smartphone Android modern 64-bit.
+    - `app-armeabi-v7a-release.apk` (~50.1 MB) untuk smartphone Android 32-bit.
+    - `app-x86_64-release.apk` (~63.3 MB) untuk emulator Android dan Chromebook.
 
 - Validasi pesan dan history assistant general/pattern, parser JSON lokal 64 KiB serta penghilangan payload chat dari log sebelum parsing. API POST `{API_PREFIX}/v1/assistant/messages` aktif: prompt assistant terpisah, satu dispatch teks, sumber tervalidasi dan agregasi Decimal tujuh tanggal lokal tanpa write database. OpenAPI dan ASSISTANT_API.md menjelaskan general/pattern, cold start dan handoff Flutter.
 
