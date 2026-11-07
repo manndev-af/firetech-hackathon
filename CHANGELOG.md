@@ -7,21 +7,11 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Fixed
 
+- Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
+- Parser saran label Flutter mengenali label bilingual, LemakJenuh dan satuan kkal/kcal tanpa mencampur energi lemak atau AKG.
 - OCR lokal opsional tidak lagi menghalangi analisis gambar oleh backend saat gagal/kosong/tanpa kata kunci; mode OCR wajib tersedia lewat dart-define SCANNER_USE_RAW_OCR=true. Batas teks diselaraskan menjadi 20.000 karakter.
 
-- Parser saran label Flutter mengenali label bilingual, LemakJenuh dan satuan kkal/kcal tanpa mencampur energi lemak atau AKG.
-
-- Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
-
-### Changed
-
-- Rate limiter global API dinonaktifkan atas permintaan pengguna agar validasi X-Forwarded-For dari express-rate-limit tidak mengganggu request melalui proxy. Batas concurrency dua operasi scanner tetap berlaku; OpenAPI dan panduan backend diselaraskan.
-
-- Raw OCR scanner sementara nonaktif secara default melalui `SCANNER_USE_RAW_OCR=false`: label dianalisis dari gambar, tanpa OCR pada retrieval/payload/validasi evidence. Set true mengembalikan gambar + OCR wajib; data OCR yang disertakan tetap tersimpan dan menjadi fingerprint. Prompt v4, OpenAPI, contoh environment dan handoff diselaraskan.
-
 ### Added
-
-- Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
 
 - Service frontend integrasi backend `ProfileApi` (`app/lib/services/profile_api.dart`):
   - Berkomunikasi dengan endpoint `GET` dan `PATCH /api/v1/profile` untuk mengambil dan menyinkronkan profil nutrisi aktif serta status preferensi `audioAnalysisEnabled`.
@@ -30,15 +20,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Suite pengujian unit `app/test/backend_services_test.dart`:
   - Menguji `ProfileApi` (get & patch profile) dan `JournalApi` (list, quantity update, delete, dan getDailyNutrition) beserta pemetaan `DailyNutritionSummary` secara terisolasi dengan mock HTTP server lokal.
 
-### Changed
-
-- Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
-  - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
-  - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
-  - `AnalysisApi`: Refaktor request scan mengarah ke `POST /api/v1/scans` menggunakan multipart form data, menangani kode status `201 Created` dan `200 OK`, dengan pemetaan bersih via `ScanHistoryEntry.fromBackend` serta mempertahankan fallback lokal saat offline.
-  - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
-  - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
-  - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+- Morgan development kini menulis log JSON request/response ke `server/src/logs/requests-YYYY-MM-DD.log`, dengan metadata upload, penyamaran kredensial/data privat/gambar dan batas ukuran. Folder otomatis dibuat dan diabaikan Git; panduan debugging serta workspace diperbarui.
 
 - Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
   - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
@@ -60,6 +42,18 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
   - Integrasi splash layar awal native Android (`launch_background.xml` dan `drawable-v21/launch_background.xml`) menampilkan ikon NutriSee di tengah latar putih untuk transisi mulus saat aplikasi pertama kali dibuka.
 
 ### Changed
+
+- Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
+  - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
+  - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
+  - `AnalysisApi`: Refaktor request scan mengarah ke `POST /api/v1/scans` menggunakan multipart form data, menangani kode status `201 Created` dan `200 OK`, dengan pemetaan bersih via `ScanHistoryEntry.fromBackend` serta mempertahankan fallback lokal saat offline.
+  - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
+  - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
+  - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+
+- Raw OCR scanner sementara nonaktif secara default melalui `SCANNER_USE_RAW_OCR=false`: label dianalisis dari gambar, tanpa OCR pada retrieval/payload/validasi evidence. Set true mengembalikan gambar + OCR wajib; data OCR yang disertakan tetap tersimpan dan menjadi fingerprint. Prompt v4, OpenAPI, contoh environment dan handoff diselaraskan.
+
+- Rate limiter global API dinonaktifkan atas permintaan pengguna agar validasi X-Forwarded-For dari express-rate-limit tidak mengganggu request melalui proxy. Batas concurrency dua operasi scanner tetap berlaku; OpenAPI dan panduan backend diselaraskan.
 
 - Proposal scanner diselaraskan dengan konfigurasi provider, preprocessing 544 × 544 dan gaya TTS v3 yang sudah diterapkan. Handoff Flutter kini mencakup alur multipart, mapping field/nutrisi nullable, koreksi quantity, idempotency dan penanganan error; tidak mengubah endpoint atau frontend.
 
