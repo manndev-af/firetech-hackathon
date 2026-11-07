@@ -18,27 +18,21 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Removed
 
+- Scaffold kosong food_search, food_journal, dan recipes di Flutter dihapus karena belum diperlukan.
+
 - Halaman register Flutter, route/nama/path `/register`, akses Daftar pada login dan navigasi placeholder, serta pengujian khusus register dihapus atas permintaan pengguna.
 
 ### Added
 
 - Panel nutrisi hasil mengikuti referensi pengguna: ikon/nama, angka besar, pita satuan dan warna per kandungan dalam grid responsif.
-
-
 - Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.
-
 - Hasil scan langsung tanpa form porsi/deskripsi, pengali sajian untuk label terkonfirmasi, grid nutrisi berikon, dan lingkaran tombol jepret terisi.
-
-
 - Scan meminta porsi dan deskripsi opsional sebelum hasil; preview kamera mengisi bingkai dengan crop proporsional. Hasil memakai kartu nutrisi responsif dan teks 16/18 px. Porsi tetap catatan pengguna, belum dipakai menghitung nutrisi.
-
-
 - OCR label di perangkat dengan ekstraksi konservatif, nilai kosong tetap unknown, dan pengujian parser.
 - Review foto terhubung ke detail hasil, koreksi angka/sajian/acuan dan teks komposisi asli. Klasifikasi makanan dan penyimpanan hasil belum terhubung.
-
-
 - Kamera Flutter dari tombol tengah, Beranda, dan Riwayat kosong: preview kamera belakang, mode Makanan/Label produk, galeri, review foto, dan foto ulang. Kamera dilepas saat latar belakang/review; izin, kegagalan, dan lifecycle diuji.
-
+- Panduan `server/src/services/` untuk memisahkan logika bisnis/akses data dari controller; belum ada service domain sebelum kontrak fiturnya ditentukan.
+- Setup Prisma ORM 7 untuk MySQL di backend: CLI/client dan MariaDB adapter, schema/config, client singleton lazy, contoh `DATABASE_URL`, serta perintah generate/migrate. Belum ada model domain atau migration.
 - Profil memisahkan editor informasi diri dan personalisasi. Detail personalisasi langsung menjadi form inline dengan Simpan/Kembali di bawah; bottom sheet dan langkah Edit tambahan dihapus. Informasi diri dapat disimpan tanpa prioritas, data bagian lain tetap utuh, dan scroll kembali ke ringkasan setelah selesai. Pengujian mencakup alur simpan/batal serta layar sempit dengan teks besar.
 
 - Contoh Riwayat kini langsung tampil melalui tab saat aplikasi dijalankan biasa: tiga makanan dengan foto, porsi, summary, dan detail yang dapat dibuka. Router review mengaktifkan fixture secara default; `UI_PREVIEW=false` tersedia untuk state tanpa contoh. Data contoh tetap tidak disimpan sebagai catatan pengguna.
