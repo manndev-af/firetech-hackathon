@@ -10,24 +10,30 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: navigationShell,
+      ),
       extendBody: true,
 
-      bottomNavigationBar: BottomNav(
-        currentIndex: navigationShell.currentIndex,
+      bottomNavigationBar: ColoredBox(
+        color: Colors.transparent,
+        child: BottomNav(
+          currentIndex: navigationShell.currentIndex,
 
-        onTap: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
+          onTap: (index) {
+            navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            );
+          },
 
-        onAddTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Kamera makanan belum tersedia.')),
-          );
-        },
+          onAddTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Kamera makanan belum tersedia.')),
+            );
+          },
+        ),
       ),
     );
   }
