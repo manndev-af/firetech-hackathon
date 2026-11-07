@@ -14,6 +14,8 @@ Klasifikasi gambar hanya memprediksi kelas makanan. Identitas makanan dan porsi 
 
 ## 2. Komponen dan Tanggung Jawab
 
+Pembaruan lokal: `local_app_state` memuat snapshot melalui `path_provider` sebelum `runApp`; model profil/riwayat/draft memiliki serialisasi JSON. `LocalStorage` mengantre write, memakai file sementara serta snapshot backup, dan melaporkan kegagalan. `ScanPipeline` menjalankan gate ML Kit untuk makanan atau OCR untuk label, memperkecil foto di isolate, dan menyimpan draft sebelum `AnalysisApi` mengirim request. API terkonfigurasi melalui `ANALYSIS_BASE_URL`, tanpa kunci LLM dalam aplikasi. `AnalysisContent` menampilkan hanya nilai respons nullable dan memakai `SummarySpeech` untuk kesimpulan singkat; history replay tidak perlu backend. Nilai hasil scan contoh lama tidak dipakai dalam alur nyata. Catatan session-only sebelumnya historis. Lihat [kontrak](SCAN_API.md).
+
 Revisi editor Profil: `NutritionProfileScreen` dipakai ulang dengan `ProfileEditSection.identity` atau `.personalization` dan `inline: true` di `ProfileScreen`. Draft lokal baru diterapkan melalui callback `onSave` ke notifier router. Mode standalone lama tetap tersedia untuk route `/profile/nutrition`. Tidak ada model/persistensi/API baru; `PersonalPage` menerima scroll controller opsional untuk kembali ke ringkasan setelah form ditutup.
 
 Pembaruan akses review: `UI_PREVIEW` pada router kini memiliki default `true` agar tab Riwayat langsung terisi contoh sesuai permintaan pengguna. Nilai `false` menampilkan alur tanpa fixture. Constructor `HistoryScreen` tetap default `preview: false`; hanya konfigurasi route review yang mengaktifkannya. Tidak ada persistensi atau kalkulasi tambahan.

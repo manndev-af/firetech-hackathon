@@ -68,7 +68,7 @@ class DashboardHistory extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 36),
           FilledButton(
             onPressed: onScan,
             style: FilledButton.styleFrom(
@@ -79,18 +79,31 @@ class DashboardHistory extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
+              elevation: 0,
             ),
-            child: const Text(
-              'Catat makanan pertama',
-              textAlign: TextAlign.center,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_rounded, size: 22),
+                SizedBox(width: 8),
+                Text(
+                  'Catat makanan pertama',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
             ),
           ),
         ] else ...[
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.border),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -102,11 +115,29 @@ class DashboardHistory extends StatelessWidget {
                     : constraints.maxWidth;
                 return Wrap(
                   spacing: 12,
-                  runSpacing: 20,
+                  runSpacing: 14,
                   children: [
-                    _metric(width, data.sugarG, 'g', 'Gula tercatat'),
-                    _metric(width, data.proteinG, 'g', 'Protein'),
-                    _metric(width, data.energyKcal, 'kkal', 'Energi'),
+                    _metric(
+                      width,
+                      data.sugarG,
+                      'g',
+                      'Gula tercatat',
+                      Icons.water_drop_outlined,
+                    ),
+                    _metric(
+                      width,
+                      data.proteinG,
+                      'g',
+                      'Protein',
+                      Icons.fitness_center_rounded,
+                    ),
+                    _metric(
+                      width,
+                      data.energyKcal,
+                      'kkal',
+                      'Energi',
+                      Icons.bolt_rounded,
+                    ),
                   ],
                 );
               },
@@ -132,24 +163,36 @@ class DashboardHistory extends StatelessWidget {
               onTap: onExplore,
               child: const Padding(
                 padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(
-                      'Mau bandingkan minuman berikutnya?',
-                      style: TextStyle(
-                        color: AppColors.primaryDark,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mau bandingkan minuman berikutnya?',
+                            style: TextStyle(
+                              color: AppColors.primaryDark,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            'Buka Jelajah  →',
+                            style: TextStyle(
+                              color: AppColors.primaryDark,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Buka Jelajah  →',
-                      style: TextStyle(
-                        color: AppColors.primaryDark,
-                        fontSize: 12,
-                      ),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: AppColors.primaryDark,
+                      size: 20,
                     ),
                   ],
                 ),
@@ -161,26 +204,48 @@ class DashboardHistory extends StatelessWidget {
     );
   }
 
-  Widget _metric(double width, double? value, String unit, String label) =>
-      SizedBox(
+  Widget _metric(
+    double width,
+    double? value,
+    String unit,
+    String label,
+    IconData icon,
+  ) =>
+      Container(
         width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Icon(icon, size: 15, color: AppColors.primary),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             Text(
               value == null ? 'Belum tersedia' : '${_format(value)} $unit',
               style: const TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
