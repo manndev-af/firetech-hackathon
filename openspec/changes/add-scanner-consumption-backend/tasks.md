@@ -110,3 +110,18 @@ Status: pengguna menyetujui apply beserta revisi seed setelahnya. Implementasi b
 - Proposal kini secara eksplisit mencatat konfigurasi base URL/9Router, normalisasi 544 × 544, gaya TTS v3 dan mapping consumer, dengan tautan ke SCANNER_API.md. Design/specs diselaraskan untuk base URL dan dimensi gambar yang sudah diterapkan.
 - Handoff diperjelas: urutan integrasi, field multipart, mapping screen, delapan key/unit nutrisi nullable, quantity/baseQuantity, daftar entries, snapshot pro/cons/TTS, respons 204/non-JSON serta idempotency/error recovery. Skor/tags/komposisi/favorit dan edit nilai OCR tidak diklaim tersedia.
 - Ini pembaruan dokumentasi atas implementasi yang sudah ada, tanpa task backend baru atau perubahan app. Verifikasi dokumentasi: OpenSpec strict, tautan lokal yang disentuh dan diff check; tidak mengulang tes runtime atau live provider. Hasil runtime sebelumnya tetap historis; integrasi Flutter belum dilaksanakan.
+
+## Raw OCR sementara dinonaktifkan ? 8 November 2026
+
+- `SCANNER_USE_RAW_OCR` default false; label menerima gambar tanpa OCR. OCR yang tetap dikirim dipertahankan pada penyimpanan/fingerprint tetapi dikeluarkan dari retrieval, payload provider dan pemeriksaan konflik evidence. Prompt v4 meminta evidence origin image. Flag true mengembalikan gambar + OCR wajib tanpa migration atau perubahan frontend.
+- Tes transport mencakup default/false/true, payload tanpa OCR, satu dispatch, evidence gambar valid tanpa konflik OCR, serta konflik saat OCR aktif kembali. Tes input menguji label tanpa OCR dan kewajiban OCR setelah flag aktif. Integration fixture lama secara eksplisit memakai flag true.
+- Verifikasi: build dan OpenSpec strict lulus. Suite penuh: 13 lulus, 1 integrasi dilewati tanpa TEST_DATABASE_URL, 1 gagal karena perubahan resolusi lokal yang sudah ada (1600 x 1600 sementara tes lama mengharapkan 544 x 544); perubahan resolusi tersebut dipertahankan. Tidak ada live provider test atau klaim kualitas ekstraksi meningkat.
+
+
+## Follow-up koreksi OCR - 8 November 2026
+- [x] Bedakan energi total, energi lemak dan AKG; normalisasi spasi evidence; cegah insight/TTS memakai angka ditolak.
+- [x] Normalisasi per sajian g/ml menjadi satu porsi, tanpa migrasi atau perubahan entri lama.
+- [x] Uji regresi label contoh dan dua panggilan provider live terpisah (gambar saja; gambar + transkripsi manual), tanpa menulis konsumsi ke database.
+
+- Verifikasi follow-up: backend 16 lulus/1 integrasi database dilewati; TypeScript build lulus; Flutter 84 lulus; OpenAPI HTTP lulus. Empat eksperimen provider terpisah: crop gambar saja dan crop + transkripsi manual berhasil; foto utuh pertama ditolak validator mode/sitasi, eksperimen foto utuh berikutnya berhasil dengan angka sama. Tidak ada retry otomatis ditambahkan. Ekstraksi ML Kit belum diuji pada perangkat.
+- OpenSpec backend strict lulus; change frontend memiliki warning panjang requirement yang sudah ada pada Explicit 8-nutrient and personalized insight mapping.

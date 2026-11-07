@@ -1,5 +1,4 @@
 import { createUserSchema, updateUserSchema } from '../validation/userSchema';
-import { rateLimitResponse } from './health.openapi';
 
 // OpenAPI 3.0 requires a non-empty required array; update fields are all optional.
 const { required: _required, ...updateBodySchema } = updateUserSchema;
@@ -44,28 +43,28 @@ export const userPaths = (prefix: string) => ({
   [`${prefix}/users`]: {
     get: {
       tags: ['Users (demo)'], operationId: 'getAllUsers', summary: 'List in-memory demo users',
-      responses: { '200': response({ type: 'array', items: user }), '429': rateLimitResponse },
+      responses: { '200': response({ type: 'array', items: user }) },
     },
     post: {
       tags: ['Users (demo)'], operationId: 'createUser', summary: 'Create an in-memory demo user',
       requestBody: body(createUserSchema),
-      responses: { '201': response(user), '400': badRequest, '429': rateLimitResponse },
+      responses: { '201': response(user), '400': badRequest },
     },
   },
   [`${prefix}/users/{id}`]: {
     parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' }, example: '1' }],
     get: {
       tags: ['Users (demo)'], operationId: 'getUserById', summary: 'Get an in-memory demo user',
-      responses: { '200': response(user), '404': notFound, '429': rateLimitResponse },
+      responses: { '200': response(user), '404': notFound },
     },
     put: {
       tags: ['Users (demo)'], operationId: 'updateUser', summary: 'Update supplied fields of an in-memory demo user',
       requestBody: body(updateBodySchema),
-      responses: { '200': response(user), '400': badRequest, '404': notFound, '429': rateLimitResponse },
+      responses: { '200': response(user), '400': badRequest, '404': notFound },
     },
     delete: {
       tags: ['Users (demo)'], operationId: 'deleteUser', summary: 'Delete an in-memory demo user',
-      responses: { '204': { description: 'Deleted; no response body' }, '404': notFound, '429': rateLimitResponse },
+      responses: { '204': { description: 'Deleted; no response body' }, '404': notFound },
     },
   },
 });

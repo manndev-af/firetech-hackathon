@@ -15,6 +15,7 @@ test('scanner HTTP, Prisma persistence, retrieval and one-dispatch lifecycle', {
   process.env.DEMO_USER_EMAIL = process.env.SEED_USER_EMAIL;
   process.env.SEED_USER_PASSWORD = 'synthetic-test-password';
   process.env.DEEPSEEK_API_KEY = 'mock-only';
+  process.env.SCANNER_USE_RAW_OCR = 'true';
   process.env.DEEPSEEK_BASE_URL = 'https://deepseek.integration.test';
   require('ts-node/register');
   const sharp = require('sharp');

@@ -1,5 +1,7 @@
 # Express TypeScript Starter Template
 
+Pembaruan 8 November 2026: `SCANNER_USE_RAW_OCR=false` menjadi default sementara. Mode label menerima gambar tanpa raw OCR; OCR yang disertakan tetap divalidasi batas input, disimpan dan masuk fingerprint deduplikasi, tetapi tidak digunakan untuk retrieval, payload provider atau pencocokan evidence. Prompt v4 meminta evidence `origin=image`. Set `SCANNER_USE_RAW_OCR=true` di `server/.env` lalu restart backend untuk mengaktifkan gambar + OCR kembali; OCR label kembali wajib. Deskripsi tambahan, provenance, validasi angka/satuan, satu dispatch dan kalkulasi porsi tetap berlaku. Ini menggantikan kewajiban OCR pada uraian sebelumnya untuk konfigurasi default. Data lama/replay tidak dianalisis ulang; gunakan operasi scan baru yang disengaja untuk membandingkan mode.
+
 ## Swagger / OpenAPI
 
 Jalankan `pnpm dev` dari `server/`, lalu buka `http://localhost:3000/api/docs/`.
@@ -13,7 +15,7 @@ Dokumentasi tersedia juga pada hasil build (`pnpm build`, `pnpm start`). Aset Sw
 
 Setiap penambahan/perubahan/penghapusan route wajib memperbarui `<name>.openapi.ts` di samping `<name>.routes.ts` dalam pekerjaan yang sama. Daftarkan modul baru pada assembler, dokumentasikan semua method, parameter, body, validasi, status, schema respons, dan contoh relevan. Jangan satukan kontrak semua route dalam satu file. Schema validasi user dipakai ulang agar batas input tetap sinkron.
 
-OpenAPI mencerminkan kontrak starter dan delapan operasi scanner/profile/jurnal (`success`, `message`, `data`, `timestamp` pada respons sukses). Kontrak domain berada di `profile.openapi.ts`, `scanner.openapi.ts`, `food-entry.openapi.ts`, dan `nutrition.openapi.ts`. Route dokumentasi berada di luar rate limiter API agar pemuatan aset tidak menghabiskan kuota. Header keamanan tetap aktif; `upgrade-insecure-requests` dinonaktifkan khusus dokumentasi agar aset bekerja pada HTTP localhost.
+OpenAPI mencerminkan kontrak starter dan delapan operasi scanner/profile/jurnal (`success`, `message`, `data`, `timestamp` pada respons sukses). Kontrak domain berada di `profile.openapi.ts`, `scanner.openapi.ts`, `food-entry.openapi.ts`, dan `nutrition.openapi.ts`. Rate limiter global API dinonaktifkan; konfigurasi RATE_LIMIT_* tidak diterapkan pada request. Header keamanan tetap aktif; `upgrade-insecure-requests` dinonaktifkan khusus dokumentasi agar aset bekerja pada HTTP localhost.
 
 Verifikasi: `pnpm test`, `pnpm build`, dan `pnpm lint`. Tes memakai Node.js test runner dan menguji JSON, aset UI, prefix khusus, serta respons route. Gunakan Node.js yang kompatibel dengan dependency Prisma 7 yang terpasang.
 
@@ -51,7 +53,7 @@ Seed memakai salted scrypt, membuat profil dummy lengkap tanpa field null dan ti
 
 Scan sukses langsung mencatat konsumsi. Alur: validasi gambar/metadata, claim idempotency, retrieval profil/riwayat/referensi, satu dispatch DeepSeek, validasi output, transaksi simpan jurnal. Tidak ada retry otomatis, tool loop, atau panggilan repair JSON. Provider gagal berarti konsumsi tidak dicatat. Jurnal dan koreksi quantity tetap tersedia tanpa API key.
 
-Upload satu JPEG/PNG maksimal 5 MiB/20 megapixel, total multipart maksimal 6 MiB. Metadata: `mode`, `description` maksimal 1.000 karakter, `rawOcrText` maksimal 20.000 (wajib label), `consumedAt` ISO8601 opsional, `quantity` positif maksimal 10.000/enam desimal (default 1). Field berulang/tak dikenal, URL input, MIME palsu, dan gambar rusak ditolak. Decoder merotasi, membatasi sisi 1600 px dan menghapus metadata. Gambar tidak disimpan permanen; hanya dikirim ke provider. Dua operasi scan bersamaan per proses; request berikutnya mendapat 429. Rate limiter starter tetap berlaku.
+Upload satu JPEG/PNG maksimal 5 MiB/20 megapixel, total multipart maksimal 6 MiB. Metadata: `mode`, `description` maksimal 1.000 karakter, `rawOcrText` maksimal 20.000 (wajib label), `consumedAt` ISO8601 opsional, `quantity` positif maksimal 10.000/enam desimal (default 1). Field berulang/tak dikenal, URL input, MIME palsu, dan gambar rusak ditolak. Decoder merotasi, membatasi sisi 1600 px dan menghapus metadata. Gambar tidak disimpan permanen; hanya dikirim ke provider. Dua operasi scan bersamaan per proses; request berikutnya mendapat 429. Rate limiter starter dinonaktifkan; batas dua operasi scan bersamaan tetap berlaku.
 
 `Idempotency-Key` UUID wajib. Key dan input identik memberi hasil tersimpan (200); input berbeda 409; processing/dispatch tidak pasti 409; replay sesudah delete 410. Crash setelah dispatch tidak boleh mengirim ulang. Key baru merupakan operasi baru yang dapat memakai biaya baru; jangan membuat key baru otomatis saat timeout.
 
@@ -408,3 +410,32 @@ MIT
 ---
 
 **Happy Coding! 🚀**
+
+## Log debugging request dan response
+
+Pada `NODE_ENV=development`, Morgan menulis satu baris JSON per respons selesai ke `server/src/logs/requests-YYYY-MM-DD.log` (tanggal UTC), termasuk method, path/query, status, durasi, header/body request, body respons JSON, serta MIME/ukuran upload. Logger dipasang sebelum parser agar error validasi/parser juga tercatat. Log konsol tetap tersedia. Folder dibuat otomatis, termasuk ketika menjalankan build dari `dist`; log diabaikan Git.
+
+Tujuan log: debugging integrasi request/response Flutter dengan API. Nilai key terstruktur untuk otorisasi/cookie/password/token/API key, identitas pribadi, OCR/deskripsi pengguna, gambar/base64, stack, profil dan snapshot context disamarkan. Upload gambar hanya dicatat sebagai MIME/ukuran. Teks di field lain seperti judul makanan, pro/cons dan TTS masih dapat berisi informasi konsumsi; jangan membagikan log mentah. Tiap string dibatasi 4.000 karakter, body/header/query dibatasi sekitar 32.000 karakter, kedalaman dan array juga dibatasi. Respons non-JSON/stream tidak direkam isinya. Log debug file tidak aktif pada production/test.
+
+File dipisah per hari tanpa pembersihan otomatis; hapus log lama setelah debugging. Pantau langsung dari PowerShell:
+
+```powershell
+Get-Content .\src\logs\requests-YYYY-MM-DD.log -Wait
+```
+
+
+### Koreksi label - 8 November 2026
+
+Untuk scan label baru dengan basis `per_serving`, keluaran model `20 g` atau `200 ml` dinormalisasi ke `baseQuantity: 1`, `unitCode: porsi`, dengan massa/volume asli pada `referenceWeightG`/`referenceVolumeMl`. Jadi `quantity: 1` berarti satu sajian, bukan satu gram/ml. Basis `per_100g`/`per_100ml` tetap memakai satuan sumber. Entri lama tidak ditulis ulang; scan ulang bila basis entri lama salah.
+
+Evidence per nutrisi harus berisi satu baris nama, angka dan satuan. Energi dari lemak dan acuan AKG bukan energi total. Variasi spasi OCR diterima; konflik angka sebenarnya tetap menghasilkan `null`. Bila angka ditolak, insight dan TTS diganti penjelasan keterbatasan agar tidak mempertahankan klaim dari angka tersebut. `extractLabel()` Flutter tetap parser saran lokal, bukan sumber angka request atau hasil API. Batas teks Flutter/backend sama: 20.000 karakter.
+
+## Compare dua makanan
+
+POST `{API_PREFIX}/v1/comparisons` menerima dua gambar dalam satu request multipart, memakai dummy owner yang sama dengan scanner. Hasil hanya untuk sesi, tidak mencatat konsumsi atau menyimpan perbandingan. Route berbagi kapasitas dua operasi dengan scanner dan satu dispatch vision untuk pasangan A/B. Tidak memerlukan env/dependency atau migration baru.
+
+Lihat [COMPARE_API.md](COMPARE_API.md) untuk request, contoh respons/error, basis, null dan handoff CompareScreen. OpenAPI tersedia di `{API_PREFIX}/openapi.json` dan Swagger di `{API_PREFIX}/docs/`. Payload request/response compare selalu dihilangkan dari log debugging, termasuk saat gagal parsing; route lain mempertahankan redaksi log yang ada. Frontend dan API asisten belum termasuk implementasi ini.
+
+## Assistant nutrisi
+
+Kontrak dan handoff tim Flutter ada di [ASSISTANT_API.md](ASSISTANT_API.md). Assistant memakai dummy owner dan provider yang sama; mode general/pattern tanpa compare atau histori chat persisten. JSON dibatasi 64 KiB, isi request/response/query dihilangkan dari log termasuk error parsing. Teks pertanyaan/history serta preferensi dan catatan yang relevan diproses provider eksternal; retensi provider terpisah dari aplikasi yang tidak menyimpan chat. Tidak menambahkan identitas pribadi ke payload model. POST `{API_PREFIX}/v1/assistant/messages` aktif dengan prompt assistant terpisah dan satu dispatch teks per request. Pattern memakai tujuh tanggal lokal, agregasi Decimal dan batas 1000 catatan; general tidak mengirim jurnal ke model.

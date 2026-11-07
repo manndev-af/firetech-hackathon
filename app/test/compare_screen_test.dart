@@ -26,6 +26,7 @@ void main() {
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
       isNull,
     );
+    expect(find.text('Terverifikasi'), findsOneWidget);
 
     await tester.tap(find.text('Pilihan B'));
     await tester.pumpAndSettle();
@@ -33,6 +34,7 @@ void main() {
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
       isNotNull,
     );
+    expect(find.text('Terverifikasi'), findsNWidgets(2));
 
     await tester.tap(find.text('Lihat ringkasan'));
     await tester.pumpAndSettle();
@@ -52,7 +54,7 @@ void main() {
   });
 
   testWidgets(
-    'shows warning popup when image is not recognized as food and does not set choice',
+    'shows warning popup when image A is not recognized as food and does not set choice A',
     (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -88,4 +90,84 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'shows warning popup when image B is not recognized as food and does not set choice B',
+    (tester) async {
+      var callCount = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CompareScreen(
+            pickImage: () async => '/test/image_${++callCount}.jpg',
+            checkFood: (path) async {
+              if (path.contains('image_2')) {
+                throw const ScanFailure(
+                  'Makanan atau minuman belum terdeteksi. Dekatkan kamera dan ambil foto ulang dengan pencahayaan yang cukup.',
+                );
+              }
+            },
+          ),
+        ),
+      );
+
+      // Select image A successfully
+      await tester.tap(find.text('Pilihan A'));
+      await tester.pumpAndSettle();
+      expect(find.text('Terverifikasi'), findsOneWidget);
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
+
+      // Select image B with invalid non-food image
+      await tester.tap(find.text('Pilihan B'));
+      await tester.pumpAndSettle();
+
+      // Warning dialog appears for Pilihan B
+      expect(find.text('Makanan Belum Terdeteksi'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Foto Ulang'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Foto Ulang'));
+      await tester.pumpAndSettle();
+
+      // Dialog is dismissed, Pilihan B was rejected and remains empty
+      expect(find.text('Makanan Belum Terdeteksi'), findsNothing);
+      expect(find.text('Terverifikasi'), findsOneWidget); // only A is verified
+      expect(find.text('Kamera atau galeri'), findsOneWidget); // B still empty
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
+    },
+  );
+
+  testWidgets('renders cleanly without overflow on 320px narrow screens', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(home: CompareScreen(pickImage: () async => '/test/food.jpg')),
+    );
+
+    // Initial state
+    expect(tester.takeException(), isNull);
+
+    // Pick both images
+    await tester.tap(find.text('Pilihan A'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pilihan B'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    // View comparison summary
+    await tester.tap(find.text('Lihat ringkasan'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(find.text('Perbandingan Nutrisi'), 150);
+    expect(find.text('Perbandingan Nutrisi'), findsOneWidget);
+  });
 }

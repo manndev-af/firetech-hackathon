@@ -7,11 +7,15 @@ Menghasilkan analisis scan personal melalui retrieval konteks yang dapat ditelus
 ## ADDED Requirements
 
 ### Requirement: Validated multimodal scan input
-The system SHALL accept food or label mode, one decodable bounded image, optional description, and raw OCR for label mode. It MUST reject unsupported files, invalid metadata, excessive bytes/pixels, and ownership overrides before any provider call. Remote image URLs SHALL NOT be accepted as uploads.
+The system SHALL accept food or label mode, one decodable bounded image, optional description, and raw OCR required for label mode only when SCANNER_USE_RAW_OCR=true (default false). It MUST reject unsupported files, invalid metadata, excessive bytes/pixels, and ownership overrides before any provider call. Remote image URLs SHALL NOT be accepted as uploads.
 
 #### Scenario: Label scan
-- **WHEN** a valid label image and nonempty raw OCR are submitted
+- **WHEN** SCANNER_USE_RAW_OCR=true and a valid label image and nonempty raw OCR are submitted
 - **THEN** the same provider request includes the image, OCR, and optional description
+
+#### Scenario: Image-only label analysis
+- **WHEN** SCANNER_USE_RAW_OCR is false or absent and a valid label image is submitted
+- **THEN** OCR is optional and excluded from retrieval text, provider input and evidence matching; supplied OCR remains stored and fingerprinted, and the prompt requests image-origin evidence
 
 #### Scenario: Invalid upload
 - **WHEN** an image is oversized, undecodable, or misrepresented as an accepted type
@@ -19,7 +23,7 @@ The system SHALL accept food or label mode, one decodable bounded image, optiona
 
 #### Scenario: Bounded provider image dimensions
 - **WHEN** a valid image is accepted in either mode
-- **THEN** the backend corrects orientation and creates a 544 x 544 JPEG preserving aspect ratio with white padding and no cropping, while keeping label OCR text available in the same provider request
+- **THEN** the backend corrects orientation and creates a 1600 x 1600 JPEG preserving aspect ratio with white padding and no cropping, while including label OCR text in the same provider request only when SCANNER_USE_RAW_OCR=true
 
 ### Requirement: Relevant bounded retrieval
 The system SHALL retrieve the owner's current profile, prior consumption context, and relevant reviewed references before generation. It MUST retain source identifiers, time boundaries, and missing-data counts. Retrieval MUST exclude other owners and the current scan and MUST NOT require another generative-model call.
@@ -113,3 +117,15 @@ The system SHALL persist ttsSummary and its source with the entry and return the
 #### Scenario: User corrects the portion
 - **WHEN** the entry quantity is updated
 - **THEN** the response includes recalculated nutrient totals and the quantity-independent summary without another provider call
+
+
+### Requirement: Label serving and evidence normalization
+The system SHALL normalize new per_serving label portions expressed in grams or millilitres to one porsi, preserving the original serving text and reference mass/volume. Existing stored entries and per-100 bases SHALL remain unchanged.
+
+#### Scenario: Twenty-gram serving
+- **WHEN** the provider returns 100 kcal per serving with baseQuantity 20 and unitCode g
+- **THEN** the backend returns baseQuantity 1 and unitCode porsi with referenceWeightG 20, and quantity 2 yields 200 kcal deterministically
+
+#### Scenario: Energy and OCR evidence
+- **WHEN** a label contains total energy 100 kcal, energy from fat 45 kcal and daily reference 2150 kcal
+- **THEN** the backend retains supported total energy 100, accepts whitespace-only OCR variations, and invalidates unsupported nutrients and their generated insights/speech on actual conflicts

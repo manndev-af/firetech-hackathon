@@ -56,3 +56,14 @@ Daftar tugas implementasi terstruktur untuk menghubungkan frontend Flutter (`app
 - [x] 7.1 Perbarui unit test pada `app/test/local_scan_test.dart` dan `app/test/scanner_screen_test.dart` untuk memverifikasi request multipart `/api/v1/scans`, penanganan status 201/200, dan pemetaan 8 nutrisi serta pros/cons.
 - [x] 7.2 Tambahkan unit test untuk `ProfileService` (`GET`/`PATCH /api/v1/profile`) dan `JournalService` (`GET`/`PATCH quantity`/`DELETE /api/v1/food-entries` dan `/api/v1/nutrition/daily`).
 - [x] 7.3 Jalankan seluruh suite tes Flutter (`flutter test`) dan pastikan seluruh 71+ pengujian lulus 100% tanpa regresi.
+
+
+## Follow-up koreksi label - 8 November 2026
+- [x] Selaraskan batas raw OCR dengan backend (20.000 karakter); perbaiki parser saran lokal untuk energi lemak/AKG, label bilingual dan LemakJenuh, dengan tes regresi.
+- [ ] Uji ekstraksi ML Kit pada perangkat Android memakai foto contoh; belum ada perangkat terhubung. Transkripsi manual pada uji provider bukan hasil ML Kit.
+
+
+## Fallback OCR opsional - 8 November 2026
+- [x] Teruskan foto label ke backend bila OCR gagal/kosong/tanpa kata kunci pada mode default; flag build SCANNER_USE_RAW_OCR=true mempertahankan validasi wajib.
+- [x] Pertahankan batas gambar/teks, food gate, satu dispatch provider dan kalkulasi quantity backend; tanpa migration atau angka pengganti dari LLM.
+- [x] Tes terarah local_scan, label_extraction dan scan_result_screen: 28 lulus, termasuk fallback dan penolakan mode wajib/teks terlalu panjang.

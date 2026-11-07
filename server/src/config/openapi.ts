@@ -5,6 +5,8 @@ import { profilePaths } from '../routes/profile.openapi';
 import { scannerPaths } from '../routes/scanner.openapi';
 import { foodEntryPaths } from '../routes/food-entry.openapi';
 import { nutritionPaths } from '../routes/nutrition.openapi';
+import { comparePaths } from '../routes/compare.openapi';
+import { assistantPaths } from '../routes/assistant.openapi';
 
 // Route contracts stay beside their routers; this file only assembles metadata.
 export const openapi = {
@@ -17,5 +19,5 @@ export const openapi = {
   servers: [{ url: '/' }],
   paths: { ...healthPaths(config.apiPrefix), ...userPaths(config.apiPrefix),
     ...profilePaths(config.apiPrefix), ...scannerPaths(config.apiPrefix),
-    ...foodEntryPaths(config.apiPrefix), ...nutritionPaths(config.apiPrefix) },
+    ...foodEntryPaths(config.apiPrefix), ...nutritionPaths(config.apiPrefix), ...comparePaths(config.apiPrefix), ...assistantPaths(config.apiPrefix) },
 };

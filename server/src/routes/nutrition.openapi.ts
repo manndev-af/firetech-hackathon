@@ -21,7 +21,6 @@ export const errorResponse = (description: string) => ({ description, content: {
 export const errors = {
   '400': errorResponse('Invalid input, unknown/contradictory fields or ownership override.'),
   '404': errorResponse('Domain disabled outside explicit development/test mode, or record not found.'),
-  '429': { description: 'Rate limit (starter text response) or scan concurrency limit (domain JSON error).' },
   '503': errorResponse('Development identity, configuration or database unavailable.'),
 };
 export const success = (schema: object, description = 'Success') => ({ description, content: { 'application/json': { schema: {
