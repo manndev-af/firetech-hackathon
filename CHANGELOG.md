@@ -11,6 +11,12 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Hasil scan langsung tanpa form porsi/deskripsi, pengali sajian untuk label terkonfirmasi, grid nutrisi berikon, dan lingkaran tombol jepret terisi.
+
+
+- Scan meminta porsi dan deskripsi opsional sebelum hasil; preview kamera mengisi bingkai dengan crop proporsional. Hasil memakai kartu nutrisi responsif dan teks 16/18 px. Porsi tetap catatan pengguna, belum dipakai menghitung nutrisi.
+
+
 - OCR label di perangkat dengan ekstraksi konservatif, nilai kosong tetap unknown, dan pengujian parser.
 - Review foto terhubung ke detail hasil, koreksi angka/sajian/acuan dan teks komposisi asli. Klasifikasi makanan dan penyimpanan hasil belum terhubung.
 

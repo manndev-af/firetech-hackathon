@@ -112,3 +112,5 @@ Dokumentasi Flutter tersedia di [docs.flutter.dev](https://docs.flutter.dev/). K
 ### Hasil scan dan OCR
 
 Gunakan foto membuka detail hasil bergaya Riwayat. Mode label memakai Google ML Kit di perangkat, menampilkan teks asli, saran angka, koreksi manual dan konfirmasi acuan per sajian/per 100 g/per 100 ml. Nilai kosong tetap tidak diketahui. Mode makanan belum terhubung ke klasifikasi atau referensi nutrisi. Hasil tidak dikirim ke server atau disimpan ke Riwayat. Uji kamera dan OCR pada Android fisik sebelum demo.
+
+Hasil langsung tanpa form porsi/deskripsi. Pengali 1?100 sajian tersedia setelah angka label diperiksa dengan acuan Per sajian. Nilai kosong tetap unknown; per 100 g/ml tidak dianggap satu porsi. Berat tidak ditebak dari foto.
