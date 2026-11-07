@@ -104,6 +104,7 @@ void main() {
     await input.writeAsBytes([1, 2]);
     final pipeline = ScanPipeline(
       storage: storage,
+      requireRawOcr: true,
       checkFood: (_) async => throw StateError('Label must bypass food gate'),
       readText: (_) async => 'Toko Buku Gramedia\nNovel Fiksi 2026',
       resize: (_, label) async => Uint8List.fromList([3, 4]),
@@ -119,6 +120,62 @@ void main() {
       ),
     );
   });
+
+  test(
+    'optional OCR failures still prepare an image for backend vision',
+    () async {
+      final input = File('${directory.path}/label.jpg');
+      await input.writeAsBytes([1, 2]);
+      for (final read in <Future<String> Function(String)>[
+        (_) async => throw const ScanFailure('OCR unavailable'),
+        (_) async => '',
+        (_) async => 'Teks tanpa kata kunci nutrisi',
+      ]) {
+        final pipeline = ScanPipeline(
+          storage: storage,
+          requireRawOcr: false,
+          readText: read,
+          checkFood: (_) async => throw StateError('Label skips food gate'),
+          resize: (_, label) async => Uint8List.fromList([3, 4]),
+        );
+        final result = await pipeline.prepare(
+          input.path,
+          label: true,
+          priorities: [],
+        );
+        expect(result.label, isTrue);
+        expect(await File(result.photoPath).readAsBytes(), [3, 4]);
+      }
+    },
+  );
+
+  test(
+    'required OCR fails locally and optional OCR keeps size limits',
+    () async {
+      final input = File('${directory.path}/label.jpg');
+      await input.writeAsBytes([1, 2]);
+      for (final required in [false, true]) {
+        for (final read in <Future<String> Function(String)>[
+          if (required) (_) async => throw const ScanFailure('OCR unavailable'),
+          if (required) (_) async => '',
+          (_) async => 'a' * 20001,
+        ]) {
+          final pipeline = ScanPipeline(
+            storage: storage,
+            requireRawOcr: required,
+            readText: read,
+            resize: (_, _) async =>
+                throw StateError('Must stop before resizing'),
+          );
+          await expectLater(
+            pipeline.prepare(input.path, label: true, priorities: []),
+            throwsA(isA<ScanFailure>()),
+          );
+        }
+      }
+      expect(await Directory('${directory.path}/photos').exists(), isFalse);
+    },
+  );
 
   test('rejected food stops before compression or creating a draft', () async {
     final input = File('${directory.path}/input.jpg');

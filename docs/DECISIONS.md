@@ -87,3 +87,11 @@ Ukuran dataset pernah dibahas sebagai eksperimen 2K/5K, 10K–20K, serta usulan 
 - Jika keputusan berubah, pertahankan riwayat dan catat keputusan pengganti beserta dasar perubahan.
 - Rujuk requirement di PRD/FRD dan konsekuensi sistem di architecture; jangan menggandakan seluruh spesifikasi.
 - Sinkronkan dokumen yang terdampak sesuai [aturan dokumentasi](../rules/documentation.md).
+
+## Assistant general/pattern - 8 November 2026
+
+DEC-013, pemilik keputusan: pengguna/pemilik proyek, status `CONFIRMED_DIRECTION`. Alasan: mengganti chat contoh dengan jawaban berbasis data yang sudah ada tanpa persistensi baru. Dampak: route assistant baru, agregasi pola dan privasi log; tidak ada perubahan database/frontend.
+
+Pengguna menyetujui apply `add-nutrition-assistant-backend`: API assistant teks memakai DeepSeek terkonfigurasi, prompt terpisah dan satu dispatch maksimum per request, profil/referensi serta agregasi deterministik tujuh tanggal lokal untuk pattern. Baseline MVP adalah chat selama sesi tanpa tabel baru, histori chat persisten, login, write konsumsi atau perubahan Flutter. Angka berasal dari evidence terstruktur; null/provenance/kelengkapan dipertahankan, tanpa diagnosis atau jaminan aman klinis.
+
+Arahan pengguna setelah compare: tidak ada alur compare menuju assistant. Handoff pada rancangan compare sebelumnya bersifat historis dan sudah digantikan; API compare tetap berdiri sendiri dan kontraknya tidak diubah. Mode compare/snapshot ditolak API assistant. Tombol/navigasi Flutter yang masih ada akan dihapus tim frontend dalam scope terpisah.

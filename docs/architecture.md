@@ -144,3 +144,19 @@ Target 24 jam dan urutan terperinci dalam summary adalah rencana brainstorming, 
 Summary awal menyebut tinggi/berat bukan syarat MVP dan menghindari pengumpulan data sensitif; pembaruan brainstorming terbaru mengizinkan tinggi/berat opsional dan alergi opsional, tetap mengecualikan riwayat penyakit serta obat. Pembaruan terbaru dicatat sebagai arah konsep terkini, namun manfaat, kebutuhan, cara penyimpanan, persetujuan, dan perlindungan data untuk field opsional tersebut perlu dikonfirmasi sebelum implementasi.
 
 Summary juga memuat beberapa skala data dan fitur dengan status berbeda: eksperimen awal 2.000 atau 5.000 gambar, usulan sekitar 36.000 gambar dengan split belum disepakati, dan alternatif subset 10.000–20.000. Tidak satu pun boleh dianggap final sebelum audit. Barcode/OCR, TTS, LLM, riwayat, dan perbandingan memiliki prioritas berbeda di bagian dokumen; gunakan P0/P1 dan konfirmasi scope demonstrasi.
+
+
+### Koreksi basis label - 8 November 2026
+
+Scan label baru dengan basis per sajian dalam gram/ml dinormalisasi menjadi satu porsi dengan massa/volume referensi tetap tersimpan; entri lama dan basis per-100 tidak diubah. Validasi evidence membedakan energi total dari energi lemak/AKG; konflik nyata mengosongkan nilai dan membatalkan insight/TTS terkait. Kontrak dan batasannya ada di [SCANNER_API.md](../server/SCANNER_API.md).
+
+Fallback label: OCR perangkat bersifat opsional secara default; kegagalan OCR tidak memblokir pengiriman gambar ke satu dispatch LLM awal. Build Flutter SCANNER_USE_RAW_OCR=true mempertahankan OCR wajib dan harus diselaraskan dengan flag backend. Validasi gambar, batas OCR 20.000 karakter dan kalkulasi quantity backend tetap berlaku.
+
+
+### Backend compare - 8 November 2026
+
+Route compare memakai demoOwner, scanSlot bersama scanner, compareUpload, compare.controller dan compare.service. Decoder, requestVision dan totals dipakai ulang tanpa perubahan kontrak scanner. Profil/retrieval dibaca sekali, dua gambar diberi penanda A/B dalam satu dispatch. Backend memvalidasi evidence dan menghitung normalisasi/selisih dengan Decimal; hasil transient tanpa write Prisma/cache/ID lookup. Logger menghilangkan payload compare sebelum parsing. Detail kontrak dan batas narasi ada di [COMPARE_API.md](../server/COMPARE_API.md).
+
+### API assistant - 8 November 2026
+
+assistant.service memakai getProfile/retrieveContext sekali dengan profil allowlist dan referensi reviewed. General tidak mengirim jurnal; pattern menambahkan agregasi tujuh tanggal lokal memakai dayBounds/localDate/summarize dan satu query window maksimal 1001 untuk mendeteksi overflow. LLM menerima teks terstruktur dengan prompt assistant terpisah, satu dispatch maksimum, tanpa retry/write database. Konteks wajib tidak dipotong untuk mengklaim agregasi lengkap. Kontrak ada di [ASSISTANT_API.md](../server/ASSISTANT_API.md).

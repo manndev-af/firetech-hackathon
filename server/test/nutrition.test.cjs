@@ -135,6 +135,7 @@ test('personalized pros/cons are exposed and reused by concise fallback speech',
 });
 
 test('DeepSeek transport receives image and OCR once and rejects bad responses without retry', async () => {
+  process.env.SCANNER_USE_RAW_OCR = 'true';
   process.env.DEEPSEEK_API_KEY = 'test-only-not-real';
   process.env.DEEPSEEK_BASE_URL = 'https://deepseek.test/v1/';
   const context = { references: [], profile: { priorities: ['Gula'] } };
@@ -172,4 +173,81 @@ test('DeepSeek transport receives image and OCR once and rejects bad responses w
     await assert.rejects(callDeepSeek(input, context, transport), { code: 'PROVIDER_NOT_CONFIGURED', statusCode: 503 });
   }
   assert.equal(calls, before);
+});
+
+test('raw OCR switch omits OCR from provider and evidence validation until reenabled', async () => {
+  process.env.DEEPSEEK_API_KEY = 'mock-only';
+  process.env.DEEPSEEK_BASE_URL = 'https://deepseek.test';
+  const context = { references: [], profile: { priorities: [] } };
+  const input = { mode: 'label', image: Buffer.from('synthetic'), description: '', rawOcrText: 'Energi 200 kkal' };
+  const previous = process.env.SCANNER_USE_RAW_OCR;
+  try {
+    for (const enabled of [undefined, 'false', 'true']) {
+      if (enabled === undefined) delete process.env.SCANNER_USE_RAW_OCR;
+      else process.env.SCANNER_USE_RAW_OCR = enabled;
+      let calls = 0;
+      const result = await callDeepSeek(input, context, async (_url, options) => {
+        calls++;
+        const payload = JSON.parse(options.body);
+        const text = JSON.parse(payload.messages[1].content[0].text);
+        assert.equal('rawOcrText' in text, enabled === 'true');
+        assert.ok(payload.messages[1].content[1].image_url.url.startsWith('data:image/jpeg;base64,'));
+        if (enabled !== 'true') assert.match(payload.messages[0].content, /origin image, bukan ocr/);
+        const analysis = fixture('label');
+        analysis.nutrients.calories_kcal = 100;
+        analysis.evidence.calories_kcal = { origin: 'image', text: 'Energi 100 kkal' };
+        return Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(analysis) } }] });
+      });
+      assert.equal(calls, 1);
+      assert.equal(result.nutrients.calories_kcal, enabled === 'true' ? null : 100);
+    }
+  } finally {
+    if (previous === undefined) delete process.env.SCANNER_USE_RAW_OCR;
+    else process.env.SCANNER_USE_RAW_OCR = previous;
+  }
+});
+
+// Transcription of the supplied photo, not output from a device OCR run.
+const sampleRows = {
+  calories_kcal: ['Energi Total / Total Energy 100 kkal', 100],
+  protein_g: ['Protein  0g  0%', 0],
+  total_fat_g: ['Lemak Total / Total Fat 5 g', 5],
+  saturated_fat_g: ['LemakJenuh 2 g', 2],
+  carbohydrates_g: ['Karbohidrat Total 14 g', 14],
+  sugar_g: ['Gula 1 g', 1],
+  sodium_mg: ['Natrium 210 mg', 210],
+};
+test('sample label keeps total energy separate and counts servings, not grams', () => {
+  const raw = ['Takaran saji 20 g', ...Object.values(sampleRows).map(([row]) => row),
+    'Energi dari Lemak 45 kkal', 'Kebutuhan energi 2150 kkal'].join('\n');
+  for (const origin of ['image', 'ocr']) {
+    const input = fixture('label');
+    Object.assign(input.portion, { baseQuantity: 20, unitCode: 'g', referenceWeightG: 20, originalServingText: 'Takaran saji 20 g' });
+    for (const [key, [row, amount]] of Object.entries(sampleRows)) {
+      input.nutrients[key] = amount;
+      input.evidence[key] = { origin, text: row.replace(/\s+/g, ' ').replace('0g', '0 g') };
+    }
+    const result = validateAnalysis(input, 'label', raw, []);
+    for (const [key, [, amount]] of Object.entries(sampleRows)) assert.equal(result.nutrients[key], amount, key);
+    assert.equal(result.nutrients.fiber_g, null);
+    assert.equal(result.portion.baseQuantity, 1);
+    assert.equal(result.portion.unitCode, 'porsi');
+    assert.equal(result.portion.referenceWeightG, 20);
+    for (const quantity of [0.5, 1, 2]) {
+      assert.equal(totals({ ...result.nutrients, baseQuantity: result.portion.baseQuantity, quantity }).calories_kcal, 100 * quantity);
+    }
+  }
+});
+test('volume servings normalize while conflicts invalidate insights and speech', () => {
+  const input = fixture('label');
+  Object.assign(input.portion, { baseQuantity: 200, unitCode: 'ml', referenceWeightG: null, referenceVolumeMl: 200, originalServingText: 'Takaran saji 200 ml' });
+  input.nutrients.calories_kcal = 180;
+  input.evidence.calories_kcal = { origin: 'image', text: 'Energi Total 180 kkal' };
+  assert.equal(validateAnalysis(structuredClone(input), 'label', 'Energi dari Lemak 60 kkal', []).nutrients.calories_kcal, 180);
+  const result = validateAnalysis(input, 'label', 'Energi Total 90 kkal', []);
+  assert.equal(result.portion.baseQuantity, 1);
+  assert.equal(result.portion.referenceVolumeMl, 200);
+  assert.equal(result.nutrients.calories_kcal, null);
+  assert.match(result.advantages[0], /belum bisa disimpulkan/);
+  assert.equal(result.ttsSummarySource, 'template');
 });

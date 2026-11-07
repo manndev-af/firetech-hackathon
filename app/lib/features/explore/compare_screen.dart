@@ -25,7 +25,8 @@ class _CompareScreenState extends State<CompareScreen> {
   String? _imageA;
   String? _imageB;
   bool _showSummary = false;
-  bool _isPicking = false;
+  bool _isPickingA = false;
+  bool _isPickingB = false;
 
   Future<void> _validateAndSetImage(String path, {required bool isImageA}) async {
     try {
@@ -44,10 +45,24 @@ class _CompareScreenState extends State<CompareScreen> {
       });
     } on ScanFailure catch (e) {
       if (mounted) {
+        setState(() {
+          if (isImageA) {
+            _isPickingA = false;
+          } else {
+            _isPickingB = false;
+          }
+        });
         await _showFoodErrorDialog(e.message);
       }
     } catch (_) {
       if (mounted) {
+        setState(() {
+          if (isImageA) {
+            _isPickingA = false;
+          } else {
+            _isPickingB = false;
+          }
+        });
         await _showFoodErrorDialog(
           'Makanan atau minuman belum terdeteksi. Dekatkan kamera dan ambil foto ulang dengan pencahayaan yang cukup.',
         );
@@ -128,9 +143,15 @@ class _CompareScreenState extends State<CompareScreen> {
   }
 
   Future<void> _pickImage({required bool isImageA}) async {
-    if (_isPicking) return;
+    if (_isPickingA || _isPickingB) return;
     if (widget.pickImage != null) {
-      setState(() => _isPicking = true);
+      setState(() {
+        if (isImageA) {
+          _isPickingA = true;
+        } else {
+          _isPickingB = true;
+        }
+      });
       try {
         final path = await widget.pickImage!();
         if (!mounted) return;
@@ -138,7 +159,15 @@ class _CompareScreenState extends State<CompareScreen> {
           await _validateAndSetImage(path, isImageA: isImageA);
         }
       } finally {
-        if (mounted) setState(() => _isPicking = false);
+        if (mounted) {
+          setState(() {
+            if (isImageA) {
+              _isPickingA = false;
+            } else {
+              _isPickingB = false;
+            }
+          });
+        }
       }
       return;
     }
@@ -236,7 +265,13 @@ class _CompareScreenState extends State<CompareScreen> {
 
     if (source == null) return;
 
-    setState(() => _isPicking = true);
+    setState(() {
+      if (isImageA) {
+        _isPickingA = true;
+      } else {
+        _isPickingB = true;
+      }
+    });
     try {
       final picked = await _picker.pickImage(
         source: source,
@@ -256,7 +291,15 @@ class _CompareScreenState extends State<CompareScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isPicking = false);
+      if (mounted) {
+        setState(() {
+          if (isImageA) {
+            _isPickingA = false;
+          } else {
+            _isPickingB = false;
+          }
+        });
+      }
     }
   }
 
@@ -331,7 +374,7 @@ class _CompareScreenState extends State<CompareScreen> {
                           child: _ImageChoiceCard(
                             label: 'Pilihan A',
                             imagePath: _imageA,
-                            isPicking: _isPicking,
+                            isPicking: _isPickingA,
                             onTap: () => _pickImage(isImageA: true),
                           ),
                         ),
@@ -340,7 +383,7 @@ class _CompareScreenState extends State<CompareScreen> {
                           child: _ImageChoiceCard(
                             label: 'Pilihan B',
                             imagePath: _imageB,
-                            isPicking: _isPicking,
+                            isPicking: _isPickingB,
                             onTap: () => _pickImage(isImageA: false),
                           ),
                         ),
@@ -357,6 +400,7 @@ class _CompareScreenState extends State<CompareScreen> {
                     ),
                   ] else ...[
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: _FoodCard(
@@ -523,8 +567,11 @@ class _ImageChoiceCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
-                child: imagePath == null
-                    ? Container(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (imagePath == null)
+                      Container(
                         color: AppColors.mint,
                         child: const Center(
                           child: Icon(
@@ -534,9 +581,11 @@ class _ImageChoiceCard extends StatelessWidget {
                           ),
                         ),
                       )
-                    : Image.file(
+                    else
+                      Image.file(
                         File(imagePath!),
                         width: double.infinity,
+                        height: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             const Center(
@@ -546,6 +595,72 @@ class _ImageChoiceCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (imagePath != null && !isPicking)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.heroBackground.withValues(
+                              alpha: 0.85,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.verified_rounded,
+                                color: AppColors.mint,
+                                size: 13,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Terverifikasi',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (isPicking)
+                      Container(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        child: const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 26,
+                                height: 26,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Memeriksa...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -560,8 +675,8 @@ class _ImageChoiceCard extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               imagePath == null
-                  ? 'Kamera atau galeri'
-                  : 'Ketuk untuk mengganti',
+                  ? (isPicking ? 'Memeriksa...' : 'Kamera atau galeri')
+                  : 'Makanan terverifikasi • Ganti',
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -597,11 +712,10 @@ class _FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 232,
-    padding: const EdgeInsets.all(14),
+    padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
       color: backgroundColor,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(18),
       border: Border.all(color: borderColor, width: 1.2),
     ),
     child: Column(
@@ -609,57 +723,92 @@ class _FoodCard extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.file(
-            File(imagePath),
-            height: 72,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => const SizedBox(
-              height: 72,
-              child: Center(
-                child: Icon(
-                  Icons.broken_image_outlined,
-                  color: AppColors.textSecondary,
+          child: Stack(
+            children: [
+              Image.file(
+                File(imagePath),
+                height: 72,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                  height: 72,
+                  child: Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ),
               ),
+              Positioned(
+                top: 5,
+                right: 5,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.verified_rounded,
+                        color: AppColors.mint,
+                        size: 11,
+                      ),
+                      SizedBox(width: 3),
+                      Text(
+                        'AI Valid',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: accentColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            calories,
+            style: TextStyle(
+              color: accentColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              name,
-              style: TextStyle(
-                color: accentColor,
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                calories,
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           sugar,
           style: TextStyle(
             color: accentColor,
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.4,
           ),
@@ -668,10 +817,10 @@ class _FoodCard extends StatelessWidget {
           'gula / 250 ml/g',
           style: TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 12.5,
+            fontSize: 11.5,
           ),
         ),
-        const Spacer(),
+        const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -683,7 +832,7 @@ class _FoodCard extends StatelessWidget {
             protein,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 13,
+              fontSize: 12.5,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -705,7 +854,7 @@ class _NutrientComparisonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -746,9 +895,6 @@ class _NutrientComparisonCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _LegendBadge(color: colorA, label: 'Pilihan A'),
-              const SizedBox(width: 8),
-              _LegendBadge(color: colorB, label: 'Pilihan B'),
             ],
           ),
           const SizedBox(height: 18),
@@ -831,19 +977,24 @@ class _HorizontalCompareBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 14.5,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               'Satuan: $unit',
               style: const TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 12.5,
+                fontSize: 12,
               ),
             ),
           ],
@@ -869,7 +1020,7 @@ class _HorizontalCompareBar extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: Stack(
                 children: [
@@ -893,15 +1044,15 @@ class _HorizontalCompareBar extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             SizedBox(
-              width: 65,
+              width: 58,
               child: Text(
                 labelA,
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: colorA,
-                  fontSize: 13.5,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -929,7 +1080,7 @@ class _HorizontalCompareBar extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: Stack(
                 children: [
@@ -953,15 +1104,15 @@ class _HorizontalCompareBar extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             SizedBox(
-              width: 65,
+              width: 58,
               child: Text(
                 labelB,
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: colorB,
-                  fontSize: 13.5,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -969,47 +1120,6 @@ class _HorizontalCompareBar extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _LegendBadge extends StatelessWidget {
-  const _LegendBadge({required this.color, required this.label});
-
-  final Color color;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
