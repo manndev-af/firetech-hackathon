@@ -11,6 +11,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Font Inter lokal beserta lisensi SIL Open Font License, mapping bobot 400/500/600/700 pada pubspec, dan panduan font di README/WORKSPACE.
+
 - Dashboard NutriLens sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
 - Ilustrasi dashboard lokal dari ekspor pengguna dan pengujian empty state, ringkasan, data hilang, callback, serta teks besar.
 
@@ -32,6 +34,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Mekanisme CHANGELOG untuk melacak perubahan penting dalam bagian Unreleased sebelum rilis.
 
 ### Changed
+
+- Seluruh halaman Flutter memakai Inter melalui tema dan TextTheme global, tanpa dependency tambahan atau unduhan font saat runtime.
 
 - Dashboard contoh toko diganti kartu scan dan Hari ini; fokus onboarding diteruskan ke label kartu. Navigasi bawah tetap menggunakan desain dan callback sebelumnya sesuai permintaan pengguna.
 
