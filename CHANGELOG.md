@@ -5,6 +5,17 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Changed
+
+- Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
+- Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
+  - Kandungan gizi kini disajikan dalam format kartu dan badge berikon sesuai tema (Protein, Lemak, Karbohidrat, Serat, Gula, Natrium).
+  - Porsi dihitung dalam satuan dengan tombol cepat porsi (`1`, `2`, `3`, `4`) serta kontrol stepper (`-` / `+`), di mana semua nilai gizi langsung dikalikan secara reaktif.
+  - Ditambahkan kartu analisis trade-off personal (`Kelebihan` dan `Kekurangan`) dengan indikator ikon dan kontras tema yang jelas.
+  - Form koreksi manual dan tombol "Periksa & koreksi" dihilangkan sehingga alur menjadi langsung, bersih, dan intuitif.
+  - Data pratinjau lengkap (nama hidangan/produk, kalori 32 px, skor kesehatan `8.0+/10`, tag karakteristik, komposisi hidangan) aktif untuk pengujian realistis.
+  - Tipografi diperbesar seukuran onboarding (judul 24 px, angka kalori 32 px, judul kartu 18 px, deskripsi 15 px) sehingga nyaman dibaca dan tidak kekecilan.
+
 ### Removed
 
 - Scaffold kosong food_search, food_journal, dan recipes di Flutter dihapus karena belum diperlukan.
@@ -13,6 +24,13 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Panel nutrisi hasil mengikuti referensi pengguna: ikon/nama, angka besar, pita satuan dan warna per kandungan dalam grid responsif.
+- Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.
+- Hasil scan langsung tanpa form porsi/deskripsi, pengali sajian untuk label terkonfirmasi, grid nutrisi berikon, dan lingkaran tombol jepret terisi.
+- Scan meminta porsi dan deskripsi opsional sebelum hasil; preview kamera mengisi bingkai dengan crop proporsional. Hasil memakai kartu nutrisi responsif dan teks 16/18 px. Porsi tetap catatan pengguna, belum dipakai menghitung nutrisi.
+- OCR label di perangkat dengan ekstraksi konservatif, nilai kosong tetap unknown, dan pengujian parser.
+- Review foto terhubung ke detail hasil, koreksi angka/sajian/acuan dan teks komposisi asli. Klasifikasi makanan dan penyimpanan hasil belum terhubung.
+- Kamera Flutter dari tombol tengah, Beranda, dan Riwayat kosong: preview kamera belakang, mode Makanan/Label produk, galeri, review foto, dan foto ulang. Kamera dilepas saat latar belakang/review; izin, kegagalan, dan lifecycle diuji.
 - Panduan `server/src/services/` untuk memisahkan logika bisnis/akses data dari controller; belum ada service domain sebelum kontrak fiturnya ditentukan.
 - Setup Prisma ORM 7 untuk MySQL di backend: CLI/client dan MariaDB adapter, schema/config, client singleton lazy, contoh `DATABASE_URL`, serta perintah generate/migrate. Belum ada model domain atau migration.
 - Profil memisahkan editor informasi diri dan personalisasi. Detail personalisasi langsung menjadi form inline dengan Simpan/Kembali di bawah; bottom sheet dan langkah Edit tambahan dihapus. Informasi diri dapat disimpan tanpa prioritas, data bagian lain tetap utuh, dan scroll kembali ke ringkasan setelah selesai. Pengujian mencakup alur simpan/batal serta layar sempit dengan teks besar.
