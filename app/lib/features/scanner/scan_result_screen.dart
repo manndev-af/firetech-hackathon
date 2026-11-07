@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../models/scan_draft.dart';
 import '../../models/scan_history_entry.dart';
 import '../../providers/local_app_state.dart';
@@ -128,18 +129,108 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
         ? 'Periksa foto dan pahami kandungannya.'
         : 'Periksa nama makanan, porsi, dan informasi nutrisinya.',
     onBack: () => Navigator.pop(context),
+    footer: _result == null
+        ? null
+        : Container(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+            decoration: BoxDecoration(
+              color: PersonalColors.background,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 52,
+                  child: FilledButton.icon(
+                    key: const Key('save-to-history-button'),
+                    icon: const Icon(
+                      Icons.bookmark_added_rounded,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Simpan ke Riwayat',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.heroBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed: _busy
+                        ? null
+                        : () async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
+                            setState(() => _busy = true);
+                            try {
+                              await saveAnalysis(_result!);
+                              _saved = true;
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${_result!.name} tersimpan ke Riwayat konsumsi.',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                  backgroundColor: AppColors.heroBackground,
+                                ),
+                              );
+                              navigator.pop();
+                            } catch (_) {
+                              if (mounted) {
+                                setState(() => _saveFailed = true);
+                              }
+                            } finally {
+                              if (mounted) setState(() => _busy = false);
+                            }
+                          },
+                  ),
+                ),
+                if (_saved)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Center(
+                      child: Text(
+                        'Tersimpan di Riwayat perangkat ini.',
+                        style: TextStyle(
+                          color: PersonalColors.secondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_saveFailed) ...[
+                  const SizedBox(height: 8),
+                  const Center(
+                    child: Text(
+                      'Hasil belum berhasil disimpan.',
+                      style: TextStyle(color: Colors.red, fontSize: 13),
+                    ),
+                  ),
+                  FilledButton(
+                    onPressed: _busy ? null : _retrySave,
+                    child: const Text('Coba simpan lagi'),
+                  ),
+                ],
+              ],
+            ),
+          ),
     children: [
       if (_result != null) ...[
         AnalysisContent(entry: _result!, autoSpeak: analysisAudioSession.value),
-        const SizedBox(height: 20),
-        if (_saved) const Text('Tersimpan di Riwayat perangkat ini.'),
-        if (_saveFailed) ...[
-          const Text('Hasil tersedia, tetapi belum berhasil disimpan.'),
-          FilledButton(
-            onPressed: _busy ? null : _retrySave,
-            child: const Text('Coba simpan lagi'),
-          ),
-        ],
       ] else ...[
         if (_busy)
           const Padding(

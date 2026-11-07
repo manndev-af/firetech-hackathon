@@ -36,8 +36,13 @@ class ScanPipeline {
         'Teks terlalu panjang. Foto hanya bagian label produk.',
       );
     }
-    if (label && rawText!.trim().isEmpty) {
+    if (label && (rawText == null || rawText.trim().isEmpty)) {
       throw const ScanFailure('Teks label belum terbaca. Ambil ulang foto.');
+    }
+    if (label && !containsNutritionKeywords(rawText!)) {
+      throw const ScanFailure(
+        'Tabel nilai gizi tidak ditemukan pada label. Pastikan memotret bagian Informasi Nilai Gizi (Nutrition Facts) produk.',
+      );
     }
     if (!label) await checkFood(path);
     final bytes = await resize(path, label);

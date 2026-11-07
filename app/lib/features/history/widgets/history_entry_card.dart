@@ -341,16 +341,16 @@ class _HistoryEntryDetailState extends State<HistoryEntryDetail> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.entry.isIllustration) {
-      return FractionallySizedBox(
-        heightFactor: .92,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
-          child: AnalysisContent(entry: widget.entry),
-        ),
-      );
+    if (widget.entry.isIllustration) {
+      return _preview(context);
     }
-    return _preview(context);
+    return FractionallySizedBox(
+      heightFactor: .92,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
+        child: AnalysisContent(entry: widget.entry),
+      ),
+    );
   }
 
   // Legacy visual fixtures remain isolated from real saved results.

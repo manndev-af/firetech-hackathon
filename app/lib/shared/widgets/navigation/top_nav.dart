@@ -42,7 +42,7 @@ class TopNav extends StatelessWidget implements PreferredSizeWidget {
                     tooltip: 'Kembali',
                     onPressed: onBack,
                     icon: const Icon(
-                      Icons.arrow_back_rounded,
+                      Icons.arrow_back,
                       color: AppColors.textPrimary,
                       size: 24,
                     ),

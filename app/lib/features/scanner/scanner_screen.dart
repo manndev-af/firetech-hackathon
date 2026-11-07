@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../services/local_vision.dart';
 
 enum ScanMode { food, label }
 
@@ -224,12 +225,104 @@ class _ScannerScreenState extends State<ScannerScreen>
       });
       return;
     }
-    setState(() => _showingResult = true);
+    setState(() => _busy = true);
     try {
       await widget.onUsePhoto!(_photo!, _mode);
+    } on ScanFailure catch (e) {
+      if (mounted) {
+        setState(() => _showingResult = false);
+        await _showErrorDialog(e.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _showingResult = false);
+        await _showErrorDialog(
+          'Pemeriksaan foto belum berhasil. Pastikan objek terlihat jelas lalu foto ulang.',
+        );
+      }
     } finally {
-      if (mounted) setState(() => _showingResult = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _showingResult = false;
+        });
+      }
     }
+  }
+
+  Future<void> _showErrorDialog(String message) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        backgroundColor: Colors.white,
+        icon: Container(
+          width: 52,
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1F2),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFFECDD3)),
+          ),
+          child: const Icon(
+            Icons.warning_amber_rounded,
+            color: Color(0xFFE11D48),
+            size: 28,
+          ),
+        ),
+        title: Text(
+          _mode == ScanMode.label
+              ? 'Label Gizi Belum Terdeteksi'
+              : 'Makanan Belum Terdeteksi',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.5,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.heroBackground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                _retake();
+              },
+              child: const Text(
+                'Foto Ulang',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

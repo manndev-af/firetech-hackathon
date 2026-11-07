@@ -20,6 +20,7 @@ import '../../features/explore/assistant_screen.dart';
 import '../../features/scanner/scanner_screen.dart';
 import '../../features/scanner/scan_result_screen.dart';
 import '../../providers/local_app_state.dart';
+import '../../services/scan_pipeline.dart';
 export '../../providers/local_app_state.dart'
     show profileSession, analysisAudioSession;
 
@@ -221,6 +222,27 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => ScannerScreen(
         onUsePhoto: (photo, mode) async {
+          final storage = localStorage;
+          if (storage != null) {
+            final pipeline = ScanPipeline(storage: storage);
+            final draft = await pipeline.prepare(
+              photo.path,
+              label: mode == ScanMode.label,
+              priorities: profileSession.value.priorities,
+            );
+            await saveDraft(draft);
+            if (!context.mounted) return;
+            await Navigator.of(context).push<void>(
+              MaterialPageRoute(
+                builder: (_) => ScanResultScreen(
+                  photo: photo,
+                  mode: mode,
+                  draft: draft,
+                ),
+              ),
+            );
+            return;
+          }
           await Navigator.of(context).push<void>(
             MaterialPageRoute(
               builder: (_) => ScanResultScreen(photo: photo, mode: mode),
@@ -239,8 +261,17 @@ final appRouter = GoRouter(
       path: AppRoutes.assistant,
       name: AppRouteNames.assistant,
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) =>
-          AssistantScreen(showConversation: state.extra == true),
+      builder: (context, state) {
+        final extra = state.extra;
+        final showConversation = extra == true || extra is String;
+        final mode = extra is String
+            ? extra
+            : (extra == true ? 'pattern' : 'general');
+        return AssistantScreen(
+          showConversation: showConversation,
+          initialMode: mode,
+        );
+      },
     ),
     // GoRoute(
     //   path: AppRoutes.splash,

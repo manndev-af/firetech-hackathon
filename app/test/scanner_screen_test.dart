@@ -11,6 +11,7 @@ import 'package:nutrilens/core/router/app_router.dart';
 import 'package:nutrilens/core/router/route_paths.dart';
 import 'package:nutrilens/core/theme/app_theme.dart';
 import 'package:nutrilens/features/scanner/scanner_screen.dart';
+import 'package:nutrilens/services/local_vision.dart';
 import 'package:nutrilens/shared/widgets/navigation/bottom_nav.dart';
 
 class FakeCamera extends CameraPlatform {
@@ -238,4 +239,54 @@ void main() {
     await tap(tester, find.text('Galeri'));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'onUsePhoto failure shows error dialog and Foto Ulang reopens camera',
+    (tester) async {
+      final folder = Directory.systemTemp.createTempSync(
+        'nutrilens-dialog-test-',
+      );
+      final photo = File('${folder.path}/capture.jpg');
+      addTearDown(() async {
+        if (await photo.exists()) await photo.delete();
+        await folder.delete();
+      });
+      await tester.runAsync(() async {
+        final bytes = await rootBundle.load('assets/images/history_yogurt.jpg');
+        await photo.writeAsBytes(bytes.buffer.asUint8List());
+      });
+      camera.photoPath = photo.path;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: ScannerScreen(
+            onUsePhoto: (file, mode) async {
+              throw const ScanFailure(
+                'Tabel nilai gizi tidak ditemukan pada label.',
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await precacheImage(
+          FileImage(photo),
+          tester.element(find.byType(ScannerScreen)),
+        );
+      });
+      await tap(tester, find.byKey(const Key('camera-shutter')));
+      expect(find.text('Periksa fotomu'), findsOneWidget);
+      await tap(tester, find.widgetWithText(FilledButton, 'Gunakan foto'));
+      await tester.pumpAndSettle();
+      expect(find.text('Makanan Belum Terdeteksi'), findsOneWidget);
+      expect(
+        find.text('Tabel nilai gizi tidak ditemukan pada label.'),
+        findsOneWidget,
+      );
+      await tap(tester, find.widgetWithText(FilledButton, 'Foto Ulang'));
+      expect(find.text('Makanan Belum Terdeteksi'), findsNothing);
+      expect(find.byType(CameraPreview), findsOneWidget);
+    },
+  );
 }
