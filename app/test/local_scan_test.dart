@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
+import 'package:nutrilens/features/history/widgets/history_entry_card.dart';
 import 'package:nutrilens/models/nutrition_profile.dart';
 import 'package:nutrilens/models/scan_draft.dart';
 import 'package:nutrilens/models/scan_history_entry.dart';
@@ -66,9 +68,20 @@ void main() {
       ]),
       isFalse,
     );
+    expect(
+      acceptsFoodPhoto([], [
+        const VisionLabel('Keyboard', .99),
+        const VisionLabel('Chair', .95),
+      ]),
+      isFalse,
+    );
     expect(acceptsFoodPhoto([const VisionLabel('Food', .4)], []), isFalse);
     expect(acceptsFoodPhoto([const VisionLabel('Food', .8)], []), isTrue);
     expect(acceptsFoodPhoto([], [const VisionLabel('Coffee', .9)]), isTrue);
+    expect(acceptsFoodPhoto([], [const VisionLabel('Tea', .85)]), isTrue);
+    expect(acceptsFoodPhoto([], [const VisionLabel('Milk', .8)]), isTrue);
+    expect(acceptsFoodPhoto([], [const VisionLabel('Smoothie', .75)]), isTrue);
+    expect(acceptsFoodPhoto([], [const VisionLabel('Dish', .9)]), isTrue);
     expect(
       acceptsFoodPhoto([], [const VisionLabel('Juice', double.nan)]),
       isFalse,
@@ -351,4 +364,60 @@ void main() {
       expect(spoken, 0);
     },
   );
+
+  testWidgets('HistoryEntryCard displays audio button and plays spokenSummary via TTS', (tester) async {
+    const channel = MethodChannel('flutter_tts');
+    final spoken = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'getVoices') {
+            return [
+              {
+                'name': 'id-local',
+                'locale': 'id-ID',
+                'network_required': '0',
+                'features': '',
+              },
+            ];
+          }
+          if (call.method == 'speak') {
+            spoken.add(
+              call.arguments is String
+                  ? call.arguments as String
+                  : (call.arguments as Map)['text'] as String,
+            );
+          }
+          return 1;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+
+    final entry = ScanHistoryEntry(
+      id: 'entry_audio_test',
+      name: 'Nasi Goreng',
+      savedAt: DateTime(2026, 11, 7, 12, 0),
+      packaged: false,
+      portion: '1 porsi',
+      source: 'TKPI',
+      referenceBasis: 'Per porsi',
+      spokenSummary: 'Porsi seimbang dan perhatikan minyak.',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: HistoryEntryCard(entry: entry),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dengarkan'), findsOneWidget);
+    await tester.tap(find.text('Dengarkan'));
+    await tester.pumpAndSettle();
+
+    expect(spoken, ['Porsi seimbang dan perhatikan minyak.']);
+  });
 }

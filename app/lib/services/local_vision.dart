@@ -22,7 +22,45 @@ bool acceptsFoodPhoto(
   Iterable<VisionLabel> labels, {
   double threshold = .65,
 }) {
-  const beverages = {'juice', 'cola', 'coffee', 'wine', 'cappuccino'};
+  const beverages = {
+    'juice',
+    'cola',
+    'coffee',
+    'wine',
+    'cappuccino',
+    'tea',
+    'milk',
+    'drink',
+    'beverage',
+    'smoothie',
+    'soda',
+    'soft drink',
+    'espresso',
+    'latte',
+    'cocktail',
+    'beer',
+    'milkshake',
+    'hot chocolate',
+    'water',
+  };
+  const foodLabels = {
+    'food',
+    'dish',
+    'cuisine',
+    'meal',
+    'fast food',
+    'snack',
+    'dessert',
+    'fruit',
+    'vegetable',
+    'soup',
+    'noodle',
+    'rice',
+    'meat',
+    'seafood',
+    'bread',
+    'salad',
+  };
   bool confident(VisionLabel label) =>
       label.confidence.isFinite &&
       label.confidence >= threshold &&
@@ -32,7 +70,9 @@ bool acceptsFoodPhoto(
       ) ||
       labels.any(
         (label) =>
-            beverages.contains(label.text.toLowerCase()) && confident(label),
+            (beverages.contains(label.text.toLowerCase()) ||
+                foodLabels.contains(label.text.toLowerCase())) &&
+            confident(label),
       );
 }
 
