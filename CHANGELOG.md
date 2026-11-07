@@ -7,6 +7,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+
 - Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
 - Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
   - Kandungan gizi kini disajikan dalam format kartu dan badge berikon sesuai tema (Protein, Lemak, Karbohidrat, Serat, Gula, Natrium).
@@ -23,6 +24,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Halaman register Flutter, route/nama/path `/register`, akses Daftar pada login dan navigasi placeholder, serta pengujian khusus register dihapus atas permintaan pengguna.
 
 ### Added
+
+- Backend scanner konsumsi development: Prisma MySQL schema/migration/seed dummy, profil sesuai Flutter, upload food/label tervalidasi, RAG SQL dari profil/riwayat/referensi reviewed, satu dispatch DeepSeek per idempotency key, jurnal persisten, koreksi quantity Decimal, daily summary nullable, dan teks ringkas TTS dengan fallback lokal. Kontrak OpenAPI per route dan handoff backend tersedia; Flutter tidak diubah. Tes provider mock pada database MariaDB terisolasi tersedia; live DeepSeek belum diuji tanpa API key.
+
+- Swagger UI dan OpenAPI JSON backend, dengan kontrak health/user terpisah per modul route, schema input user memakai validasi yang sama, serta pengujian HTTP. AGENTS mewajibkan pembaruan OpenAPI setiap perubahan route; README server, WORKSPACE, dan arsitektur menjelaskan penggunaan serta batas endpoint demo.
 
 - Panel nutrisi hasil mengikuti referensi pengguna: ikon/nama, angka besar, pita satuan dan warna per kandungan dalam grid responsif.
 - Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.

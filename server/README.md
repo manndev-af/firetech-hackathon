@@ -1,5 +1,22 @@
 # Express TypeScript Starter Template
 
+## Swagger / OpenAPI
+
+Jalankan `pnpm dev` dari `server/`, lalu buka `http://localhost:3000/api/docs/`.
+Dokumen JSON tersedia di `http://localhost:3000/api/openapi.json`.
+Sesuaikan port dengan `PORT`; kedua URL mengikuti `API_PREFIX` (default `/api`).
+Dokumentasi tersedia juga pada hasil build (`pnpm build`, `pnpm start`). Aset Swagger dilayani lokal; validator eksternal dinonaktifkan.
+
+- `src/routes/health.openapi.ts`: `/health` dan route health di bawah API prefix.
+- `src/routes/user.openapi.ts`: CRUD user contoh dalam memori, bukan autentikasi atau profil nutrisi. Perubahan hilang setelah proses restart.
+- `src/config/openapi.ts`: metadata dan penggabungan dokumen untuk Swagger; kontrak route tetap di file masing-masing.
+
+Setiap penambahan/perubahan/penghapusan route wajib memperbarui `<name>.openapi.ts` di samping `<name>.routes.ts` dalam pekerjaan yang sama. Daftarkan modul baru pada assembler, dokumentasikan semua method, parameter, body, validasi, status, schema respons, dan contoh relevan. Jangan satukan kontrak semua route dalam satu file. Schema validasi user dipakai ulang agar batas input tetap sinkron.
+
+OpenAPI mencerminkan kontrak starter dan delapan operasi scanner/profile/jurnal (`success`, `message`, `data`, `timestamp` pada respons sukses). Kontrak domain berada di `profile.openapi.ts`, `scanner.openapi.ts`, `food-entry.openapi.ts`, dan `nutrition.openapi.ts`. Route dokumentasi berada di luar rate limiter API agar pemuatan aset tidak menghabiskan kuota. Header keamanan tetap aktif; `upgrade-insecure-requests` dinonaktifkan khusus dokumentasi agar aset bekerja pada HTTP localhost.
+
+Verifikasi: `pnpm test`, `pnpm build`, dan `pnpm lint`. Tes memakai Node.js test runner dan menguji JSON, aset UI, prefix khusus, serta respons route. Gunakan Node.js yang kompatibel dengan dependency Prisma 7 yang terpasang.
+
 ## Prisma + MySQL
 
 Backend memakai Prisma ORM 7 dengan adapter MariaDB resmi yang kompatibel dengan MySQL. Prisma schema ada di `prisma/schema.prisma`; client TypeScript digenerate ke `src/generated/prisma/` dan tidak disimpan di Git.
@@ -7,13 +24,44 @@ Backend memakai Prisma ORM 7 dengan adapter MariaDB resmi yang kompatibel dengan
 1. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dengan kredensial dan nama database MySQL lokal. Encode karakter khusus pada username/password sesuai URL.
 2. Jalankan `pnpm install` untuk memasang dependency dari `pnpm-lock.yaml`.
 3. Jalankan `pnpm db:generate` setelah mengubah schema.
-4. Setelah model ditambahkan, buat migration lokal dengan `pnpm db:migrate`; deployment menerapkan migration yang sudah dibuat melalui `pnpm db:deploy`.
+4. Terapkan migration yang tersedia dengan `pnpm db:deploy`. Untuk perubahan schema berikutnya, buat migration lokal dengan `pnpm db:migrate`; jangan reset database berisi data pengguna.
 
-Client singleton tersedia dari `src/config/prisma.ts` lewat `getPrismaClient()`. Database tidak dikontak saat server mulai; client menginisialisasi saat fitur pertama kali memintanya. Belum ada model domain atau migration karena requirement data belum ditentukan.
+Client singleton tersedia dari `src/config/prisma.ts` lewat `getPrismaClient()`. Database tidak dikontak saat server mulai; client menginisialisasi saat fitur pertama kali memintanya. Model domain: `User`, `NutritionProfile`, `FoodEntry`, `KnowledgeChunk`, `ScanRequest`. Migration awal tersedia di `prisma/migrations/202611070001_scanner_consumption/`.
 
 ## Struktur service
 
-Logika bisnis dan orkestrasi data berada di `src/services/`. Controller di `src/controllers/` menangani HTTP dan mendelegasikan pekerjaan ke service. Tambahkan file service saat logika fitur sudah ditentukan; belum ada service domain atau persistensi yang dibuat.
+Logika bisnis dan orkestrasi data berada di `src/services/`: profile, scan, retrieval, deepseek, dan journal. Controller di `src/controllers/` menangani HTTP dan mendelegasikan pekerjaan ke service.
+
+## Scanner konsumsi development
+
+Gunakan Node.js 22.12+ atau versi lebih baru yang didukung Prisma 7, serta pnpm. Instruksi NutriLens pada bagian ini mengungguli contoh starter di bawah.
+
+1. Isi `.env` lokal: `NODE_ENV=development`, `DATABASE_URL`, `SEED_USER_EMAIL`, dan `SEED_USER_PASSWORD` (12–128 karakter). Jangan membagikan password/key di chat atau Git.
+2. Jalankan `pnpm install`, `pnpm db:generate`, `pnpm db:deploy`, lalu `pnpm db:seed` dari `server/`.
+3. Set `ENABLE_DEMO_USER=true`, `DEMO_USER_EMAIL` sama dengan seed, `DEEPSEEK_API_KEY`, serta `DEEPSEEK_MODEL` yang mendukung image input. Default model `deepseek-flash`; akses akun/model belum diuji live.
+4. Jalankan `pnpm dev`; kontrak tersedia di `/api/docs/`. Route domain memakai `${API_PREFIX}/v1`; jangan menambahkan `/v1` pada prefix kecuali memang menginginkan versi ganda.
+
+Seed memakai salted scrypt, membuat profil netral dan tiga referensi reviewed. Seed ulang mempertahankan profil, audio, password hash, dan jurnal. Seed ditolak di production atau tanpa kredensial valid. Email/password dummy **bukan login**; tidak ada autentikasi. Semua request domain memakai satu owner yang dipilih server, override ditolak. Domain nonaktif ketika flag mati atau `NODE_ENV` bukan development/test. Ini backend lokal MVP, bukan layanan publik multi-user.
+
+Scan sukses langsung mencatat konsumsi. Alur: validasi gambar/metadata, claim idempotency, retrieval profil/riwayat/referensi, satu dispatch DeepSeek, validasi output, transaksi simpan jurnal. Tidak ada retry otomatis, tool loop, atau panggilan repair JSON. Provider gagal berarti konsumsi tidak dicatat. Jurnal dan koreksi quantity tetap tersedia tanpa API key.
+
+Upload satu JPEG/PNG maksimal 5 MiB/20 megapixel, total multipart maksimal 6 MiB. Metadata: `mode`, `description` maksimal 1.000 karakter, `rawOcrText` maksimal 20.000 (wajib label), `consumedAt` ISO8601 opsional, `quantity` positif maksimal 10.000/enam desimal (default 1). Field berulang/tak dikenal, URL input, MIME palsu, dan gambar rusak ditolak. Decoder merotasi, membatasi sisi 1600 px dan menghapus metadata. Gambar tidak disimpan permanen; hanya dikirim ke provider. Dua operasi scan bersamaan per proses; request berikutnya mendapat 429. Rate limiter starter tetap berlaku.
+
+`Idempotency-Key` UUID wajib. Key dan input identik memberi hasil tersimpan (200); input berbeda 409; processing/dispatch tidak pasti 409; replay sesudah delete 410. Crash setelah dispatch tidak boleh mengirim ulang. Key baru merupakan operasi baru yang dapat memakai biaya baru; jangan membuat key baru otomatis saat timeout.
+
+Nutrisi foto berlabel `model_estimate`; label `label_extracted_unverified`, bukan database terverifikasi. Angka label harus punya evidence angka/unit; konflik OCR atau kolom ambigu menjadi null. Ekstraksi ini konservatif, bukan pembuktian kebenaran gambar. Porsi/basis ambigu meminta scan ulang. Nutrisi tidak tersedia tetap null. Formula quantity `baseValue * quantity / baseQuantity` memakai Decimal; unit tetap. Respons detail menyimpan analisis dan snapshot konteks saat scan; edit/hapus tidak memperbarui insight lama milik entri lain.
+
+RAG memakai query SQL/tag/text berparameter, bukan vector search. Kandidat maksimal 100 entri tujuh hari sebelum konsumsi; ranking kecocokan kata, waktu, ID menghasilkan maksimal lima entri. Referensi reviewed maksimal tiga dari corpus kecil FDA, dengan sumber/versi/izin tercatat di `prisma/knowledge.ts`. Konteks maksimal sekitar 8.000 karakter. Cold start eksplisit tanpa riwayat/referensi. Profil terkirim hanya priorities, preference, eatingPattern, prefersHalal, allergyStatus, allergies, otherAllergies; nama/usia/tinggi/berat/audio/email/password tidak dikirim. Gambar, deskripsi, OCR dan konteks tersebut diperlukan untuk analisis eksternal; jangan masukkan informasi pribadi di foto/deskripsi. Timezone menentukan periode; bukan target medis.
+
+Profil mendukung PATCH tiga kelompok: identity (`name`, `age`, `heightCm`, `weightKg`), personalization (`preference`, `priorities`, `eatingPattern`, `prefersHalal`, `allergyStatus`, `allergies`, `otherAllergies`), settings (`audioAnalysisEnabled`, `timezone`). Semua field/opsi/batas tercantum pada OpenAPI. Kirim hanya field yang diedit. Identity/settings boleh sebelum memilih prioritas; personalization memerlukan minimal satu. Field tidak dikirim tetap utuh; null membersihkan scalar opsional, string kosong membersihkan nama/alergi lain. Status unknown/noneKnown membersihkan bahan lama; listed wajib bahan. Payload kontradiktif ditolak. Nama maksimal 60; usia integer 1–120; tinggi (0,300]; berat (0,700]; alergi lain 120 karakter; timezone IANA valid.
+
+Panduan request/response dan integrasi TTS: [SCANNER_API.md](SCANNER_API.md). Tim frontend harus memperbarui copy privasi yang masih menyatakan session-only sebelum menghubungkan profil persisten/LLM. `audioAnalysisEnabled` menyimpan preferensi, bukan menghasilkan audio. Bacakan `ttsSummary`, bukan seluruh daftar insight; tersedia juga ketika audio off dan setelah quantity berubah.
+
+### Verifikasi
+
+`pnpm test`, `pnpm build`, `pnpm lint`. Tes integrasi dilewati bila `TEST_DATABASE_URL` tidak diisi. Untuk menjalankannya, sediakan database terisolasi dengan nama berakhiran `_test`, jalankan `pnpm db:deploy` menggunakan URL itu, lalu set `TEST_DATABASE_URL` dan jalankan `pnpm test`. Jangan arahkan tes ke database aplikasi. Fixture synthetic dan transport mock memastikan tidak ada dispatch provider sungguhan.
+
+Verifikasi lokal 7 November 2026: 16 tes lolos tanpa skip dengan provider mock; build, prisma validate/generate/deploy dan OpenSpec strict lolos. Lint exit 0 dengan 12 warning (console/any starter dan non-null assertion journal). Migration/generate/seed dan integrasi diuji memakai provider MySQL Prisma pada MariaDB 10.4.32 terisolasi, bukan Oracle MySQL 8. Live smoke test DeepSeek belum dijalankan karena API key belum tersedia; akses vision dan kualitas analisis nyata belum tervalidasi. Database aplikasi dan `.env` pengguna tidak dikonfigurasi/diubah oleh pengujian ini.
 
 A professional, production-ready Express.js backend starter template built with TypeScript, featuring clean architecture, comprehensive middleware, and best practices.
 

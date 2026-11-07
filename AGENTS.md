@@ -503,6 +503,14 @@ Initial endpoint suggestions:
 
 These are proposed interfaces and must be documented before implementation.
 
+### OpenAPI documentation for every route
+
+- Every new, changed, or removed backend route must update its OpenAPI contract in the same task.
+- Each route module owns a separate `server/src/routes/<name>.openapi.ts` beside `<name>.routes.ts`. Document every HTTP method, path parameter, request body, validation constraint, response status/schema, and relevant example in that module.
+- Do not put all route contracts in one file. `server/src/config/openapi.ts` only assembles route documents and API metadata; shared schemas may be reused without moving route contracts into it.
+- Register new route documents in the OpenAPI assembler. Use the configured `API_PREFIX`, document actual behavior, and distinguish demo endpoints from implemented product features.
+- Verify Swagger UI, the JSON document, and affected API responses. See `server/README.md` for URLs and commands.
+
 Use consistent response structures.
 
 Example:
@@ -772,3 +780,7 @@ Follow the [documentation rules](rules/documentation.md#changelog) for when and 
 - The current model direction is MobileNetV3-Large trained/fine-tuned with PyTorch on an audited subset of MM-Food-100K. Its output is food class/top-k/confidence only. Users confirm food identity and portion; portion units and conversions come from structured configuration, not free-form LLM output.
 
 If this current direction conflicts with earlier brainstorming elsewhere in the summary, preserve the historical text, identify the conflict, and ask the team to settle product or implementation decisions before encoding assumptions. Prioritize an end-to-end MVP and do not silently promote recommendations into commitments.
+
+### Approved scanner override — 7 November 2026
+
+The user approved `add-scanner-consumption-backend`; see [DECISIONS.md](docs/DECISIONS.md). For this scanner path, the earlier ONNX/verified-only/structured-unit direction is historical: one DeepSeek vision dispatch estimates food or extracts label image plus OCR, with explicit `model_estimate` / `label_extracted_unverified` provenance. Backend validates proposed portion units/basis, keeps unknown nutrients null and calculates quantity deterministically. Valid scans record consumption automatically. Development dummy identity and Prisma persistence are explicitly authorized; no login endpoints. Frontend changes remain outside this change. Do not claim live provider validation until an actual authorized smoke test passes.
