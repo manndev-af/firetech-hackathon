@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nutrilens/core/theme/app_colors.dart';
 
 import 'nav_item.dart';
 
@@ -15,7 +16,7 @@ class BottomNav extends StatelessWidget {
     required this.onAddTap,
   });
 
-  static const Color primary = Color(0xFF30936A);
+  static const Color primary = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -30,95 +31,98 @@ class BottomNav extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 100,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Custom navigation background with notch
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: BottomNavPainter(
-                    barColor: Colors.white,
-                    shadowColor: Colors.black.withValues(alpha: 0.25),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: SizedBox(
+            height: 100,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Custom navigation background with notch
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: BottomNavPainter(
+                      barColor: Colors.white,
+                      shadowColor: Colors.black.withValues(alpha: 0.25),
+                    ),
                   ),
                 ),
-              ),
 
-              // Navigation items
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 28,
-                bottom: 4,
-                child: Row(
-                  children: [
-                    NavItem(
-                      icon: Icons.home_outlined,
-                      label: 'Home',
-                      index: 0,
-                      currentIndex: currentIndex,
-                      onTap: onTap,
-                    ),
+                // Navigation items
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 28,
+                  bottom: 4,
+                  child: Row(
+                    children: [
+                      NavItem(
+                        icon: Icons.home_outlined,
+                        label: 'Home',
+                        index: 0,
+                        currentIndex: currentIndex,
+                        onTap: onTap,
+                      ),
 
-                    NavItem(
-                      icon: Icons.explore_outlined,
-                      label: 'Jelajahi',
-                      index: 1,
-                      currentIndex: currentIndex,
-                      onTap: onTap,
-                    ),
+                      NavItem(
+                        icon: Icons.explore_outlined,
+                        label: 'Jelajahi',
+                        index: 1,
+                        currentIndex: currentIndex,
+                        onTap: onTap,
+                      ),
 
-                    // Space for center button
-                    const SizedBox(width: 76),
+                      // Space for center button
+                      const SizedBox(width: 76),
 
-                    NavItem(
-                      icon: Icons.history_outlined,
-                      label: 'History',
-                      index: 2,
-                      currentIndex: currentIndex,
-                      onTap: onTap,
-                    ),
+                      NavItem(
+                        icon: Icons.history_outlined,
+                        label: 'History',
+                        index: 2,
+                        currentIndex: currentIndex,
+                        onTap: onTap,
+                      ),
 
-                    NavItem(
-                      icon: Icons.person_outline,
-                      label: 'Profile',
-                      index: 3,
-                      currentIndex: currentIndex,
-                      onTap: onTap,
-                    ),
-                  ],
+                      NavItem(
+                        icon: Icons.person_outline,
+                        label: 'Profile',
+                        index: 3,
+                        currentIndex: currentIndex,
+                        onTap: onTap,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              // Floating center button
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Material(
-                    color: primary,
-                    elevation: 5,
-                    shape: const CircleBorder(), // <-- Tambahkan ini untuk membuat bentuk lingkaran sempurna
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: onAddTap,
-                      child: const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.white,
-                          size: 36,
+                // Floating center button
+                Positioned(
+                  top: 8,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Material(
+                      color: primary,
+                      elevation: 5,
+                      shape: const CircleBorder(), // <-- Tambahkan ini untuk membuat bentuk lingkaran sempurna
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: onAddTap,
+                        child: const SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: Icon(
+                            Icons.camera_alt_outlined,
+                            color: Colors.white,
+                            size: 36,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -138,11 +142,11 @@ class BottomNavPainter extends CustomPainter {
     final height = size.height;
     final center = width / 2;
 
-    const radius = 30.0;
+    const radius = 28.0;
     const top = 28.0;
-    const notchHalfWidth = 40.0;
+    const notchHalfWidth = 46.0;
     const notchTransition = 20.0;
-    const notchDepth = 66.0;
+    const notchDepth = 74.0;
 
     final path = Path();
 
@@ -174,11 +178,11 @@ class BottomNavPainter extends CustomPainter {
     path.lineTo(width - radius, top);
     path.quadraticBezierTo(width, top, width, top + radius);
 
-    // Right side & Bottom-right (Tanpa radius)
-    path.lineTo(width, height);
-
-    // Bottom side & Bottom-left (Tanpa radius)
-    path.lineTo(0, height);
+    // Rounded bottom corners
+    path.lineTo(width, height - radius);
+    path.quadraticBezierTo(width, height, width - radius, height);
+    path.lineTo(radius, height);
+    path.quadraticBezierTo(0, height, 0, height - radius);
 
     // Left side & Top-left curve
     path.lineTo(0, top + radius);
@@ -186,9 +190,11 @@ class BottomNavPainter extends CustomPainter {
 
     path.close();
 
-    // TINGKATKAN ELEVATION: Ubah ke 16.0 atau 20.0 agar shadow lebih tinggi & menyebar
-    // Parameter ke-4 'transparentOccluder' di-set true agar shadow memancar keluar
-    canvas.drawShadow(path, shadowColor, 16.0, true);
+    final ambientShadow = Paint()
+      ..color = shadowColor.withValues(alpha: 0.06)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+    canvas.drawPath(path, ambientShadow);
+    canvas.drawShadow(path, shadowColor, 3.0, true);
 
     // Draw background
     final paint = Paint()
