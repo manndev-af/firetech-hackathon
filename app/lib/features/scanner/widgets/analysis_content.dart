@@ -28,6 +28,10 @@ class _AnalysisContentState extends State<AnalysisContent>
     with WidgetsBindingObserver {
   final _speech = SummarySpeech.shared;
   String? _audioError;
+  // Always track servings relative to 1 base serving (never accumulates
+  // across backend recalculations). When the backend returns a recalculated
+  // entry the nutrients are already scaled; we reset to 1.0 so the local
+  // multiplier doesn't stack on top of the already-scaled values.
   double _servings = 1.0;
 
   @override
@@ -39,6 +43,18 @@ class _AnalysisContentState extends State<AnalysisContent>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && analysisAudioSession.value) _speak();
       });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AnalysisContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // When the parent rebuilds with a new entry (e.g. after backend
+    // recalculates nutrients for a different quantity), reset the local
+    // servings multiplier to 1 so we don't double-multiply values that the
+    // backend already scaled.
+    if (oldWidget.entry != widget.entry) {
+      _servings = 1.0;
     }
   }
 
