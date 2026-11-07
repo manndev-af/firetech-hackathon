@@ -6,6 +6,20 @@ import 'package:flutter/foundation.dart';
 import '../utils/api_exception.dart';
 import 'api_interceptor.dart';
 
+class MultipartFileItem {
+  const MultipartFileItem({
+    required this.field,
+    required this.filename,
+    required this.bytes,
+    this.mimeType = 'image/jpeg',
+  });
+
+  final String field;
+  final String filename;
+  final List<int> bytes;
+  final String mimeType;
+}
+
 /// HTTP API client foundation for connecting Flutter to the backend server.
 class ApiClient {
   ApiClient({
@@ -56,6 +70,27 @@ class ApiClient {
     required String mimeType,
     Map<String, String> fields = const {},
     Map<String, String> headers = const {},
+  }) {
+    return postMultipartFiles(
+      path,
+      files: [
+        MultipartFileItem(
+          field: fileField,
+          filename: filename,
+          bytes: fileBytes,
+          mimeType: mimeType,
+        ),
+      ],
+      fields: fields,
+      headers: headers,
+    );
+  }
+
+  Future<Object?> postMultipartFiles(
+    String path, {
+    required List<MultipartFileItem> files,
+    Map<String, String> fields = const {},
+    Map<String, String> headers = const {},
   }) async {
     final uri = baseUri.resolve(path);
     final boundary = '----NutriLensBoundary${DateTime.now().microsecondsSinceEpoch}';
@@ -79,11 +114,13 @@ class ApiClient {
         request.write('${entry.value}\r\n');
       }
 
-      request.write('--$boundary\r\n');
-      request.write('Content-Disposition: form-data; name="$fileField"; filename="$filename"\r\n');
-      request.write('Content-Type: $mimeType\r\n\r\n');
-      request.add(fileBytes);
-      request.write('\r\n');
+      for (final file in files) {
+        request.write('--$boundary\r\n');
+        request.write('Content-Disposition: form-data; name="${file.field}"; filename="${file.filename}"\r\n');
+        request.write('Content-Type: ${file.mimeType}\r\n\r\n');
+        request.add(file.bytes);
+        request.write('\r\n');
+      }
 
       request.write('--$boundary--\r\n');
 

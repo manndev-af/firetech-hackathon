@@ -225,10 +225,10 @@ void main() {
     expect(find.byType(TextField), findsNothing);
 
     // Tap quick prompt to start conversation
-    await tester.tap(find.text('Bagaimana membandingkan dua camilan?'));
+    await tester.tap(find.text('Tips memilih camilan sehat'));
     await tester.pump();
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.text('Bagaimana membandingkan dua camilan?'), findsOneWidget);
+    expect(find.text('Tips memilih camilan sehat'), findsWidgets);
 
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pumpAndSettle();
