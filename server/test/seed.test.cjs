@@ -32,10 +32,15 @@ test('seed creates a complete valid demo profile while preserving existing edits
   const { profileProperties } = require('../src/validation/nutrition');
   const original = prisma.getPrismaClient;
   let created;
+  const chunks = [];
   prisma.getPrismaClient = () => ({ $transaction: async callback => callback({
     user: { upsert: async () => ({ id: 'fixture-user' }) },
     nutritionProfile: { upsert: async ({ create, update }) => { created = create; assert.deepEqual(update, {}); } },
-    knowledgeChunk: { upsert: async () => {} },
+    knowledgeChunk: { upsert: async ({ where, create, update }) => {
+      assert.equal(where.id, create.id);
+      assert.deepEqual(update, create);
+      chunks.push(create);
+    } },
   }) });
   try {
     await seed();
@@ -45,5 +50,25 @@ test('seed creates a complete valid demo profile while preserving existing edits
     assert.ok(Object.values(profile).every(value => value !== null && value !== undefined && value !== ''));
     assert.ok(profile.priorities.length && profile.allergies.length);
     assert.doesNotThrow(() => mergeProfile(profile, profile));
+    const { knowledge, kemenkesKnowledge } = require('../prisma/knowledge');
+    assert.deepEqual(chunks, knowledge);
+    assert.equal(kemenkesKnowledge.length, 11);
+    assert.equal(chunks.length, 14);
+    assert.ok(kemenkesKnowledge.every(chunk => chunk.reviewed && chunk.sourceUrl ===
+      'https://peraturan.bpk.go.id/Download/109856/Permenkes%20Nomor%2041%20Tahun%202014.pdf'));
+    assert.equal(new Set(chunks.map(chunk => chunk.id)).size, chunks.length);
+    const tags = ['Gula', 'Natrium', 'Protein', 'Kalori', 'Keseimbangan'];
+    for (const chunk of chunks) {
+      for (const [field, limit] of Object.entries({ id: 80, title: 160, sourceUrl: 512, sourceTitle: 160, version: 40, license: 255 })) {
+        assert.ok(chunk[field].length > 0 && [...chunk[field]].length <= limit, `${chunk.id}: ${field}`);
+      }
+      assert.ok(chunk.text.trim());
+      assert.ok(chunk.tags.length && chunk.tags.every(tag => tags.includes(tag)));
+      if (chunk.reviewed) {
+        assert.ok(chunk.reviewedAt instanceof Date && Number.isFinite(chunk.reviewedAt.getTime()));
+        assert.ok(/^https:\/\//.test(chunk.sourceUrl));
+        assert.ok(!chunk.sourceUrl.includes('REPLACE_WITH'));
+      }
+    }
   } finally { prisma.getPrismaClient = original; }
 });
