@@ -26,6 +26,7 @@ class ScanResultScreen extends StatefulWidget {
 class _ScanResultScreenState extends State<ScanResultScreen> {
   final _form = GlobalKey<FormState>();
   int _servings = 1;
+  static const _primaryNutrients = {'Energi', 'Protein', 'Gula', 'Natrium'};
   final _serving = TextEditingController();
   final _values = {
     for (final field in labelNutrients) field.label: TextEditingController(),
@@ -296,8 +297,13 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                           spacing: 12,
                           runSpacing: 12,
                           children: [
-                            for (final field in labelNutrients)
+                            for (final field in labelNutrients.where(
+                              (field) =>
+                                  _primaryNutrients.contains(field.label) &&
+                                  _values[field.label]!.text.isNotEmpty,
+                            ))
                               Container(
+                                key: ValueKey('nutrient-card-${field.label}'),
                                 width:
                                     (constraints.maxWidth -
                                         (columns - 1) * 12) /
@@ -310,15 +316,23 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(
-                                      _nutrientIcon(field.label),
-                                      size: 20,
-                                      color: AppColors.primaryDark,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      field.label,
-                                      style: const TextStyle(fontSize: 16),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          _nutrientIcon(field.label),
+                                          size: 18,
+                                          color: AppColors.primaryDark,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            field.label,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
@@ -337,6 +351,61 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                         );
                       },
                     ),
+                    const SizedBox(height: 12),
+                    if (_primaryNutrients.any(
+                      (name) => _values[name]!.text.isEmpty,
+                    ))
+                      Text(
+                        'Belum tersedia: ${_primaryNutrients.where((name) => _values[name]!.text.isEmpty).join(', ')}.',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    if (_label)
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: const Text(
+                          'Kandungan lainnya',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        children: [
+                          for (final field in labelNutrients.where(
+                            (field) => !_primaryNutrients.contains(field.label),
+                          ))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      field.label,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Flexible(
+                                    child: Text(
+                                      _values[field.label]!.text.isEmpty
+                                          ? 'Belum tersedia'
+                                          : '${_displayValue(field.label)} ${field.unit}',
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     if (_label) ...[
                       const SizedBox(height: 16),
                       FilledButton.icon(
