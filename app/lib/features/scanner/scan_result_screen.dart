@@ -25,6 +25,7 @@ class ScanResultScreen extends StatefulWidget {
 
 class _ScanResultScreenState extends State<ScanResultScreen> {
   final _form = GlobalKey<FormState>();
+  int _servings = 1;
   final _serving = TextEditingController();
   final _values = {
     for (final field in labelNutrients) field.label: TextEditingController(),
@@ -104,12 +105,12 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
 
   String get _summary {
     if (!_label)
-      return 'Foto sudah siap. Pengenalan makanan belum terhubung, jadi jenis makanan, porsi, dan nilai gizinya belum dapat ditentukan.';
+      return 'Foto sudah siap. Identifikasi dan nilai gizi belum tersedia.';
     if (_confirmed)
-      return 'Oke, label sudah kamu periksa. Baca angkanya sesuai acuan yang dipilih. Data yang kosong tetap belum tersedia; belum ada penilaian terhadap fokus nutrisimu.';
+      return 'Label sudah diperiksa. Pilih jumlah sajian untuk melihat totalnya.';
     if (_text.trim().isEmpty)
       return 'Belum ada angka gizi yang bisa dipastikan. Foto daftar komposisi saja belum tentu memuat nilai gizi. Coba foto tabel informasi nilai gizi atau isi dari label.';
-    return 'Teks label sudah terbaca. Yuk, cocokkan angka, satuan, dan takaran sajinya dengan foto sebelum memakai hasil ini. Komposisi saja tidak menentukan nilai gizi.';
+    return 'Cocokkan angka dan takaran saji dengan label sebelum digunakan.';
   }
 
   @override
@@ -164,11 +165,12 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                             : 'Hasil OCR · perlu diperiksa')
                       : 'Identifikasi belum tersedia',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     height: 1.5,
                     color: AppColors.textSecondary,
                   ),
                 ),
+                const SizedBox(height: 16),
                 const SizedBox(height: 20),
                 if (_loading)
                   const Padding(
@@ -202,7 +204,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _summary,
-                          style: const TextStyle(fontSize: 14, height: 1.6),
+                          style: const TextStyle(fontSize: 16, height: 1.6),
                         ),
                       ],
                     ),
@@ -214,7 +216,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                       child: Text(
                         _error!,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           height: 1.5,
                           color: Theme.of(context).colorScheme.error,
                         ),
@@ -241,40 +243,100 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                     Text(
                       'Acuan: $_basis',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Takaran saji: ${_serving.text.trim().isEmpty ? 'Belum tersedia' : _serving.text.trim()}',
-                      style: const TextStyle(fontSize: 14, height: 1.5),
+                      style: const TextStyle(fontSize: 16, height: 1.5),
                     ),
                     const SizedBox(height: 12),
-                    for (final field in labelNutrients)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          spacing: 20,
-                          runSpacing: 4,
-                          children: [
-                            Text(
-                              field.label,
-                              style: const TextStyle(fontSize: 14),
+                    if (_confirmed && _basis == 'Per sajian')
+                      Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Jumlah sajian',
+                              style: TextStyle(fontSize: 16),
                             ),
-                            Text(
-                              _values[field.label]!.text.isEmpty
-                                  ? 'Belum tersedia'
-                                  : '${_values[field.label]!.text} ${field.unit}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                          IconButton(
+                            tooltip: 'Kurangi sajian',
+                            onPressed: _servings > 1
+                                ? () => setState(() => _servings--)
+                                : null,
+                            icon: const Icon(Icons.remove_circle_outline),
+                          ),
+                          Text(
+                            '$_servings',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
+                          ),
+                          IconButton(
+                            tooltip: 'Tambah sajian',
+                            onPressed: _servings < 100
+                                ? () => setState(() => _servings++)
+                                : null,
+                            icon: const Icon(Icons.add_circle_outline),
+                          ),
+                        ],
                       ),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final columns =
+                            constraints.maxWidth >= 260 &&
+                                MediaQuery.textScalerOf(context).scale(16) < 24
+                            ? 2
+                            : 1;
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            for (final field in labelNutrients)
+                              Container(
+                                width:
+                                    (constraints.maxWidth -
+                                        (columns - 1) * 12) /
+                                    columns,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.background,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      _nutrientIcon(field.label),
+                                      size: 20,
+                                      color: AppColors.primaryDark,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      field.label,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _values[field.label]!.text.isEmpty
+                                          ? 'Belum tersedia'
+                                          : '${_displayValue(field.label)} ${field.unit}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                     if (_label) ...[
                       const SizedBox(height: 16),
                       FilledButton.icon(
@@ -311,7 +373,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                             _text.trim().isEmpty
                                 ? 'Belum ada teks terbaca.'
                                 : _text,
-                            style: const TextStyle(fontSize: 14, height: 1.6),
+                            style: const TextStyle(fontSize: 16, height: 1.6),
                           ),
                         ),
                       ],
@@ -333,7 +395,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                               ? 'Sumber: foto label yang kamu pilih. OCR dapat salah membaca. Angka adalah salinan label yang perlu diperiksa, bukan hasil perhitungan nutrisi. Takaran asli: ${_originalServing ?? 'belum terbaca'}. Foto dan teks tidak dikirim ke server; hasil belum disimpan ke Riwayat.'
                               : 'Sumber: foto yang kamu pilih. Foto saja tidak menentukan porsi atau nilai gizi. Klasifikasi dan sumber nutrisi belum terhubung; hasil belum disimpan ke Riwayat.',
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 16,
                             height: 1.6,
                             color: AppColors.textSecondary,
                           ),
@@ -355,6 +417,25 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     ),
   );
 
+  String _displayValue(String label) {
+    final raw = double.tryParse(_values[label]!.text.replaceAll(',', '.'));
+    if (raw == null) return 'Belum tersedia';
+    final total = raw * (_confirmed && _basis == 'Per sajian' ? _servings : 1);
+    return total.isFinite
+        ? _number(double.parse(total.toStringAsFixed(2)))
+        : 'Belum tersedia';
+  }
+
+  IconData _nutrientIcon(String label) => switch (label) {
+    'Energi' => Icons.local_fire_department_outlined,
+    'Protein' => Icons.egg_alt_outlined,
+    'Gula' => Icons.icecream_outlined,
+    'Natrium' => Icons.grain,
+    'Karbohidrat' => Icons.rice_bowl_outlined,
+    'Serat' => Icons.eco_outlined,
+    _ => Icons.water_drop_outlined,
+  };
+
   Widget _editor() => Form(
     key: _form,
     child: Column(
@@ -367,7 +448,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
         const SizedBox(height: 8),
         const Text(
           'Kosongkan angka yang tidak tercantum. Jangan isi 0 jika belum diketahui.',
-          style: TextStyle(fontSize: 14, height: 1.5),
+          style: TextStyle(fontSize: 16, height: 1.5),
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
