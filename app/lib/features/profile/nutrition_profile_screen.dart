@@ -624,7 +624,7 @@ class _NutritionProfileScreenState extends State<NutritionProfileScreen> {
                 const SizedBox(height: 24),
               ],
               const Text(
-                'Dengan menyimpan, pilihanmu berlaku selama sesi ini saja. Data tidak dikirim ke server dan hilang saat aplikasi dimulai ulang.',
+                'Pilihanmu disimpan di perangkat ini. Prioritas nutrisi digunakan saat meminta analisis; identitas profil tetap di perangkat.',
                 style: TextStyle(color: PersonalColors.secondary, height: 1.5),
               ),
             ],

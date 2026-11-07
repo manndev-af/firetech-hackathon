@@ -17,6 +17,8 @@ class ScanHistoryEntry {
     this.isIllustration = false,
     this.photoPath,
     this.photoAsset,
+    this.rawOcrText,
+    this.spokenSummary = '',
   });
 
   final String id;
@@ -39,4 +41,49 @@ class ScanHistoryEntry {
 
   /// Bundled photo used only by the separate design preview.
   final String? photoAsset;
+  final String? rawOcrText;
+  final String spokenSummary;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'savedAt': savedAt.toIso8601String(),
+    'packaged': packaged,
+    'portion': portion,
+    'source': source,
+    'referenceBasis': referenceBasis,
+    'energyKcal': energyKcal,
+    'proteinG': proteinG,
+    'sugarG': sugarG,
+    'sodiumMg': sodiumMg,
+    'prioritySnapshot': prioritySnapshot,
+    'note': note,
+    'isIllustration': isIllustration,
+    'photoPath': photoPath,
+    'rawOcrText': rawOcrText,
+    'spokenSummary': spokenSummary,
+  };
+
+  factory ScanHistoryEntry.fromJson(Map<String, dynamic> json) =>
+      ScanHistoryEntry(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        savedAt: DateTime.parse(json['savedAt'] as String),
+        packaged: json['packaged'] as bool,
+        portion: json['portion'] as String,
+        source: json['source'] as String,
+        referenceBasis: json['referenceBasis'] as String,
+        energyKcal: (json['energyKcal'] as num?)?.toDouble(),
+        proteinG: (json['proteinG'] as num?)?.toDouble(),
+        sugarG: (json['sugarG'] as num?)?.toDouble(),
+        sodiumMg: (json['sodiumMg'] as num?)?.toDouble(),
+        prioritySnapshot: List<String>.from(
+          json['prioritySnapshot'] as List? ?? [],
+        ),
+        note: json['note'] as String? ?? '',
+        isIllustration: json['isIllustration'] as bool? ?? false,
+        photoPath: json['photoPath'] as String?,
+        rawOcrText: json['rawOcrText'] as String?,
+        spokenSummary: json['spokenSummary'] as String? ?? '',
+      );
 }

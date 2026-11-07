@@ -7,6 +7,18 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Beranda (`DashboardScreen`, `DashboardScanCard`, `DashboardHistory`) diperbarui secara menyeluruh mengikuti hierarki visual dan prinsip Personalized Nutrition:
+  - Navigasi atas tetap (`TopNav`) menampilkan logo resmi `assets/icons/iconaplikasi.png` dan nama aplikasi `nutrisee` secara konsisten dengan layar lainnya.
+  - Sapaan kontekstual waktu (`SELAMAT PAGI / SIANG / SORE / MALAM`), tipografi utama yang mudah dibaca (`Makan dengan lebih paham.`), dan penanda fokus nutrisi personal.
+  - Kartu hero pemindaian makanan (`DashboardScanCard`) menggunakan latar teal tema (`AppColors.heroBackground`), ilustrasi semangkuk makanan, arahan pemindaian yang jelas, dan tombol aksi "Foto makanan" berwarna mint dengan ikon kamera tanpa emotikon.
+  - Kartu "Analisis Terakhir" (`_RecentAnalysisCard`) menyajikan pratinjau instan dari makanan terakhir yang dianalisis: thumbnail foto/aset, nama makanan, porsi, tanggal/waktu, ringkasan analisis trade-off 1–2 kalimat, dan badge nutrisi tanpa emotikon.
+  - Ringkasan "Nutrisi Tercatat Hari Ini" (`DashboardHistory`) menampilkan metrik gula, protein, dan energi dengan ikon Material bertema, membedakan secara tegas nilai null dari nol nyata, memberikan peringatan data nutrisi belum lengkap bila ada entri yang belum lengkap, serta mempertahankan tombol jelajah perbandingan ("Buka Jelajah  →").
+  - Penghubungan reaktif `app_router.dart` dengan `historySession` untuk menghitung `DailyNutritionSummary` hari ini dan menampilkan analisis terbaru secara otomatis.
+
+- Integrasi Flutter lokal untuk Object Detection + Image Labeling sebelum request foto makanan, OCR mentah beserta JPEG terkompresi pada mode label, serta adapter backend yang dikonfigurasi melalui `ANALYSIS_BASE_URL`. Kontrak endpoint didokumentasikan; backend AI belum tersedia.
+- Profil, preferensi audio, draft scan, foto/OCR, dan hasil analisis disimpan lokal dengan snapshot backup. Riwayat dapat melanjutkan draft; fixture tidak menjadi data pengguna. Nilai contoh tidak lagi menjadi fallback hasil scan nyata.
+- Flutter TTS membacakan kesimpulan pendek sesuai preferensi audio, dengan replay dari teks Riwayat tanpa backend. Suara Indonesia offline diperlukan; error audio tidak menyembunyikan teks analisis.
+
 - Komponen navbar atas bersama (`TopNav` pada `app/lib/shared/widgets/navigation/top_nav.dart`) ditambahkan:
   - Bersifat fixed di atas layar dan menjadi shared component seperti halnya `BottomNav`.
   - Menggunakan logo resmi aplikasi dari aset (`assets/icons/iconaplikasi.png`) dan menampilkan nama aplikasi `nutrisee`.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/history_preview_data.dart';
 import '../../models/scan_history_entry.dart';
+import '../../models/scan_draft.dart';
 import '../../shared/widgets/personal_page.dart';
 import 'widgets/history_entry_card.dart';
 
@@ -11,12 +12,16 @@ class HistoryScreen extends StatelessWidget {
     this.preview = false,
     this.now,
     this.onScan,
+    this.drafts = const [],
+    this.onResume,
     super.key,
   });
   final List<ScanHistoryEntry> entries;
   final bool preview;
   final DateTime? now;
   final VoidCallback? onScan;
+  final List<ScanDraft> drafts;
+  final ValueChanged<ScanDraft>? onResume;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,36 @@ class HistoryScreen extends StatelessWidget {
       title: 'Riwayat',
       subtitle: 'Makananmu, dalam satu catatan.',
       children: [
-        if (records.isEmpty) ...[
+        if (drafts.isNotEmpty) ...[
+          const PersonalHeading('Menunggu analisis'),
+          for (final draft in drafts.reversed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: PersonalCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      draft.label ? 'Label produk' : 'Foto makanan',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${historyDate(draft.createdAt)} · Tersimpan di perangkat',
+                    ),
+                    TextButton(
+                      onPressed: onResume == null
+                          ? null
+                          : () => onResume!(draft),
+                      child: const Text('Lanjutkan analisis'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
+        ],
+        if (records.isEmpty && drafts.isEmpty) ...[
           PersonalCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

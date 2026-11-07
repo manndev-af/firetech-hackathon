@@ -350,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 subtitle: const Text(
-                  'Data profil tersimpan secara lokal pada sesi ini',
+                  'Data profil tersimpan di perangkat ini',
                   style: TextStyle(
                     fontSize: 13,
                     color: PersonalColors.secondary,
@@ -365,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: (context) => AlertDialog(
                     title: const Text('Privasi dan data'),
                     content: const Text(
-                      'Profil dan pilihan audio disimpan selama sesi ini. Data tidak dikirim ke server. Kamu dapat mengosongkan informasi opsional melalui Edit profil atau detail Personalisasi.',
+                      'Profil, pilihan audio, foto, teks OCR, dan hasil analisis disimpan di perangkat ini. Saat analisis diminta, foto yang diperkecil, teks OCR, dan prioritas nutrisi dikirim ke layanan analisis. Nama, usia, tinggi, berat, dan alergi tidak dikirim. Kamu dapat mengosongkan informasi opsional melalui Edit profil atau detail Personalisasi. Menghapus data aplikasi akan menghapus catatan lokal.',
                     ),
                     actions: [
                       TextButton(

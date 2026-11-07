@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../models/scan_history_entry.dart';
+import '../../scanner/widgets/analysis_content.dart';
 import '../../../shared/widgets/personal_page.dart';
 
 String historyDate(DateTime date) {
@@ -278,7 +279,21 @@ class _HistoryEntryDetailState extends State<HistoryEntryDetail> {
   }
 
   @override
-  Widget build(BuildContext context) => FractionallySizedBox(
+  Widget build(BuildContext context) {
+    if (!widget.entry.isIllustration) {
+      return FractionallySizedBox(
+        heightFactor: .92,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
+          child: AnalysisContent(entry: widget.entry),
+        ),
+      );
+    }
+    return _preview(context);
+  }
+
+  // Legacy visual fixtures remain isolated from real saved results.
+  Widget _preview(BuildContext context) => FractionallySizedBox(
     heightFactor: .92,
     child: SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
