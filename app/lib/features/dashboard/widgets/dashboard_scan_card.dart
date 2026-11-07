@@ -44,7 +44,7 @@ class DashboardScanCard extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             const titleWidget = Text(
-              'Kenali nutrisi\nmakananmu',
+              'Pindai\nMakananmu',
               style: TextStyle(
                 color: AppColors.surface,
                 fontSize: 28,
@@ -59,7 +59,7 @@ class DashboardScanCard extends StatelessWidget {
               label: 'Ilustrasi semangkuk makanan',
               child: Image.asset(
                 'assets/images/foodartwork.png',
-                height: 110,
+                height: 140,
                 fit: BoxFit.contain,
               ),
             );
@@ -71,7 +71,7 @@ class DashboardScanCard extends StatelessWidget {
                 children: [
                   titleWidget,
                   const SizedBox(height: 12),
-                  SizedBox(width: 140, child: imageWidget),
+                  SizedBox(width: 160, child: imageWidget),
                 ],
               );
             }
@@ -82,8 +82,8 @@ class DashboardScanCard extends StatelessWidget {
                 const Expanded(child: titleWidget),
                 const SizedBox(width: 12),
                 SizedBox(
-                  width: 120,
-                  height: 105,
+                  width: 155,
+                  height: 135,
                   child: imageWidget,
                 ),
               ],
@@ -92,7 +92,7 @@ class DashboardScanCard extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         const Text(
-          'Foto makanan piring atau label kemasan untuk memahami takaran gizi dan porsinya.',
+          'Foto makanan atau label kemasan untuk cek nutrisi dan porsinya.',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 13,

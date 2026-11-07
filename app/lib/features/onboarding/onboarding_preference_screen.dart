@@ -38,12 +38,12 @@ class OnboardingPreferenceScreen extends StatelessWidget {
       OnboardingHeader(step: 2, onBack: onBack),
       const SizedBox(height: 16),
       const Text(
-        'Pola makan seperti apa\nyang kamu sukai?',
+        'Pilih pola\nmakanmu',
         style: onboardingTitleStyle,
       ),
       const SizedBox(height: 12),
       const Text(
-        'Opsional. Pilih preferensi yang paling sesuai dengan kebiasaanmu.',
+        'Opsional. Sesuaikan dengan kebiasaan santapmu sehari-hari.',
         style: onboardingBodyStyle,
       ),
       const SizedBox(height: 36),
