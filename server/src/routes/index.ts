@@ -6,6 +6,7 @@ import scannerRoutes from './scanner.routes';
 import foodEntryRoutes from './food-entry.routes';
 import nutritionRoutes from './nutrition.routes';
 import compareRoutes from './compare.routes';
+import assistantRoutes from './assistant.routes';
 import { demoOwner } from '../middleware/demoOwner';
 import { domainErrorHandler } from '../utils/domainError';
 
@@ -21,6 +22,7 @@ domain.use('/scans', scannerRoutes);
 domain.use('/food-entries', foodEntryRoutes);
 domain.use('/nutrition', nutritionRoutes);
 domain.use('/comparisons', compareRoutes);
+domain.use('/assistant', assistantRoutes);
 domain.use(domainErrorHandler);
 router.use('/v1', domain);
 

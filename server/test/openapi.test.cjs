@@ -23,11 +23,12 @@ test('Swagger serves local assets and documents working routes with a custom pre
       '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}',
       '/api/v1/v1/profile', '/api/v1/v1/scans', '/api/v1/v1/food-entries',
       '/api/v1/v1/comparisons',
+      '/api/v1/v1/assistant/messages',
       '/api/v1/v1/food-entries/{id}', '/api/v1/v1/food-entries/{id}/quantity', '/api/v1/v1/nutrition/daily',
     ].sort());
     const ids = Object.values(spec.paths).flatMap(path =>
       Object.values(path).filter(operation => operation.operationId).map(operation => operation.operationId));
-    assert.equal(ids.length, 18);
+    assert.equal(ids.length, 19);
     assert.equal(new Set(ids).size, ids.length);
     assert.equal(spec.paths['/api/v1/health'].get.responses['429'], undefined);
     assert.equal(spec.paths['/api/v1/users'].get.responses['429'], undefined);
@@ -45,6 +46,13 @@ test('Swagger serves local assets and documents working routes with a custom pre
     const disabledComparison = await request('/api/v1/v1/comparisons', { method: 'POST' });
     assert.equal(disabledComparison.status, 404);
     assert.equal((await disabledComparison.json()).data.code, 'DEMO_DISABLED');
+    const assistant = spec.paths['/api/v1/v1/assistant/messages'].post;
+    assert.deepEqual(assistant.requestBody.content['application/json'].schema.required, ['mode', 'message']);
+    assert.ok(assistant.responses['200'].content['application/json'].examples.pattern);
+    assert.ok(assistant.responses['422']);
+    const disabledAssistant = await request('/api/v1/v1/assistant/messages', optionsForAssistant());
+    assert.equal(disabledAssistant.status, 404);
+    assert.equal((await disabledAssistant.json()).data.code, 'DEMO_DISABLED');
     for (const path of ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/1']) {
       assert.equal((await request(path)).status, 200, path);
     }
@@ -75,3 +83,7 @@ test('Swagger serves local assets and documents working routes with a custom pre
     await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   }
 });
+
+function optionsForAssistant() {
+  return { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'general', message: 'Apa yang perlu diperhatikan pada makanan?' }) };
+}
