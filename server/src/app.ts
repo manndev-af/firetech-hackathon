@@ -10,6 +10,7 @@ import { notFoundHandler } from "./middleware/notFoundHandler";
 import { createRequestLogger } from "./middleware/requestLogger";
 import apiRoutes from "./routes";
 import { DomainError, domainErrorHandler } from "./utils/domainError";
+import { assistantJson, isAssistantPath } from "./validation/assistant";
 
 export const createApp = (): Application => {
   const app = express();
@@ -29,6 +30,7 @@ export const createApp = (): Application => {
   );
 
   // Body parsing middleware
+  app.use(assistantJson);
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -36,13 +38,14 @@ export const createApp = (): Application => {
   morgan.token("date", () => {
     return new Date().toLocaleString();
   });
+  morgan.token("safe-url", (req: Request) => isAssistantPath(req.path) ? req.path : req.originalUrl || req.url);
 
   // Logging middleware (skip in test environment)
   if (config.env !== "test") {
     app.use(
       morgan(
         config.env === "development"
-          ? ":date :method :url :status :response-time ms - :res[content-length]"
+          ? ":date :method :safe-url :status :response-time ms - :res[content-length]"
           : "combined",
       ),
     );
@@ -75,7 +78,7 @@ export const createApp = (): Application => {
   // Error handling middleware (must be last)
   app.use(notFoundHandler);
   app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
-    if (!req.path.startsWith(`${config.apiPrefix}/v1/`)) return next(error);
+    if (!req.path.startsWith(`${config.apiPrefix}/v1/`) && !isAssistantPath(req.path)) return next(error);
     const status = (error as { status?: number }).status;
     const failure =
       status === 400
