@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'providers/local_app_state.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeLocalState();
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

@@ -1,5 +1,31 @@
 import 'scan_history_entry.dart';
 
+/// Contoh riwayat awal untuk pengujian TTS dan aksesibilitas tanpa harus memindai terlebih dahulu.
+ScanHistoryEntry get sampleHistoryEntry {
+  final now = DateTime.now();
+  return ScanHistoryEntry(
+    id: 'sample_history_yogurt',
+    name: 'Yogurt Stroberi & Granola',
+    savedAt: DateTime(now.year, now.month, now.day, 10, 15),
+    packaged: true,
+    portion: '1 cup · 150 g',
+    source: 'Label Informasi Nilai Gizi',
+    referenceBasis: 'Per sajian 150 g',
+    photoAsset: 'assets/images/history_yogurt.jpg',
+    energyKcal: 140,
+    proteinG: 8,
+    sugarG: 12,
+    sodiumMg: 70,
+    prioritySnapshot: const ['Gula', 'Protein'],
+    note:
+        'Ada 8 g protein dan 12 g gula dalam porsi ini. Pilihan camilan dengan kalsium baik, perhatikan asupan gula tambahan.',
+    spokenSummary:
+        'Porsi camilan baik dengan 8 gram protein. Perhatikan 12 gram gula sesuai target harianmu.',
+    userNote: 'Camilan sore setelah berolahraga',
+    isIllustration: false,
+  );
+}
+
 /// Fictional UI fixtures, never inserted into the user's history or summaries.
 List<ScanHistoryEntry> historyPreviewData(DateTime now) => [
   ScanHistoryEntry(
