@@ -8,9 +8,9 @@ abstract final class PersonalColors {
   static const ink = AppColors.textPrimary;
   static const secondary = AppColors.textSecondary;
   static const background = AppColors.surface;
-  static const soft = Color(0xFFE6F4F3);
-  static const chip = Color(0xFFD8EFEF);
-  static const border = Color(0xFFE4ECEB);
+  static const soft = AppColors.mint;
+  static const chip = Color(0xFFD6F2EF);
+  static const border = AppColors.border;
 }
 
 class PersonalPage extends StatelessWidget {
