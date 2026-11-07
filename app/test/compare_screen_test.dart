@@ -35,6 +35,10 @@ void main() {
 
     await tester.tap(find.text('Lihat ringkasan'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Lebih sedikit gula,\nprotein juga berbeda.'),
+      200,
+    );
     expect(
       find.text('Lebih sedikit gula,\nprotein juga berbeda.'),
       findsOneWidget,

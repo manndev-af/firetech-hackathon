@@ -14,6 +14,14 @@ Klasifikasi gambar hanya memprediksi kelas makanan. Identitas makanan dan porsi 
 
 ## 2. Komponen dan Tanggung Jawab
 
+Revisi editor Profil: `NutritionProfileScreen` dipakai ulang dengan `ProfileEditSection.identity` atau `.personalization` dan `inline: true` di `ProfileScreen`. Draft lokal baru diterapkan melalui callback `onSave` ke notifier router. Mode standalone lama tetap tersedia untuk route `/profile/nutrition`. Tidak ada model/persistensi/API baru; `PersonalPage` menerima scroll controller opsional untuk kembali ke ringkasan setelah form ditutup.
+
+Pembaruan akses review: `UI_PREVIEW` pada router kini memiliki default `true` agar tab Riwayat langsung terisi contoh sesuai permintaan pengguna. Nilai `false` menampilkan alur tanpa fixture. Constructor `HistoryScreen` tetap default `preview: false`; hanya konfigurasi route review yang mengaktifkannya. Tidak ada persistensi atau kalkulasi tambahan.
+
+Revisi review pengguna: `analysisAudioSession` menyimpan preferensi audio sebagai notifier bool dalam memori router, independen dari draft profil. Tidak ada layanan TTS baru. `ScanHistoryEntry` memiliki `photoPath` untuk file capture lokal dan `photoAsset` untuk fixture. Tampilan menangani file hilang tanpa crash; integrasi capture/retensi file belum tersedia. Router hanya memasok fixture jika build define `UI_PREVIEW=true`; tidak ada banner dalam build review tersebut. Daftar tanpa filter, dan modal detail memakai root navigator agar berada di atas navigasi aplikasi.
+
+Pembaruan audit 7 November 2026 menggantikan batas UI pada paragraf historis berikut: `NutritionProfile` mencakup tinggi/berat, pola makan/halal, dan status/bahan alergi opsional. Onboarding mempertahankan field tambahan. `ScanHistoryEntry` adalah snapshot tampilan nullable; `history_preview_data.dart` memasok fixture terpisah untuk preview eksplisit. Layar normal mengecualikan record ilustrasi. Filter/detail bekerja di UI tanpa repository atau endpoint baru. State profil tetap dalam memori router; tidak ada kalkulasi nutrisi, persistensi, maupun pengiriman data personal baru. Lihat [audit](PROFILE_HISTORY_AUDIT.md).
+
 Status Flutter 7 November 2026: `NutritionProfile` di `app/lib/models/` merupakan model UI immutable. `ValueNotifier` milik konfigurasi router menyimpan profil dalam memori selama proses aplikasi; onboarding mengisinya, editor memperbaruinya setelah validasi/Simpan, dan Home/Profil mendengarkan perubahan. Tidak ada request API, database, penyimpanan disk, atau penerapan ke Nutrition Engine. Riwayat baru berupa layar filter dan empty state, tanpa repository hasil analisis. Penyimpanan permanen dan retensi tetap keputusan terbuka.
 
 | Komponen | Teknologi yang direncanakan | Tanggung jawab |

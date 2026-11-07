@@ -1,154 +1,76 @@
 import 'package:flutter/material.dart';
 
+import '../../models/history_preview_data.dart';
+import '../../models/scan_history_entry.dart';
 import '../../shared/widgets/personal_page.dart';
+import 'widgets/history_entry_card.dart';
 
-class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
-
-  @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
-  String _type = 'Semua';
-  DateTime? _date;
-
-  Future<void> _selectDate() async {
-    final now = DateTime.now();
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: _date ?? now,
-      firstDate: DateTime(2000),
-      lastDate: now,
-      helpText: 'Pilih tanggal riwayat',
-      cancelText: 'Batal',
-      confirmText: 'Pilih',
-    );
-    if (selected != null && mounted) setState(() => _date = selected);
-  }
+class HistoryScreen extends StatelessWidget {
+  const HistoryScreen({
+    this.entries = const [],
+    this.preview = false,
+    this.now,
+    super.key,
+  });
+  final List<ScanHistoryEntry> entries;
+  final bool preview;
+  final DateTime? now;
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _type != 'Semua' || _date != null;
+    final today = now ?? DateTime.now();
+    final records =
+        (preview
+              ? historyPreviewData(today)
+              : entries.where((entry) => !entry.isIllustration).toList())
+          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     return PersonalPage(
-      title: 'Riwayat pemindaian',
-      subtitle: 'Lihat kembali makanan dan analisis yang kamu simpan.',
+      title: 'Riwayat',
+      subtitle: 'Makananmu, dalam satu catatan.',
       children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final type in ['Semua', 'Tanpa kemasan', 'Kemasan'])
-              ChoiceChip(
-                label: Text(type),
-                selected: _type == type,
-                selectedColor: PersonalColors.chip,
-                onSelected: (_) => setState(() => _type = type),
-              ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            OutlinedButton.icon(
-              onPressed: _selectDate,
-              icon: const Icon(Icons.calendar_today_outlined, size: 18),
-              label: Text(
-                _date == null
-                    ? 'Semua tanggal'
-                    : '${_date!.day}/${_date!.month}/${_date!.year}',
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: PersonalColors.primary,
-              ),
-            ),
-            if (filtered)
-              TextButton(
-                onPressed: () => setState(() {
-                  _type = 'Semua';
-                  _date = null;
-                }),
-                child: const Text('Reset filter'),
-              ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        PersonalCard(
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
-              Container(
-                width: 112,
-                height: 112,
-                decoration: const BoxDecoration(
-                  color: PersonalColors.soft,
-                  shape: BoxShape.circle,
+        if (records.isEmpty) ...[
+          PersonalCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.history_rounded,
+                  size: 36,
+                  color: PersonalColors.primary,
                 ),
-                child: const Center(
-                  child: CircleAvatar(
-                    radius: 34,
-                    backgroundColor: PersonalColors.chip,
-                    child: Icon(
-                      Icons.history_rounded,
-                      size: 36,
-                      color: PersonalColors.primary,
+                const SizedBox(height: 20),
+                const PersonalHeading('Belum ada hasil tersimpan'),
+                const Text(
+                  'Simpan hasil analisis untuk melihat kembali foto dan ringkasan makananmu.',
+                  style: TextStyle(fontSize: 14, height: 1.5),
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Kamera makanan belum tersedia.'),
                     ),
                   ),
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Mulai pindai'),
                 ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                filtered
-                    ? 'Belum ada hasil yang sesuai'
-                    : 'Belum ada hasil tersimpan',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: PersonalColors.ink,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                filtered
-                    ? 'Coba ubah tanggal atau jenis makanan untuk melihat hasil lainnya.'
-                    : 'Setelah kamu memindai dan menyimpan analisis makanan, hasilnya akan muncul di sini.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: PersonalColors.secondary,
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Kamera makanan belum tersedia.'),
-                  ),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: PersonalColors.primary,
-                  minimumSize: const Size(180, 52),
-                ),
-                icon: const Icon(Icons.camera_alt_outlined, size: 20),
-                label: const Text('Mulai pindai'),
-              ),
-              const SizedBox(height: 24),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 24),
-        const Text(
-          'Riwayat berisi hasil yang disimpan, bukan seluruh konsumsi harianmu.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: PersonalColors.secondary,
-            height: 1.5,
-            fontSize: 12,
-          ),
-        ),
+        ] else
+          for (var i = 0; i < records.length; i++) ...[
+            if (i == 0 ||
+                !DateUtils.isSameDay(
+                  records[i].savedAt,
+                  records[i - 1].savedAt,
+                ))
+              Padding(
+                padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
+                child: PersonalHeading(historyDay(records[i].savedAt, today)),
+              ),
+            HistoryEntryCard(entry: records[i]),
+            const SizedBox(height: 16),
+          ],
       ],
     );
   }
