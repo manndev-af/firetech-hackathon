@@ -14,6 +14,8 @@ Klasifikasi gambar hanya memprediksi kelas makanan. Identitas makanan dan porsi 
 
 ## 2. Komponen dan Tanggung Jawab
 
+Status Flutter 7 November 2026: `NutritionProfile` di `app/lib/models/` merupakan model UI immutable. `ValueNotifier` milik konfigurasi router menyimpan profil dalam memori selama proses aplikasi; onboarding mengisinya, editor memperbaruinya setelah validasi/Simpan, dan Home/Profil mendengarkan perubahan. Tidak ada request API, database, penyimpanan disk, atau penerapan ke Nutrition Engine. Riwayat baru berupa layar filter dan empty state, tanpa repository hasil analisis. Penyimpanan permanen dan retensi tetap keputusan terbuka.
+
 | Komponen | Teknologi yang direncanakan | Tanggung jawab |
 |---|---|---|
 | Aplikasi mobile | Flutter / Dart | Onboarding, Nutrition Profile, kamera, barcode/OCR, konfirmasi makanan dan porsi, hasil, aksesibilitas dan TTS. |
