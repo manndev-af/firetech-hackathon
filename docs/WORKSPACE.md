@@ -1,0 +1,169 @@
+# Workspace NutriLens AI
+
+Panduan ini menjelaskan tata letak repository dan cara berpindah antar area kerja. Tujuannya menjaga mobile app, backend, dan dokumen produk pada satu repository tanpa membuat struktur yang belum diperlukan.
+
+## Sumber konteks
+
+Baca [AGENTS.md](../AGENTS.md) sebelum mengubah proyek. Dokumen berikut menjadi rujukan sesuai jenis pekerjaan:
+
+| Dokumen | Kegunaan |
+|---|---|
+| [SUMMARY.md](SUMMARY.md) | Konteks brainstorming, user flow, Nutrition Profile, ML, sumber nutrisi, prioritas MVP, serta keputusan terbuka. |
+| [PRD.md](PRD.md) | Sasaran, pengguna, masalah, ruang lingkup, dan definisi keberhasilan produk. |
+| [FRD.md](FRD.md) | Kebutuhan fungsional dan kriteria penerimaan. |
+| [DESIGN.md](DESIGN.md) | Arahan UI/UX, komponen, konten, state, aksesibilitas, dan pertanyaan desain terbuka. |
+| [DECISIONS.md](DECISIONS.md) | Register keputusan, rekomendasi, konflik, serta hal yang belum final. |
+| [architecture.md](architecture.md) | Batas komponen, aliran data, tanggung jawab, dan rancangan integrasi. |
+| [rules/ui.md](../rules/ui.md) | Aturan implementasi dan review mutu UI Flutter. |
+| [CHANGELOG.md](../CHANGELOG.md) | Catatan perubahan penting yang telah dibuat atau disiapkan. |
+| [app/README.md](../app/README.md) | Panduan lokal Flutter. |
+| [server/README.md](../server/README.md) | Panduan lokal backend Node.js. |
+
+Jika dokumen berisi rekomendasi yang belum disepakati, jangan memperlakukannya sebagai requirement final. Catat konflik dan minta keputusan tim bila memengaruhi implementasi.
+
+## Struktur repository
+
+Berikut struktur yang ada saat panduan ini diperbarui. Folder build/cache dan dependency lokal yang diabaikan Git tidak ditampilkan.
+
+```text
+D:\firetech-hackathon\
+├── .github/
+├── AGENTS.md
+├── CHANGELOG.md
+├── README.md
+├── app/                         # Flutter application
+│   ├── README.md
+│   ├── android/                 # Platform scaffold yang tersedia saat ini
+│   ├── lib/
+│   │   ├── main.dart
+│   │   ├── app.dart
+│   │   ├── core/
+│   │   │   ├── router/
+│   │   │   ├── app_router.dart
+│   │   │   └── route_paths.dart
+│   │   │   ├── theme/
+│   │   │   │   ├── app_colors.dart
+│   │   │   │   ├── app_theme.dart
+│   │   │   │   └── app_typography.dart
+│   │   │   ├── network/
+│   │   │   │   ├── api_client.dart
+│   │   │   │   ├── api_endpoints.dart
+│   │   │   │   └── api_interceptor.dart
+│   │   │   └── utils/
+│   │   │       └── api_exception.dart
+│   │   ├── models/                # Model global lintas feature
+│   │   ├── services/              # Akses API/backend global
+│   │   ├── repositories/          # Abstraksi data global
+│   │   ├── providers/             # State global
+│   │   ├── features/
+│   │   │   ├── dashboard/
+│   │   │   │   └── widgets/
+│   │   │   ├── food_search/
+│   │   │   │   └── widgets/
+│   │   │   ├── food_journal/
+│   │   │   │   └── widgets/
+│   │   │   ├── recipes/
+│   │   │   │   └── widgets/
+│   │   │   └── profile/
+│   │   └── shared/
+│   │       └── widgets/
+│   │           └── route_placeholder_screen.dart
+│   ├── test/
+│   │   └── widget_test.dart
+│   ├── analysis_options.yaml
+│   ├── pubspec.yaml
+│   └── pubspec.lock
+├── docs/
+│   ├── FRD.md
+│   ├── DESIGN.md
+│   ├── DECISIONS.md
+│   ├── PRD.md
+│   ├── SUMMARY.md
+│   ├── WORKSPACE.md
+│   └── architecture.md
+├── rules/
+├── server/                      # Node.js + TypeScript backend
+│   ├── README.md
+│   ├── README.Docker.md
+│   ├── src/
+│   │   ├── app.ts
+│   │   ├── server.ts
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   └── validation/
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   └── tsconfig.json
+└── .gitignore
+```
+
+### `app/` — Flutter
+
+`app/` adalah proyek Flutter pada root subfoldernya dan memakai scaffold Flutter yang tersedia. Pertahankan struktur platform hasil generate; kode aplikasi ditempatkan di `lib/`, dan tes Flutter berada di `test/`. Routing `go_router` ada di `lib/core/router/`; tema global ada di `lib/core/theme/`; network client untuk backend terpisah ada di `lib/core/network/`; exception API ada di `lib/core/utils/`. Model, service, repository, dan provider berada di layer global. Folder feature hanya berisi UI dan widgets. Supabase tidak termasuk struktur saat ini. Saat ini scaffold platform Android tersedia. Jangan memindahkan app ke `app/mobile/` atau membuat folder platform lain tanpa kebutuhan yang jelas.
+
+`app/` memakai pendekatan layer global: model, service, repository, dan provider berada masing-masing di `lib/models/`, `lib/services/`, `lib/repositories/`, dan `lib/providers/`. Folder `features/` hanya mengelompokkan UI berdasarkan domain. File halaman diletakkan langsung di folder feature, sedangkan komponen khusus halaman berada di subfolder `widgets/`. Jangan membuat subfolder `pages/` atau mengulang layer data di dalam feature. Folder yang masih kosong adalah kerangka, bukan fitur yang sudah diimplementasikan. Supabase tidak termasuk struktur saat ini.
+
+#### Contoh alur tanggung jawab
+
+Contoh ketika tim mengimplementasikan pencarian makanan:
+
+1. `models/food_model.dart` mendefinisikan bentuk data makanan yang dipakai app.
+2. `services/food_service.dart` memanggil endpoint melalui `core/network/api_client.dart`.
+3. `repositories/food_repository.dart` mengubah respons service menjadi operasi data yang dipakai app.
+4. `providers/food_provider.dart` mengelola state pencarian dan memanggil repository.
+5. `features/food_search/food_search_page.dart` menampilkan UI dan menggunakan provider; widget khusus pencarian berada di `features/food_search/widgets/`.
+
+Contoh ini menjelaskan penempatan tanggung jawab, bukan file/endpoint yang sudah tersedia. Jangan membuat model, endpoint, atau halaman sebelum kontraknya dibutuhkan dan disepakati.
+
+Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../app/README.md) serta konfigurasi `pubspec.yaml` yang ada.
+
+### `server/` — backend
+
+`server/` adalah proyek Node.js + TypeScript tersendiri. Kode saat ini mengikuti starter Express dengan entry point `src/server.ts` dan app setup `src/app.ts`; area `src/` yang ada mencakup config, controllers, middleware, routes, types, utils, dan validation.
+
+Gunakan [server/README.md](../server/README.md), `package.json`, dan lockfile untuk setup serta perintah backend. Sebagian isi README berasal dari starter template. Batasan MVP dalam [AGENTS.md](../AGENTS.md) tetap berlaku; misalnya, jangan menambahkan atau menjalankan Docker hanya karena template menyediakan dukungan Docker.
+
+Nutrition Engine, food classifier, dan integrasi nutrisi belum boleh diasumsikan sudah tersedia hanya karena tercantum dalam rancangan. Implementasikan modul tersebut saat ada task yang memintanya dan tambahkan struktur seperlunya.
+
+### ML dan data nutrisi
+
+Training model direncanakan menggunakan Python/PyTorch, MobileNetV3-Large, dan subset MM-Food-100K. Folder ML belum menjadi bagian struktur aktif repository. Buat pipeline training, manifests, atau artefak hanya ketika tahap tersebut dikerjakan. Jangan commit dataset unduhan, cache gambar, checkpoint, atau bobot model besar; aturan ignore ada di [.gitignore](../.gitignore).
+
+## Branch dan alur kolaborasi
+
+Konvensi yang direkomendasikan untuk tim:
+
+- `main` menyimpan versi stabil untuk demo/rilis.
+- `development` menjadi branch integrasi pekerjaan aktif.
+- Branch fitur atau perbaikan dibuat dari `development`, misalnya `feature/nutrition-profile` atau `fix/portion-calculation`.
+- Setelah review dan verifikasi yang sesuai, merge branch pekerjaan ke `development`; saat siap dirilis, merge `development` ke `main`.
+- Satu branch dapat memuat beberapa perubahan kecil yang saling terkait. Pisahkan branch ketika pekerjaan dapat dikembangkan/review secara mandiri.
+
+Ini adalah konvensi kerja, bukan pernyataan bahwa branch tersebut sudah ada atau aturan perlindungan branch sudah dikonfigurasi. Periksa branch/status aktual sebelum berpindah atau membuat branch. Di GitHub, orang yang melakukan merge memerlukan akses tulis yang sesuai; aturan repository dapat menambah syarat review atau pemeriksaan.
+
+## Alur kerja perubahan
+
+1. Buka root repository, baca `AGENTS.md`, lalu baca dokumen dan README subproyek yang relevan.
+2. Periksa struktur dan implementasi yang sudah ada sebelum mengedit atau menambah file.
+3. Kerjakan satu irisan vertikal MVP pada satu waktu; jangan membuat seluruh struktur target di awal.
+4. Jaga batas tanggung jawab: Flutter untuk UI dan interaksi pengguna; backend untuk API/orchestration; Nutrition Engine untuk kalkulasi deterministik; pipeline Python untuk training; LLM hanya untuk menjelaskan hasil terstruktur.
+5. Pertahankan informasi yang dapat ditelusuri: sumber nutrisi, basis nilai, porsi, ketidakpastian model, serta data yang hilang.
+6. Jalankan verifikasi yang relevan dengan perubahan. Jangan menyatakan test atau runtime berhasil bila belum dijalankan.
+7. Perbarui dokumentasi yang terdampak dan catat perubahan penting di [CHANGELOG.md](../CHANGELOG.md) pada `Unreleased`.
+8. Laporkan file yang berubah, hasil verifikasi, dan keterbatasan yang masih ada.
+
+## Format, konfigurasi, dan data lokal
+
+- `.gitignore` root dan aturan ignore subproyek mengecualikan secret, dependency lokal, hasil build, cache, dataset unduhan, serta bobot/checkpoint model.
+- File `.env` lokal tidak boleh masuk Git. Gunakan `.env.example` untuk nama variabel contoh tanpa nilai rahasia.
+- `.gitattributes` mengatur EOL teks dan menandai berkas biner yang umum. Ikuti format repository dan hindari perubahan format massal yang tidak diminta.
+- Jangan mengubah konfigurasi Git global sebagai bagian setup workspace tanpa permintaan eksplisit.
+- Jangan mengunggah informasi kesehatan, foto pengguna, atau secret ke layanan eksternal tanpa kebutuhan produk dan dokumentasi yang sesuai.
+
+## Batas bukti saat ini
+
+Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyatakan bahwa alur produk, classifier, lookup nutrisi, model terlatih, API NutriLens, atau integrasi perangkat telah selesai atau diuji. Periksa kode dan hasil verifikasi terbaru sebelum membuat klaim implementasi.
