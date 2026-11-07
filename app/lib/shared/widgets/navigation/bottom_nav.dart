@@ -94,27 +94,44 @@ class BottomNav extends StatelessWidget {
                   ),
                 ),
 
-                // Floating center button
+                // Floating center button with theme gradient and ring
                 Positioned(
-                  top: 8,
+                  top: 6,
                   left: 0,
                   right: 0,
                   child: Center(
-                    child: Material(
-                      color: primary,
-                      elevation: 5,
-                      shape: const CircleBorder(), // <-- Tambahkan ini untuk membuat bentuk lingkaran sempurna
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: onAddTap,
-                        child: const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: Icon(
-                            Icons.camera_alt_outlined,
-                            color: Colors.white,
-                            size: 36,
+                    child: Container(
+                      width: 62,
+                      height: 62,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.cyan, AppColors.heroBackground],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(color: Colors.white, width: 3.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.heroBackground.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: onAddTap,
+                          child: const Center(
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                         ),
                       ),

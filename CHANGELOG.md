@@ -7,6 +7,16 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Layout dan output tampilan riwayat (`HistoryEntryDetail` dan `HistoryEntryCard`) diselaraskan menyerupai output hasil foto kamera:
+  - Tampilan detail riwayat menampilkan foto hero dengan badge AI, judul 24 px, kalori 32 px, skor kesehatan (`8.0+/10`), kartu makronutrisi berikon (Protein, Lemak, Karbohidrat), badge mikronutrisi (Serat, Gula, Natrium), kartu analisis trade-off (`Kelebihan` dan `Kekurangan`), serta kontrol interaktif porsi (`1`, `2`, `3`, `4` dan stepper `-` / `+`) yang mengalikan nilai gizi secara reaktif.
+  - Kartu daftar riwayat diperbarui dengan sudut 22 px, pil informasi kalori dan protein, serta tipografi yang jelas dan mudah dibaca.
+- Tata letak komponen layar Profil (`ProfileScreen`) dirasionalisasi menjadi hierarki yang lebih intuitif dan bersih:
+  - Kartu identitas pengguna tampil elegan dengan avatar bergradien tema, nama pengguna tebal, status usia, dan tombol edit profil.
+  - Kartu personalisasi dikelompokkan secara logis ke dalam 3 sub-bagian: Fokus Nutrisi (chip badge bertema), Pola & Preferensi Makan (pilihan makanan, pola makan, preferensi halal dengan ikon jelas), dan Keamanan Makanan (informasi alergen).
+  - Pengaturan (Audio analisis dan Privasi dan data) dikemas rapi dalam kartu kontainer dengan pemisah halus.
+- Palet warna dan tombol kamera diselaraskan dengan tema aplikasi:
+  - Tombol tengah kamera pada navigasi bawah (`BottomNav`) diperbarui dengan gradien tema NutriLens (`AppColors.cyan` ke `AppColors.heroBackground`), cincin tepi putih 3.5 px, dan bayangan lembut agar serasi dengan keseluruhan antarmuka.
+  - Penyelarasan warna `PersonalColors` dengan `AppColors.mint` dan `AppColors.border`.
 - Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
 - Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
   - Kandungan gizi kini disajikan dalam format kartu dan badge berikon sesuai tema (Protein, Lemak, Karbohidrat, Serat, Gula, Natrium).
