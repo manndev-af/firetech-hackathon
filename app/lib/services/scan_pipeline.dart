@@ -10,6 +10,7 @@ import 'scan_image.dart';
 class ScanPipeline {
   ScanPipeline({
     required this.storage,
+    this.requireRawOcr = const bool.fromEnvironment('SCANNER_USE_RAW_OCR'),
     Future<void> Function(String)? checkFood,
     Future<String> Function(String)? readText,
     Future<Uint8List> Function(String, bool)? resize,
@@ -18,6 +19,7 @@ class ScanPipeline {
        resize =
            resize ?? ((path, label) => prepareScanImage(path, label: label));
   final LocalStorage storage;
+  final bool requireRawOcr;
   final Future<void> Function(String) checkFood;
   final Future<String> Function(String) readText;
   final Future<Uint8List> Function(String, bool) resize;
@@ -32,16 +34,24 @@ class ScanPipeline {
       throw const ScanFailure('Ukuran foto maksimal 20 MB.');
     }
     // Mode label deliberately skips the food gate; label photos may contain only text.
-    final rawText = label ? await readText(path) : null;
-    if (rawText != null && rawText.length > 50000) {
+    String? rawText;
+    if (label) {
+      try {
+        rawText = await readText(path);
+      } on ScanFailure {
+        if (requireRawOcr) rethrow;
+        // The backend vision call can read the image when local OCR fails.
+      }
+    }
+    if (rawText != null && rawText.length > 20000) {
       throw const ScanFailure(
         'Teks terlalu panjang. Foto hanya bagian label produk.',
       );
     }
-    if (label && (rawText == null || rawText.trim().isEmpty)) {
+    if (label && requireRawOcr && (rawText == null || rawText.trim().isEmpty)) {
       throw const ScanFailure('Teks label belum terbaca. Ambil ulang foto.');
     }
-    if (label && !containsNutritionKeywords(rawText!)) {
+    if (label && requireRawOcr && !containsNutritionKeywords(rawText!)) {
       throw const ScanFailure(
         'Tabel nilai gizi tidak ditemukan pada label. Pastikan memotret bagian Informasi Nilai Gizi (Nutrition Facts) produk.',
       );

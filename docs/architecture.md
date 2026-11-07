@@ -149,3 +149,5 @@ Summary juga memuat beberapa skala data dan fitur dengan status berbeda: eksperi
 ### Koreksi basis label - 8 November 2026
 
 Scan label baru dengan basis per sajian dalam gram/ml dinormalisasi menjadi satu porsi dengan massa/volume referensi tetap tersimpan; entri lama dan basis per-100 tidak diubah. Validasi evidence membedakan energi total dari energi lemak/AKG; konflik nyata mengosongkan nilai dan membatalkan insight/TTS terkait. Kontrak dan batasannya ada di [SCANNER_API.md](../server/SCANNER_API.md).
+
+Fallback label: OCR perangkat bersifat opsional secara default; kegagalan OCR tidak memblokir pengiriman gambar ke satu dispatch LLM awal. Build Flutter SCANNER_USE_RAW_OCR=true mempertahankan OCR wajib dan harus diselaraskan dengan flag backend. Validasi gambar, batas OCR 20.000 karakter dan kalkulasi quantity backend tetap berlaku.
