@@ -184,6 +184,14 @@ class _AnalysisContentState extends State<AnalysisContent>
     final carbsPercent =
         '${((_baseCarbs * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
 
+    String? photoPath = entry.photoPath;
+    if ((photoPath == null || photoPath.isEmpty) && localStorage != null) {
+      final diskFile = File('${localStorage!.directory.path}/photos/${entry.id}.jpg');
+      if (diskFile.existsSync()) {
+        photoPath = diskFile.path;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -196,9 +204,9 @@ class _AnalysisContentState extends State<AnalysisContent>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (entry.photoPath != null)
+                if (photoPath != null)
                   Image.file(
-                    File(entry.photoPath!),
+                    File(photoPath),
                     fit: BoxFit.cover,
                     errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
@@ -1158,19 +1166,6 @@ class _AnalysisContentState extends State<AnalysisContent>
                           color: PersonalColors.secondary,
                         ),
                       ),
-                      if (entry.rawOcrText != null) ...[
-                        const SizedBox(height: 12),
-                        const PersonalHeading('Teks label terbaca'),
-                        const SizedBox(height: 6),
-                        SelectableText(
-                          entry.rawOcrText!,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            height: 1.4,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/daily_nutrition_summary.dart';
 import '../../models/scan_history_entry.dart';
+import '../../providers/local_app_state.dart';
 import '../../shared/widgets/navigation/top_nav.dart';
 import '../history/widgets/history_entry_card.dart';
 import 'widgets/dashboard_history.dart';
@@ -117,9 +118,16 @@ class _RecentAnalysisCard extends StatelessWidget {
   final VoidCallback? onViewHistory;
 
   Widget _buildPhoto() {
-    if (entry.photoPath != null && File(entry.photoPath!).existsSync()) {
+    String? photoPath = entry.photoPath;
+    if ((photoPath == null || photoPath.isEmpty || !File(photoPath).existsSync()) && localStorage != null) {
+      final diskFile = File('${localStorage!.directory.path}/photos/${entry.id}.jpg');
+      if (diskFile.existsSync()) {
+        photoPath = diskFile.path;
+      }
+    }
+    if (photoPath != null && File(photoPath).existsSync()) {
       return Image.file(
-        File(entry.photoPath!),
+        File(photoPath),
         width: 64,
         height: 64,
         fit: BoxFit.cover,

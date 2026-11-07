@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../models/scan_history_entry.dart';
+import '../../../providers/local_app_state.dart';
 import '../../../services/summary_speech.dart';
 import '../../scanner/widgets/analysis_content.dart';
 import '../../../shared/widgets/personal_page.dart';
@@ -65,10 +66,17 @@ class HistoryPhoto extends StatelessWidget {
             color: PersonalColors.secondary,
           ),
         );
+    String? photoPath = entry.photoPath;
+    if ((photoPath == null || photoPath.isEmpty) && localStorage != null) {
+      final diskFile = File('${localStorage!.directory.path}/photos/${entry.id}.jpg');
+      if (diskFile.existsSync()) {
+        photoPath = diskFile.path;
+      }
+    }
     final Widget photo;
-    if (entry.photoPath != null) {
+    if (photoPath != null) {
       photo = Image.file(
-        File(entry.photoPath!),
+        File(photoPath),
         fit: BoxFit.cover,
         errorBuilder: fallback,
       );

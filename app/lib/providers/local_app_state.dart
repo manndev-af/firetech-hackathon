@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -70,8 +72,17 @@ Future<void> syncHistoryFromBackend({String? date}) async {
       final existingMap = {for (final e in current) e.id: e};
       for (final remote in entries) {
         final local = existingMap[remote.id];
-        if (local != null && (remote.photoPath == null || remote.photoPath!.isEmpty)) {
-          existingMap[remote.id] = remote.copyWith(photoPath: local.photoPath);
+        String? photoPath = (local != null && local.photoPath != null && local.photoPath!.isNotEmpty)
+            ? local.photoPath
+            : null;
+        if (photoPath == null && localStorage != null) {
+          final diskFile = File('${localStorage!.directory.path}/photos/${remote.id}.jpg');
+          if (diskFile.existsSync()) {
+            photoPath = diskFile.path;
+          }
+        }
+        if (photoPath != null) {
+          existingMap[remote.id] = remote.copyWith(photoPath: photoPath);
         } else {
           existingMap[remote.id] = remote;
         }
@@ -158,11 +169,28 @@ Future<void> saveDraft(ScanDraft draft) async {
 Future<void> saveAnalysis(ScanHistoryEntry entry) async {
   final previous = historySession.value;
   final drafts = draftSession.value;
+
+  var effectivePhoto = entry.photoPath;
+  if (effectivePhoto == null || effectivePhoto.isEmpty) {
+    final existing = previous.where((item) => item.id == entry.id).firstOrNull;
+    final draft = drafts.where((item) => item.id == entry.id).firstOrNull;
+    effectivePhoto = existing?.photoPath ?? draft?.photoPath;
+    if (effectivePhoto == null && localStorage != null) {
+      final diskFile = File('${localStorage!.directory.path}/photos/${entry.id}.jpg');
+      if (diskFile.existsSync()) {
+        effectivePhoto = diskFile.path;
+      }
+    }
+  }
+  final resolvedEntry = (effectivePhoto != null && effectivePhoto != entry.photoPath)
+      ? entry.copyWith(photoPath: effectivePhoto)
+      : entry;
+
   historySession.value = [
-    ...previous.where((item) => item.id != entry.id),
-    entry,
+    ...previous.where((item) => item.id != resolvedEntry.id),
+    resolvedEntry,
   ];
-  draftSession.value = drafts.where((item) => item.id != entry.id).toList();
+  draftSession.value = drafts.where((item) => item.id != resolvedEntry.id).toList();
   try {
     await persistLocalState();
     fetchDailyNutritionFromBackend().catchError((_) {});
