@@ -21,6 +21,7 @@ Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_
 
 - Tab Jelajahi dan kartu Buka Jelajah dari Home membuka `ExploreScreen`.
 - Bandingkan dua pilihan membuka `CompareScreen` (`/comparison`). Minuman A/B dan nilai gizi pada layar hanya data ilustrasi dari referensi desain, bukan data nutrisi terverifikasi.
+- Perbandingan meminta dua gambar dari galeri sebelum membuka ringkasan. Gambar ditampilkan dari file lokal; belum diunggah ke backend atau dianalisis. Ringkasan masih memakai nilai ilustrasi.
 - Lihat pola catatanku membuka `AssistantScreen` dengan tampilan percakapan contoh. Tanya soal makanan membuka halaman asisten tanpa tampilan chat.
 - Tidak ada catatan makanan, lookup nutrisi, kalkulasi, pengiriman chat, atau jawaban LLM yang terhubung. Tampilan percakapan bersifat prototipe.
 
