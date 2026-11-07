@@ -164,7 +164,7 @@ class ScanHistoryEntry {
       ScanHistoryEntry(
         id: json['id'] as String,
         name: json['name'] as String,
-        savedAt: DateTime.parse(json['savedAt'] as String),
+        savedAt: DateTime.parse(json['savedAt'] as String).toLocal(),
         packaged: json['packaged'] as bool,
         portion: json['portion'] as String,
         source: json['source'] as String,
@@ -264,8 +264,10 @@ class ScanHistoryEntry {
         data['summary'] as String? ??
         '';
 
+    // Parse consumedAt from backend and convert to local timezone so that the
+    // history date header matches the user's wall-clock time, not UTC.
     final consumedAt = data['consumedAt'] is String
-        ? DateTime.tryParse(data['consumedAt'] as String) ?? DateTime.now()
+        ? (DateTime.tryParse(data['consumedAt'] as String)?.toLocal() ?? DateTime.now())
         : DateTime.now();
 
     final isLabel = data['mode'] == 'label' || data['packaged'] == true;
