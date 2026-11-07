@@ -1,5 +1,7 @@
 # Handoff backend scanner
 
+Gambar kedua mode dinormalisasi menjadi JPEG 544 x 544 dengan orientasi dikoreksi, rasio asli dipertahankan, dan padding putih tanpa crop sebelum dikirim ke provider. Raw OCR tetap dikirim utuh sesuai batas input; detail label kecil mungkin berkurang pada resolusi ini. Penghematan token aktual bergantung pada provider.
+
 Backend development saja; frontend tidak diubah. Sumber kontrak lengkap: `/api/openapi.json` dan `/api/docs/`; prefix default `/api`, delapan operasi domain di `/api/v1`. Setup dummy seed ada di [README.md](README.md#scanner-konsumsi-development). Tidak ada endpoint login; email/password seed disimpan sebagai identitas development dan hash, bukan dikirim lewat HTTP.
 
 | Method | Path | Hasil |

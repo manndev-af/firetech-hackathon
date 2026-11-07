@@ -101,7 +101,7 @@ Pertahankan envelope starter `success`, `message`, `data`, `timestamp`; domain e
 
 Multipart fields: image wajib (JPEG/PNG), mode food|label, description opsional, rawOcrText wajib nonempty pada label, consumedAt ISO8601 opsional (default waktu penerimaan yang dibekukan), quantity opsional positive (default 1). Header Idempotency-Key wajib UUID. Baseline batas: image 5 MiB dan 20 megapixel, description 1.000 karakter, OCR 20.000 karakter; total multipart dibatasi dengan overhead terukur. Tolak field tak dikenal/berulang.
 
-Parser multipart berlimit dan decoder gambar diperlukan karena express.json tidak menerima file. Validasi magic bytes dan actual decode; jangan mempercayai MIME/ekstensi. Normalize orientation, resize maksimum 1600 px sisi terpanjang, strip metadata, lalu kirim data URL langsung dari backend. Jangan fetch URL dari input. Bersihkan buffer/temp files di jalur sukses, error, dan pembatalan. Tidak menyimpan image/base64 dalam MySQL; API awal tidak menjanjikan thumbnail permanen.
+Parser multipart berlimit dan decoder gambar diperlukan karena express.json tidak menerima file. Validasi magic bytes dan actual decode; jangan mempercayai MIME/ekstensi. Normalize orientation, resize 544 x 544 px dengan rasio asli dan padding putih (contain), tanpa crop, strip metadata, lalu kirim data URL langsung dari backend. Jangan fetch URL dari input. Bersihkan buffer/temp files di jalur sukses, error, dan pembatalan. Tidak menyimpan image/base64 dalam MySQL; API awal tidak menjanjikan thumbnail permanen.
 
 ### 4. RAG sebelum satu panggilan
 

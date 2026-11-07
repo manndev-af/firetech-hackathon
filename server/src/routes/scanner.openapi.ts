@@ -6,7 +6,7 @@ export const scannerPaths = (prefix: string) => ({ [`${prefix}/v1/scans`]: { pos
   parameters: [{ name: 'Idempotency-Key', in: 'header', required: true, schema: { type: 'string', format: 'uuid' } }],
   requestBody: { required: true, content: { 'multipart/form-data': { schema: {
     type: 'object', additionalProperties: false, required: ['image', 'mode'], properties: {
-      image: { type: 'string', format: 'binary', description: `JPEG/PNG, MIME must match decoded content, <=${maxImageBytes} bytes, <=20 MP; total multipart <=6 MiB.` },
+      image: { type: 'string', format: 'binary', description: `JPEG/PNG, MIME must match decoded content, <=${maxImageBytes} bytes, <=20 MP; total multipart <=6 MiB. Backend rotates and normalizes to a 544 x 544 JPEG with aspect ratio preserved and white padding, without cropping.` },
       ...scanMetadataSchema.properties,
     },
   } } } },
