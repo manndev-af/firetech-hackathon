@@ -1,5 +1,7 @@
 # Functional Requirements Document (FRD)
 
+> Addendum scanner backend, 7 November 2026: POST scan valid langsung menyimpan konsumsi. Kedua mode menerima gambar; mode label wajib raw OCR. Request yang sama dideduplikasi per owner/idempotency key dan tidak mengulang provider setelah uncertain dispatch. Profil mengikuti seluruh field UI termasuk identity opsional, prioritas jamak, preferensi tunggal, pola makan, halal, alergi tiga status dan audio. Identity/audio dapat diperbarui tanpa prioritas; simpan personalisasi wajib minimal satu. Koreksi quantity mempertahankan null serta basis asli; daily summary memperlihatkan known/missing counts dan timezone. Respons menyertakan ttsSummary singkat pada panggilan yang sama. Estimasi foto dan label extraction dibedakan dari data terverifikasi. Bagian historis ONNX/konfirmasi-sebelum-jurnal di bawah tidak menjadi kontrak scanner baru; kontrak endpoint aktual ada di OpenAPI backend. Integrasi UI belum termasuk.
+
 ## NutriLens AI — Personalized Nutrition Decision Support
 
 | Atribut | Nilai |

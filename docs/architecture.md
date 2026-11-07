@@ -1,5 +1,11 @@
 # Arsitektur NutriLens AI
 
+## Implementasi scanner backend — 7 November 2026
+
+Jalur scanner terbaru mengikuti [keputusan pengganti](DECISIONS.md): multipart gambar + mode + deskripsi + OCR label, validasi file, retrieval SQL profil/riwayat/referensi reviewed, satu panggilan DeepSeek multimodal, validasi JSON/provenance, dan transaksi jurnal. ScanRequest dengan unique owner/key mencegah pengiriman ulang dan catatan ganda. Kalkulasi quantity dan ringkasan harian berjalan deterministik tanpa LLM. Foto bersifat sementara; tidak ada penyimpanan foto permanen atau vector database.
+
+Model domain MySQL: User, NutritionProfile, FoodEntry, KnowledgeChunk, ScanRequest. Profil mengikuti Flutter termasuk allergyStatus tiga keadaan dan audioAnalysisEnabled. Nama/usia/ukuran tubuh/audio tidak dikirim ke DeepSeek. Domain routes hanya untuk identitas dummy development, bukan autentikasi produksi. Kontrak aktual dan setup ada di [server/README.md](../server/README.md). Bagian konseptual lama di bawah dipertahankan sebagai riwayat; untuk scanner, addendum ini mengesampingkan alur ONNX/verified-only yang belum diterapkan.
+
 Dokumen ini merangkum arsitektur konseptual dan pembagian tanggung jawab yang menjadi panduan implementasi. `SUMMARY.md` adalah sumber konteks produk lengkap; keputusan yang diusulkan di dalamnya tetap dibedakan dari keputusan yang telah disepakati. Pembaruan terbaru mengenai Nutrition Profile tercatat pada addendum di bagian akhir [SUMMARY.md](SUMMARY.md).
 
 ## 1. Tujuan dan Batas Produk
@@ -89,6 +95,8 @@ Nutrition Engine menghitung dengan unit konsisten. Contoh basis per 100 g:
 Jangan memperlakukan nilai yang tidak tersedia sebagai nol. Jangan memetakan hidangan ke record yang sekadar bernama mirip tanpa menandai ketidakcocokan resep/metode masak. Nutrition data harus diverifikasi dan tidak boleh dikarang untuk demo.
 
 ## 7. Antarmuka API
+
+Dokumentasi runtime tersedia melalui Swagger UI di `<API_PREFIX>/docs/` dan OpenAPI JSON di `<API_PREFIX>/openapi.json`. Kontrak aktual terpisah per modul pada `server/src/routes/*.openapi.ts`, lalu dirakit oleh `server/src/config/openapi.ts`. Cakupan saat ini adalah health, CRUD user starter dalam memori, serta profil/scanner/jurnal/nutrisi development pada addendum di atas; tidak ada autentikasi. Detail penggunaan dan verifikasi ada di [README server](../server/README.md#swagger--openapi).
 
 `SUMMARY.md` memuat contoh endpoint awal untuk klasifikasi, pencarian makanan, lookup nutrisi, kalkulasi, insight, barcode, dan OCR. Endpoint tersebut adalah usulan, bukan kontrak yang telah disahkan. Dokumentasikan kontrak API sebelum implementasi, validasi input, terapkan batas ukuran dan validasi MIME/decoding gambar, dan jangan mengekspos secret atau stack trace.
 

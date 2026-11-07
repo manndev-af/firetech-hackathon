@@ -1,8 +1,116 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "mysql"
+}
+
+enum AllergyStatus {
+  unknown
+  noneKnown
+  listed
+}
+
+enum ScanState {
+  processing
+  dispatched
+  completed
+  failed
+  deleted
+}
+
+model User {
+  id           String            @id @default(uuid()) @db.VarChar(36)
+  email        String            @unique @db.VarChar(254)
+  passwordHash String            @db.VarChar(255)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  profile      NutritionProfile?
+  entries      FoodEntry[]
+  scans        ScanRequest[]
+}
+
+model NutritionProfile {
+  userId               String        @id @db.VarChar(36)
+  user                 User          @relation(fields: [userId], references: [id])
+  name                 String        @default("") @db.VarChar(60)
+  age                  Int?
+  heightCm             Float?        @db.Double
+  weightKg             Float?        @db.Double
+  preference           String?       @db.VarChar(32)
+  priorities           Json          @default("[]")
+  eatingPattern        String?       @db.VarChar(16)
+  prefersHalal         Boolean       @default(false)
+  allergyStatus        AllergyStatus @default(unknown)
+  allergies            Json          @default("[]")
+  otherAllergies       String        @default("") @db.VarChar(120)
+  audioAnalysisEnabled Boolean       @default(false)
+  timezone             String        @default("Asia/Jakarta") @db.VarChar(64)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+}
+
+model FoodEntry {
+  id              String       @id @default(uuid()) @db.VarChar(36)
+  userId          String       @db.VarChar(36)
+  user            User         @relation(fields: [userId], references: [id])
+  consumedAt      DateTime
+  mode            String       @db.VarChar(8)
+  title           String       @db.VarChar(160)
+  description     String       @db.Text
+  rawOcrText      String?      @db.Text
+  quantity        Decimal      @db.Decimal(18, 6)
+  baseQuantity    Decimal      @db.Decimal(18, 6)
+  calories_kcal   Decimal?     @db.Decimal(18, 6)
+  protein_g       Decimal?     @db.Decimal(18, 6)
+  total_fat_g     Decimal?     @db.Decimal(18, 6)
+  saturated_fat_g Decimal?     @db.Decimal(18, 6)
+  carbohydrates_g Decimal?     @db.Decimal(18, 6)
+  sugar_g         Decimal?     @db.Decimal(18, 6)
+  sodium_mg       Decimal?     @db.Decimal(18, 6)
+  fiber_g         Decimal?     @db.Decimal(18, 6)
+  provenance      String       @db.VarChar(32)
+  analysis        Json
+  context         Json
+  model           String       @db.VarChar(80)
+  promptVersion   String       @db.VarChar(40)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  scan            ScanRequest?
+
+  @@index([userId, consumedAt, id])
+}
+
+model KnowledgeChunk {
+  id          String    @id @db.VarChar(80)
+  title       String    @db.VarChar(160)
+  text        String    @db.Text
+  tags        Json
+  sourceUrl   String    @db.VarChar(512)
+  sourceTitle String    @db.VarChar(160)
+  version     String    @db.VarChar(40)
+  reviewedAt  DateTime?
+  reviewed    Boolean   @default(false)
+  license     String    @db.VarChar(255)
+}
+
+model ScanRequest {
+  id           String     @id @default(uuid()) @db.VarChar(36)
+  userId       String     @db.VarChar(36)
+  user         User       @relation(fields: [userId], references: [id])
+  key          String     @db.VarChar(36)
+  fingerprint  String     @db.VarChar(64)
+  state        ScanState  @default(processing)
+  dispatchedAt DateTime?
+  entryId      String?    @unique @db.VarChar(36)
+  entry        FoodEntry? @relation(fields: [entryId], references: [id], onDelete: SetNull)
+  errorCode    String?    @db.VarChar(64)
+  errorStatus  Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, key])
 }

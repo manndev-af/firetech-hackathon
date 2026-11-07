@@ -58,9 +58,15 @@ class NutritionProfile {
         weightKg: (json['weightKg'] as num?)?.toDouble(),
         eatingPattern: json['eatingPattern'] as String?,
         prefersHalal: json['prefersHalal'] as bool? ?? false,
-        allergyStatus: AllergyStatus.values.byName(
-          json['allergyStatus'] as String? ?? 'unknown',
-        ),
+        allergyStatus: () {
+          final raw = json['allergyStatus'] as String?;
+          if (raw == null) return AllergyStatus.unknown;
+          for (final status in AllergyStatus.values) {
+            if (status.name == raw) return status;
+          }
+          if (raw == 'none') return AllergyStatus.noneKnown;
+          return AllergyStatus.unknown;
+        }(),
         allergies: List<String>.from(json['allergies'] as List? ?? []),
         otherAllergies: json['otherAllergies'] as String? ?? '',
       );

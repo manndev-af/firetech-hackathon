@@ -32,4 +32,37 @@ class DailyNutritionSummary {
     if (proteinG == null || !proteinComplete) 'protein',
     if (energyKcal == null || !energyComplete) 'energi',
   ];
+
+  static DailyNutritionSummary? fromBackend(Map<String, dynamic> data) {
+    final count = (data['entryCount'] as num?)?.toInt() ?? 0;
+    if (count <= 0) return null;
+
+    final nutrients = data['nutrients'] is Map
+        ? Map<String, dynamic>.from(data['nutrients'] as Map)
+        : const <String, dynamic>{};
+
+    final caloriesMap = nutrients['calories_kcal'] is Map
+        ? Map<String, dynamic>.from(nutrients['calories_kcal'] as Map)
+        : null;
+    final proteinMap = nutrients['protein_g'] is Map
+        ? Map<String, dynamic>.from(nutrients['protein_g'] as Map)
+        : null;
+    final sugarMap = nutrients['sugar_g'] is Map
+        ? Map<String, dynamic>.from(nutrients['sugar_g'] as Map)
+        : null;
+
+    final energy = (caloriesMap?['knownTotal'] as num?)?.toDouble();
+    final protein = (proteinMap?['knownTotal'] as num?)?.toDouble();
+    final sugar = (sugarMap?['knownTotal'] as num?)?.toDouble();
+
+    return DailyNutritionSummary(
+      recordCount: count,
+      energyKcal: energy != null && energy >= 0 ? energy : null,
+      energyComplete: caloriesMap?['complete'] as bool? ?? true,
+      proteinG: protein != null && protein >= 0 ? protein : null,
+      proteinComplete: proteinMap?['complete'] as bool? ?? true,
+      sugarG: sugar != null && sugar >= 0 ? sugar : null,
+      sugarComplete: sugarMap?['complete'] as bool? ?? true,
+    );
+  }
 }

@@ -2,6 +2,16 @@
 
 Panduan ini menjelaskan tata letak repository dan cara berpindah antar area kerja. Tujuannya menjaga mobile app, backend, dan dokumen produk pada satu repository tanpa membuat struktur yang belum diperlukan.
 
+## Backend scanner — 7 November 2026
+
+Implementasi development tersedia tanpa perubahan Flutter. `server/prisma/schema.prisma` berisi User, NutritionProfile, FoodEntry, KnowledgeChunk, ScanRequest; migration awal berada di `server/prisma/migrations/202611070001_scanner_consumption/`. `seed.ts` membuat user dummy dengan salted password hash dan profil contoh lengkap tanpa null; nilai profil fiktif dijelaskan di README backend. `knowledge.ts` menyimpan referensi reviewed beserta sumber/izin. Client generated tetap diabaikan Git.
+
+`server/src/services/` kini berisi `profile.service.ts`, `scan.service.ts`, `retrieval.service.ts`, `deepseek.service.ts`, `journal.service.ts`. Controller domain `nutrition.controller.ts`; middleware `demoOwner.ts` dan `scanUpload.ts`; validasi `nutrition.ts`. Router profile/scanner/food-entry/nutrition memiliki kontrak `.openapi.ts` masing-masing. Tidak ada login, vector DB, server TTS, atau penyimpanan foto permanen.
+
+Setup: dari `server/`, jalankan `pnpm install`, `pnpm db:generate`, `pnpm db:deploy`, lalu `pnpm db:seed` setelah mengisi environment lokal. Domain memerlukan `NODE_ENV=development`, `ENABLE_DEMO_USER=true`, dan email owner sesuai seed. Detail environment/batas keamanan ada di [README backend](../server/README.md#scanner-konsumsi-development); contoh integrasi tersedia di [SCANNER_API.md](../server/SCANNER_API.md). Jangan memakai kredensial seed sebagai login frontend.
+
+Tes berada di `server/test/`; `pnpm test` menjalankan unit/HTTP/OpenAPI. Isi `TEST_DATABASE_URL` ke database terisolasi berakhiran `_test` yang sudah dimigrasi untuk integrasi Prisma dengan provider mock. `pnpm build` dan `pnpm lint` memeriksa backend. Verifikasi lokal menggunakan MariaDB 10.4.32 melalui provider MySQL Prisma; Oracle MySQL 8 dan live DeepSeek belum diuji. Panduan struktur lama di bawah dipertahankan sebagai konteks; bagian ini memperbarui status domain scanner.
+
 ## Sumber konteks
 
 Baca [AGENTS.md](../AGENTS.md) sebelum mengubah proyek. Dokumen berikut menjadi rujukan sesuai jenis pekerjaan:
@@ -162,11 +172,13 @@ Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../a
 
 ### `server/` — backend
 
-`server/` adalah proyek Node.js + TypeScript tersendiri dengan Express, pnpm, dan Prisma ORM 7 untuk MySQL. Entry point ada di `src/server.ts`; Prisma schema dan CLI config berada di `prisma/schema.prisma` serta `prisma.config.ts`. Prisma Client digenerate ke `src/generated/prisma/` (di-ignore Git) dan diakses melalui `src/config/prisma.ts`. `src/services/` menampung logika bisnis dan orkestrasi data; controller hanya menangani HTTP. Belum ada model domain, migration, atau service yang memakai database.
+`server/` adalah proyek Node.js + TypeScript tersendiri dengan Express, pnpm, dan Prisma ORM 7 untuk MySQL. Entry point ada di `src/server.ts`; Prisma schema dan CLI config berada di `prisma/schema.prisma` serta `prisma.config.ts`. Prisma Client digenerate ke `src/generated/prisma/` (di-ignore Git) dan diakses melalui `src/config/prisma.ts`. `src/services/` menampung logika bisnis dan orkestrasi data; controller hanya menangani HTTP. Model, migration, seed, serta service domain scanner kini memakai database; lihat addendum backend scanner di atas.
 
 Gunakan [server/README.md](../server/README.md), `package.json`, dan lockfile untuk setup serta perintah backend. Sebagian isi README berasal dari starter template. Batasan MVP dalam [AGENTS.md](../AGENTS.md) tetap berlaku; misalnya, jangan menambahkan atau menjalankan Docker hanya karena template menyediakan dukungan Docker.
 
 Nutrition Engine, food classifier, dan integrasi nutrisi belum boleh diasumsikan sudah tersedia hanya karena tercantum dalam rancangan. Implementasikan modul tersebut saat ada task yang memintanya dan tambahkan struktur seperlunya.
+
+Dokumentasi backend tersedia pada `<API_PREFIX>/docs/` dan `<API_PREFIX>/openapi.json`. Setiap modul route memiliki `src/routes/<name>.openapi.ts` tersendiri di samping router; `src/config/openapi.ts` hanya menggabungkan metadata dan dokumen. Saat ini tersedia modul health/user contoh serta profile/scanner/food-entry/nutrition development. Kontrak wajib diperbarui bersama perubahan route sesuai [AGENTS.md](../AGENTS.md#openapi-documentation-for-every-route); perintah verifikasi ada di [README server](../server/README.md#swagger--openapi).
 
 ### ML dan data nutrisi
 

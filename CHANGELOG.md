@@ -7,6 +7,23 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Service frontend integrasi backend `ProfileApi` (`app/lib/services/profile_api.dart`):
+  - Berkomunikasi dengan endpoint `GET` dan `PATCH /api/v1/profile` untuk mengambil dan menyinkronkan profil nutrisi aktif serta status preferensi `audioAnalysisEnabled`.
+- Service frontend integrasi backend `JournalApi` (`app/lib/services/journal_api.dart`):
+  - Menangani pembacaan riwayat konsumsi (`GET /api/v1/food-entries`), rincian entri (`GET /api/v1/food-entries/:id`), penyesuaian porsi deterministik (`PATCH /api/v1/food-entries/:id/quantity`), penghapusan entri (`DELETE /api/v1/food-entries/:id`), dan pembacaan total akumulasi harian (`GET /api/v1/nutrition/daily`).
+- Suite pengujian unit `app/test/backend_services_test.dart`:
+  - Menguji `ProfileApi` (get & patch profile) dan `JournalApi` (list, quantity update, delete, dan getDailyNutrition) beserta pemetaan `DailyNutritionSummary` secara terisolasi dengan mock HTTP server lokal.
+
+### Changed
+
+- Integrasi penuh frontend Flutter (`app/`) mengikuti arsitektur backend Node.js (`server/`) yang telah tersedia:
+  - `ApiClient`: Ditambahkan dukungan untuk request `PATCH`, `DELETE` (penanganan status 204 No Content), dan `postMultipart` untuk pengunggahan file JPEG biner (`image`) beserta field metadata (`mode`, `rawOcrText`, `description`, `quantity`) dan header `Idempotency-Key`.
+  - `ScanHistoryEntry`: Model diperluas mencakup 8 nutrisi lengkap (`totalFatG`, `saturatedFatG`, `carbohydratesG`, `fiberG`, `energyKcal`, `proteinG`, `sugarG`, `sodiumMg`), field kuantitas & porsi reaktif (`quantity`, `baseQuantity`), insight kualitatif personal (`pros`, `cons`), metadata `provenance`, dan `ttsSummarySource`.
+  - `AnalysisApi`: Refaktor request scan mengarah ke `POST /api/v1/scans` menggunakan multipart form data, menangani kode status `201 Created` dan `200 OK`, dengan pemetaan bersih via `ScanHistoryEntry.fromBackend` serta mempertahankan fallback lokal saat offline.
+  - `AnalysisContent` & `ScanResultScreen`: Menghapus estimasi sintetis hardcode dan menggantinya dengan nilai 8 nutrisi riil backend; merender poin `pros` dan `cons` secara dinamis; menghubungkan koreksi porsi ke `PATCH /api/v1/food-entries/:id/quantity` untuk rekalkulasi deterministik.
+  - `HistoryEntryCard`: Menambahkan tombol hapus pada lembar rincian riwayat yang memanggil `DELETE /api/v1/food-entries/:id` di backend dan membersihkan entri dari cache lokal.
+  - `LocalAppState` & `app_router.dart`: Mengintegrasikan sinkronisasi riwayat (`syncHistoryFromBackend`) dan ringkasan nutrisi harian (`fetchDailyNutritionFromBackend`) dari backend, menampilkan akumulasi asupan riil pada Beranda dengan fallback komputasi lokal deterministik saat offline.
+
 - Contoh riwayat awal (`sampleHistoryEntry`) pada inisialisasi lokal (`initializeLocalState`):
   - Menyediakan 1 contoh catatan riwayat nyata (*"Yogurt Stroberi & Granola"*, porsi 150 g, 140 kkal, 8 g protein, 12 g gula) saat penyimpanan lokal pengguna masih kosong.
   - Memungkinkan pengujian langsung fitur suara Text-to-Speech (TTS) lokal tanpa harus mengambil atau memindai foto makanan terlebih dahulu.
@@ -27,6 +44,24 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
   - Integrasi splash layar awal native Android (`launch_background.xml` dan `drawable-v21/launch_background.xml`) menampilkan ikon NutriSee di tengah latar putih untuk transisi mulus saat aplikasi pertama kali dibuka.
 
 ### Changed
+
+- Proposal scanner diselaraskan dengan konfigurasi provider, preprocessing 544 × 544 dan gaya TTS v3 yang sudah diterapkan. Handoff Flutter kini mencakup alur multipart, mapping field/nutrisi nullable, koreksi quantity, idempotency dan penanganan error; tidak mengubah endpoint atau frontend.
+
+- Gambar scanner food/label kini dinormalisasi ke JPEG 544 x 544 dengan rasio asli dan padding putih tanpa crop untuk membatasi ukuran input vision. Raw OCR dan validasi upload tetap berlaku; kontrak OpenAPI dan panduan scanner diselaraskan.
+
+- Prompt TTS scanner v3 dan template fallback memakai bahasa Indonesia sehari-hari yang lebih mudah dipahami, dengan sapaan kamu, kalimat pendek dan arahan menghindari jargon/bahasa laporan. Kontrak OpenAPI dan panduan frontend diperbarui.
+
+- Respons konsumsi menyediakan `pros`/`cons` dari insight tersimpan untuk kartu Kelebihan/Kekurangan. Prompt v2 mempertegas personalisasi dari retrieval dan ringkasan TTS atas pro/cons; fallback lokal mencoba insight yang sama. Unit/transport tests lolos dan dua mode service live 9Router lolos tanpa menambah jurnal fixture. Flutter tidak diubah.
+
+- Live smoke test 9Router untuk food dan label lolos validasi service dengan satu dispatch backend per mode (HTTP 200; 7.066/3.330 ms). Retrieval aktual ikut sebelum request; tidak menambah jurnal fixture. Hasil dan batas uji dicatat di README backend; ini bukan pengukuran akurasi nutrisi atau audit retry internal router.
+
+- Base URL DeepSeek kini dibaca dari `DEEPSEEK_BASE_URL` pada environment backend; endpoint tidak lagi ditetapkan langsung di service. Template environment, panduan setup dan tes konfigurasi URL diselaraskan.
+
+- Profil seed development kini berisi fixture lengkap tanpa field null untuk demo, termasuk identitas, personalisasi, alergi, audio, dan timezone. Seed ulang tetap mempertahankan koreksi profil yang sudah ada; tidak membuat konsumsi atau hasil scan fiktif.
+
+- Batas minimal password seed dummy development diturunkan menjadi 5 karakter atas permintaan pengguna; batas maksimal 128, salted scrypt, dan larangan seed production tetap berlaku.
+
+- Template environment backend disiapkan untuk demo lokal MySQL/XAMPP: dummy owner aktif, email/password seed contoh terisi, dan API key DeepSeek acak yang ditandai sebagai placeholder tidak valid untuk scan live.
 
 - Perapian tata letak (layout) dan desain visual lembar rincian riwayat makanan (`HistoryEntryDetail` dan `AnalysisContent`):
   - Mengatur ulang struktur *drawer* modal bawah (`showModalBottomSheet`) dengan header tetap (*fixed top bar*) berisi *drag handle pill*, ikon riwayat, judul "Rincian Riwayat Makanan", dan tombol tutup (`Icons.close_rounded`) yang tidak ikut tergulir.
@@ -111,6 +146,10 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Added
 
+- Backend scanner konsumsi development: Prisma MySQL schema/migration/seed dummy, profil sesuai Flutter, upload food/label tervalidasi, RAG SQL dari profil/riwayat/referensi reviewed, satu dispatch DeepSeek per idempotency key, jurnal persisten, koreksi quantity Decimal, daily summary nullable, dan teks ringkas TTS dengan fallback lokal. Kontrak OpenAPI per route dan handoff backend tersedia; Flutter tidak diubah. Tes provider mock pada database MariaDB terisolasi tersedia; live DeepSeek belum diuji tanpa API key.
+
+- Swagger UI dan OpenAPI JSON backend, dengan kontrak health/user terpisah per modul route, schema input user memakai validasi yang sama, serta pengujian HTTP. AGENTS mewajibkan pembaruan OpenAPI setiap perubahan route; README server, WORKSPACE, dan arsitektur menjelaskan penggunaan serta batas endpoint demo.
+
 - Panel nutrisi hasil mengikuti referensi pengguna: ikon/nama, angka besar, pita satuan dan warna per kandungan dalam grid responsif.
 - Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.
 - Hasil scan langsung tanpa form porsi/deskripsi, pengali sajian untuk label terkonfirmasi, grid nutrisi berikon, dan lingkaran tombol jepret terisi.
@@ -188,6 +227,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - Dokumen desain UI, register keputusan, dan aturan mutu UI yang sebelumnya berisi konteks proyek lain diselaraskan dengan NutriLens AI.
 
 ### Fixed
+
+- Instalasi backend pnpm: tetapkan izin build Prisma dan penolakan script Scarf dalam `server/pnpm-workspace.yaml` untuk mengatasi `ERR_PNPM_IGNORED_BUILDS`; dokumentasikan instalasi Windows dan generate client awal.
 
 ### Removed
 

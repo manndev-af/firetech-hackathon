@@ -1,6 +1,8 @@
 # NutriLens AI — Project Brainstorming & Product Foundation
 
 > **Working title:** NutriLens AI (Nama Belum Fix)
+
+> Addendum 7 November 2026: pengguna menyetujui backend scanner konsumsi pada `add-scanner-consumption-backend`. Jalur ini menggantikan rencana ONNX/verified-only historis dengan satu panggilan DeepSeek vision, estimasi/ekstraksi berprovenance, RAG SQL, jurnal otomatis dan kalkulasi quantity deterministik. Lihat [keputusan pengganti](DECISIONS.md) dan [panduan backend](../server/README.md#scanner-konsumsi-development). Implementasi diuji dengan provider mock; live DeepSeek belum diuji. Flutter tetap di luar scope change.
 > **Positioning:** Personalized Nutrition Decision Support  
 > **Tagline:** _Understand what you eat. Make informed food choices._  
 > **Document purpose:** Rangkuman diskusi dan brainstorming sebagai landasan awal penyusunan PRD (Product Requirements Document), BRD (Business Requirements Document), desain UI/UX, arsitektur teknis, dan implementasi MVP hackathon.

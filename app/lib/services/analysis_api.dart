@@ -3,14 +3,17 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../core/network/api_endpoints.dart';
+import '../core/utils/uuid_generator.dart';
 import '../models/scan_draft.dart';
 import '../models/scan_history_entry.dart';
 import 'local_vision.dart';
 
 class AnalysisApi {
   AnalysisApi({
-    this.baseUrl = const String.fromEnvironment('ANALYSIS_BASE_URL'),
-  });
+    String? baseUrl,
+  }) : baseUrl = resolveDefaultBaseUrl(baseUrl);
+
   final String baseUrl;
   bool get configured => baseUrl.trim().isNotEmpty;
 
@@ -21,10 +24,11 @@ class AnalysisApi {
       );
     }
     final base = Uri.parse(baseUrl);
-    final localDebug =
-        kDebugMode &&
-        {'localhost', '127.0.0.1', '10.0.2.2'}.contains(base.host);
-    if (base.scheme != 'https' && !(localDebug && base.scheme == 'http')) {
+    final allowHttp = kDebugMode ||
+        {'localhost', '127.0.0.1', '10.0.2.2'}.contains(base.host) ||
+        base.host.startsWith('192.168.') ||
+        base.host.startsWith('10.');
+    if (base.scheme != 'https' && !(allowHttp && base.scheme == 'http')) {
       throw const ScanFailure(
         'Alamat layanan analisis harus menggunakan koneksi aman.',
       );
@@ -32,14 +36,20 @@ class AnalysisApi {
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15);
     try {
+      if (kDebugMode) {
+        debugPrint('[AnalysisApi] Mengirim permintaan scan ke ${base.resolve(ApiEndpoints.scans)}');
+      }
       return await _request(
         client,
-        base.resolve('/api/v1/analysis'),
+        base.resolve(ApiEndpoints.scans),
         draft,
       ).timeout(const Duration(seconds: 45));
     } on ScanFailure {
       rethrow;
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AnalysisApi] Gagal menghubungi backend: $e');
+      }
       throw const ScanFailure(
         'Analisis belum berhasil. Foto dan teks tetap tersimpan; coba lagi saat koneksi tersedia.',
       );
@@ -54,40 +64,78 @@ class AnalysisApi {
     ScanDraft draft,
   ) async {
     final photo = await File(draft.photoPath).readAsBytes();
-    if (photo.length > 1500000) {
+    if (photo.length > 5 * 1024 * 1024) {
       throw const ScanFailure(
-        'Foto melebihi batas pengiriman. Ambil ulang foto.',
+        'Foto melebihi batas pengiriman (5 MB). Ambil ulang foto.',
       );
     }
+
+    final boundary = '----NutriLensScan${DateTime.now().microsecondsSinceEpoch}';
     final request = await client.postUrl(uri);
     request.followRedirects = false;
-    request.headers.contentType = ContentType.json;
-    request.headers.set('Idempotency-Key', draft.id);
-    request.write(
-      jsonEncode({
-        'requestId': draft.id,
-        'mode': draft.label ? 'label' : 'food',
-        'rawOcrText': draft.rawOcrText,
-        if (draft.note != null && draft.note!.trim().isNotEmpty)
-          'userNote': draft.note!.trim(),
-        'image': {'mimeType': 'image/jpeg', 'base64': base64Encode(photo)},
-        'priorities': draft.priorities,
-      }),
+    request.headers.set(
+      HttpHeaders.contentTypeHeader,
+      'multipart/form-data; boundary=$boundary',
     );
-    final response = await request.close();
-    if (response.statusCode != 200) {
-      throw const ScanFailure(
-        'Layanan analisis belum dapat memproses foto. Coba lagi nanti.',
-      );
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    final idempotencyKey = isValidUuid(draft.id) ? draft.id : generateUuidV4();
+    request.headers.set('Idempotency-Key', idempotencyKey);
+
+    void writeField(String name, String value) {
+      request.write('--$boundary\r\n');
+      request.write('Content-Disposition: form-data; name="$name"\r\n\r\n');
+      request.write('$value\r\n');
     }
+
+    // Required field mode
+    writeField('mode', draft.label ? 'label' : 'food');
+
+    // Required for label mode
+    if (draft.label && draft.rawOcrText != null && draft.rawOcrText!.trim().isNotEmpty) {
+      writeField('rawOcrText', draft.rawOcrText!.trim());
+    }
+
+    // Optional user note as description
+    if (draft.note != null && draft.note!.trim().isNotEmpty) {
+      writeField('description', draft.note!.trim());
+    }
+
+    writeField('quantity', '1');
+
+    // Write binary image part
+    request.write('--$boundary\r\n');
+    request.write('Content-Disposition: form-data; name="image"; filename="photo.jpg"\r\n');
+    request.write('Content-Type: image/jpeg\r\n\r\n');
+    request.add(photo);
+    request.write('\r\n');
+
+    // Close boundary
+    request.write('--$boundary--\r\n');
+
+    final response = await request.close();
     final bytes = <int>[];
     await for (final chunk in response) {
       bytes.addAll(chunk);
-      if (bytes.length > 256000) {
+      if (bytes.length > 512000) {
         throw const FormatException('Response too large');
       }
     }
-    return parseAnalysisResponse(jsonDecode(utf8.decode(bytes)), draft);
+
+    final responseBody = utf8.decode(bytes);
+
+    // Accept 201 Created and 200 OK
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      String errorMessage = 'Layanan analisis belum dapat memproses foto. Coba lagi nanti.';
+      try {
+        final decoded = jsonDecode(responseBody);
+        if (decoded is Map && decoded['message'] is String) {
+          errorMessage = decoded['message'] as String;
+        }
+      } catch (_) {}
+      throw ScanFailure(errorMessage);
+    }
+
+    return parseAnalysisResponse(jsonDecode(responseBody), draft);
   }
 }
 
@@ -95,49 +143,12 @@ ScanHistoryEntry parseAnalysisResponse(Object? value, ScanDraft draft) {
   if (value is! Map || value['success'] != true || value['data'] is! Map) {
     throw const FormatException('Invalid analysis response');
   }
-  final data = value['data'] as Map;
-  String text(String key, {int max = 4000}) {
-    final value = data[key];
-    if (value is! String || value.trim().isEmpty || value.length > max) {
-      throw FormatException('Invalid $key');
-    }
-    return value.trim();
-  }
+  final data = Map<String, dynamic>.from(value['data'] as Map);
 
-  final nutrients = data['nutrients'];
-  if (nutrients is! Map) throw const FormatException('Missing nutrients');
-  double? nutrient(String key) {
-    final value = nutrients[key];
-    if (value == null) return null;
-    if (value is! num || !value.isFinite || value < 0) {
-      throw FormatException('Invalid $key');
-    }
-    return value.toDouble();
-  }
-
-  final spoken = data['spokenSummary'];
-  if (spoken != null && (spoken is! String || spoken.length > 320)) {
-    throw const FormatException('Invalid spoken summary');
-  }
-  return ScanHistoryEntry(
-    id: draft.id,
-    name: text('foodName', max: 160),
-    savedAt: draft.createdAt,
-    packaged: draft.label,
-    portion: text('portion', max: 200),
-    source: text('source'),
-    referenceBasis: text('referenceBasis', max: 300),
-    energyKcal: nutrient('energyKcal'),
-    proteinG: nutrient('proteinG'),
-    sugarG: nutrient('sugarG'),
-    sodiumMg: nutrient('sodiumMg'),
-    note: text('summary'),
+  return ScanHistoryEntry.fromBackend(
+    data,
+    localPhotoPath: draft.photoPath,
     userNote: draft.note,
-    spokenSummary: spoken is String && spoken.trim().isNotEmpty
-        ? spoken.trim()
-        : 'Hasil analisis sudah tersedia. Periksa nama makanan, porsi, dan informasi yang belum lengkap sebelum menggunakannya.',
-    photoPath: draft.photoPath,
-    rawOcrText: draft.rawOcrText,
     prioritySnapshot: draft.priorities,
   );
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import '../core/utils/uuid_generator.dart';
 import '../models/scan_draft.dart';
 import 'local_storage.dart';
 import 'local_vision.dart';
@@ -47,7 +48,7 @@ class ScanPipeline {
     }
     if (!label) await checkFood(path);
     final bytes = await resize(path, label);
-    final id = 'scan_${DateTime.now().microsecondsSinceEpoch}';
+    final id = generateUuidV4();
     final folder = Directory('${storage.directory.path}/photos');
     await folder.create(recursive: true);
     final photo = File('${folder.path}/$id.jpg');
