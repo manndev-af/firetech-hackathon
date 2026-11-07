@@ -11,16 +11,7 @@ class JournalApi {
     String? baseUrl,
   }) : _client = client ??
             ApiClient(
-              baseUri: Uri.parse(
-                baseUrl ??
-                    const String.fromEnvironment(
-                      'API_BASE_URL',
-                      defaultValue: String.fromEnvironment(
-                        'ANALYSIS_BASE_URL',
-                        defaultValue: 'http://10.0.2.2:3000',
-                      ),
-                    ),
-              ),
+              baseUri: Uri.parse(resolveDefaultBaseUrl(baseUrl)),
             );
 
   final ApiClient _client;
