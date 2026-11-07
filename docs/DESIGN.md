@@ -1,5 +1,7 @@
 # NutriLens AI — Rancangan UI/UX
 
+Penyempurnaan 7 November 2026: detail Riwayat tanpa ikon silang; tutup melalui gestur geser, area luar panel, atau kembali sistem. Kartu Ringkasan menampilkan catatan dan fokus saat dicatat tanpa penilaian kesehatan baru. Preview Personalisasi menampilkan seluruh prioritas, preferensi, pola makan, halal, dan status/bahan alergi. Input Profil memakai latar mint, border radius 16, label tetap terlihat, satuan, dan teks input 16 px; font Inter serta palet yang ada dipertahankan.
+
 ## Revisi ringkasan Profil dan foto Riwayat — 7 November 2026
 
 Revisi Profil berikutnya: informasi diri dipisahkan dari personalisasi. Edit profil membuka nama/usia/tinggi/berat; Lihat detail Personalisasi langsung membuka form lengkap prioritas/pilihan makanan/alergi secara inline. Semua bagian form dapat digulir pada halaman yang sama, dengan Simpan dan Kembali di akhir. Tidak memakai drawer/bottom sheet. Pengaturan audio tampil pada ringkasan, dan kembali terlihat setelah editor ditutup. Posisi scroll kembali ke ringkasan saat selesai. Riwayat tidak berubah pada revisi ini.

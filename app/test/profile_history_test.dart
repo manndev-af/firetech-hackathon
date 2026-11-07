@@ -89,7 +89,7 @@ void main() {
     expect(find.text('Yogurt stroberi'), findsOneWidget);
     await tap(tester, 'Yogurt stroberi');
     expect(find.byType(HistoryEntryDetail), findsOneWidget);
-    await tester.tap(find.byTooltip('Tutup detail'));
+    await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
     await tap(tester, 'Profile');
     await tester.scrollUntilVisible(
@@ -302,9 +302,10 @@ void main() {
       expect(find.byType(HistoryEntryDetail), findsOneWidget);
       await tap(tester, 'Tentang data nutrisi');
       expect(find.text('Acuan perhitungan: Per sajian 150 g'), findsOneWidget);
-      await tester.ensureVisible(find.byTooltip('Tutup detail'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Tutup detail'));
+      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.text('Ringkasan \u00b7 Yuk, lihat trade-off-nya'), findsOneWidget);
+      expect(find.text('Fokus saat dicatat: Gula \u00b7 Protein'), findsOneWidget);
+      Navigator.of(tester.element(find.byType(HistoryEntryDetail))).pop();
       await tester.pumpAndSettle();
       expect(find.byType(HistoryEntryDetail), findsNothing);
       expect(tester.takeException(), isNull);
@@ -340,7 +341,13 @@ void main() {
       appRouter.go(AppRoutes.profile);
       await tester.pumpWidget(const NutriLensApp());
       await tester.pumpAndSettle();
-      expect(find.text('+2 lainnya'), findsOneWidget);
+      expect(find.text('+2 lainnya'), findsNothing);
+      for (final priority in NutritionProfile.priorityOptions) {
+        expect(find.text(priority), findsOneWidget);
+      }
+      expect(find.text('Pola makan'), findsOneWidget);
+      expect(find.text('Preferensi halal'), findsOneWidget);
+      expect(find.text('Alergi makanan'), findsOneWidget);
       expect(find.text('165 cm'), findsNothing);
       await tap(tester, 'Audio analisis');
       expect(analysisAudioSession.value, isTrue);
