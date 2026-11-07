@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { generalLimiter } from './middleware/rateLimiter';
 import apiRoutes from './routes';
+import { DomainError, domainErrorHandler } from './utils/domainError';
 
 export const createApp = (): Application => {
   const app = express();
@@ -57,6 +58,13 @@ export const createApp = (): Application => {
 
   // Error handling middleware (must be last)
   app.use(notFoundHandler);
+  app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+    if (!req.path.startsWith(`${config.apiPrefix}/v1/`)) return next(error);
+    const status = (error as { status?: number }).status;
+    const failure = status === 400 ? new DomainError('INVALID_JSON', 'Body JSON tidak valid.') :
+      status === 413 ? new DomainError('UPLOAD_TOO_LARGE', 'Body melebihi batas.', 413) : error;
+    return domainErrorHandler(failure, req, res, next);
+  });
   app.use(errorHandler);
 
   return app;

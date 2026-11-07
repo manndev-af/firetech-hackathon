@@ -18,11 +18,14 @@ test('Swagger serves local assets and documents working routes with a custom pre
     assert.equal(json.status, 200);
     const spec = await json.json();
     assert.equal(spec.openapi, '3.0.3');
-    assert.deepEqual(Object.keys(spec.paths).sort(), ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}'].sort());
+    assert.deepEqual(Object.keys(spec.paths).sort(), ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/{id}', '/api/v1/v1/profile'].sort());
     const ids = Object.values(spec.paths).flatMap(path =>
       Object.values(path).filter(operation => operation.operationId).map(operation => operation.operationId));
-    assert.equal(ids.length, 9);
+    assert.equal(ids.length, 11);
     assert.equal(new Set(ids).size, ids.length);
+    const domain = await request('/api/v1/v1/profile');
+    assert.equal(domain.status, 404);
+    assert.equal((await domain.json()).data.code, 'DEMO_DISABLED');
     for (const path of ['/health', '/api/v1/health', '/api/v1/health/readiness', '/api/v1/health/liveness', '/api/v1/users', '/api/v1/users/1']) {
       assert.equal((await request(path)).status, 200, path);
     }
