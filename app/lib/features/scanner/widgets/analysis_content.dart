@@ -148,6 +148,7 @@ class _AnalysisContentState extends State<AnalysisContent>
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
+    final totalCalories = (_baseCalories * _servings).round();
     final proteinStr = _baseProtein > 0
         ? '${_formatNum(_baseProtein * _servings)} g'
         : (entry.proteinG == 0 ? '0 g' : 'Belum tersedia');
@@ -158,14 +159,21 @@ class _AnalysisContentState extends State<AnalysisContent>
         ? '${_formatNum(_baseCarbs * _servings)} g'
         : (_baseCalories == 0 ? '0 g' : 'Belum tersedia');
 
+    final proteinPercent =
+        '${((_baseProtein * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+    final fatPercent =
+        '${((_baseFat * 9 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+    final carbsPercent =
+        '${((_baseCarbs * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. Hero Photo with AI Badge
+        // 1. Hero Photo with AI Verification Badge
         ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
-            height: 220,
+            height: 190,
             color: AppColors.background,
             child: Stack(
               fit: StackFit.expand,
@@ -173,54 +181,28 @@ class _AnalysisContentState extends State<AnalysisContent>
                 if (entry.photoPath != null)
                   Image.file(
                     File(entry.photoPath!),
-                    height: 220,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, error, stack) => Container(
-                      color: PersonalColors.soft,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.image_not_supported_outlined,
-                        color: PersonalColors.secondary,
-                        size: 36,
-                      ),
-                    ),
+                    errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
                 else if (entry.photoAsset != null)
                   Image.asset(
                     entry.photoAsset!,
-                    height: 220,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, error, stack) => Container(
-                      color: PersonalColors.soft,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.image_not_supported_outlined,
-                        color: PersonalColors.secondary,
-                        size: 36,
-                      ),
-                    ),
+                    errorBuilder: (_, error, stack) => _buildPhotoFallback(),
                   )
                 else
-                  Container(
-                    color: PersonalColors.soft,
-                    alignment: Alignment.center,
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: PersonalColors.secondary,
-                      size: 36,
-                    ),
-                  ),
+                  _buildPhotoFallback(),
                 Positioned(
-                  top: 14,
-                  right: 14,
+                  top: 12,
+                  right: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: 11,
+                      vertical: 5.5,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: .6),
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.heroBackground.withValues(alpha: 0.88),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.white24),
                     ),
                     child: Row(
@@ -229,16 +211,16 @@ class _AnalysisContentState extends State<AnalysisContent>
                         const Icon(
                           Icons.auto_awesome,
                           color: AppColors.cyan,
-                          size: 15,
+                          size: 14,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 5),
                         Text(
                           entry.packaged
                               ? 'Label Terbaca AI'
                               : 'Makanan Terverifikasi AI',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -250,194 +232,256 @@ class _AnalysisContentState extends State<AnalysisContent>
             ),
           ),
         ),
-        const SizedBox(height: 20),
-
-        // 2. Title & Portions
-        Text(
-          entry.name,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            height: 1.3,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${historyDate(entry.savedAt)} · ${entry.portion}',
-          style: const TextStyle(
-            fontSize: 14,
-            color: PersonalColors.secondary,
-          ),
-        ),
         const SizedBox(height: 14),
 
-        // 3. Calorie & Health Score Banner
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(
-              '${(_baseCalories * _servings).round()} kal',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: AppColors.heroBackground,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.mint,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.cyan.withValues(alpha: .3),
-                ),
-              ),
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                runSpacing: 2,
-                children: [
-                  const Icon(
-                    Icons.favorite,
-                    size: 15,
-                    color: AppColors.primary,
-                  ),
-                  Text(
-                    _scoreText,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryDark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-
-        // 4. Thematic Macro Badge Cards (Protein, Lemak, Karbohidrat)
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final cardWidth = (constraints.maxWidth - 20) / 3;
-            final isStacked = constraints.maxWidth < 360 ||
-                MediaQuery.textScalerOf(context).scale(1) > 1.1;
-
-            final proteinCard = _buildMacroBadge(
-              label: 'Protein',
-              value: proteinStr,
-              percent:
-                  '${((_baseProtein * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%',
-              icon: Icons.fitness_center_rounded,
-              color: const Color(0xFF2563EB),
-              bg: const Color(0xFFEEF5FC),
-              border: const Color(0xFFD4E5F7),
-            );
-
-            final fatCard = _buildMacroBadge(
-              label: 'Lemak',
-              value: fatStr,
-              percent:
-                  '${((_baseFat * 9 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%',
-              icon: Icons.opacity_rounded,
-              color: const Color(0xFFD97706),
-              bg: const Color(0xFFFEF4E8),
-              border: const Color(0xFFFCDAB4),
-            );
-
-            final carbsCard = _buildMacroBadge(
-              label: 'Karbohidrat',
-              value: carbsStr,
-              percent:
-                  '${((_baseCarbs * 4 / (_baseCalories > 0 ? _baseCalories : 1)) * 100).clamp(5, 95).round()}%',
-              icon: Icons.rice_bowl_outlined,
-              color: const Color(0xFF7C3AED),
-              bg: const Color(0xFFF5EEFD),
-              border: const Color(0xFFE2D1F9),
-            );
-
-            if (isStacked) {
-              return Column(
-                children: [
-                  proteinCard,
-                  const SizedBox(height: 10),
-                  fatCard,
-                  const SizedBox(height: 10),
-                  carbsCard,
-                ],
-              );
-            }
-
-            return Row(
-              children: [
-                SizedBox(width: cardWidth, child: proteinCard),
-                const SizedBox(width: 10),
-                SizedBox(width: cardWidth, child: fatCard),
-                const SizedBox(width: 10),
-                SizedBox(width: cardWidth, child: carbsCard),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 14),
-
-        // 5. Secondary Badges (Serat, Gula, Natrium)
+        // 2. Food Identity & Energy Banner Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.border),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSecondaryBadge(
-                icon: Icons.eco_rounded,
-                label: 'Serat',
-                value: _baseFiber > 0
-                    ? '${_formatNum(_baseFiber * _servings)} g'
-                    : '0 g',
-                subtext: 'Proporsi serat alami',
-                color: const Color(0xFF16A34A),
+              Text(
+                entry.name,
+                style: const TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w800,
+                  height: 1.25,
+                  color: AppColors.textPrimary,
+                ),
               ),
-              const Divider(height: 18),
-              _buildSecondaryBadge(
-                icon: Icons.cookie_outlined,
-                label: 'Gula',
-                value: _baseSugar != null
-                    ? '${_formatNum(_baseSugar! * _servings)} g'
-                    : 'Belum tersedia',
-                subtext: 'Gula alami & tambahan',
-                color: const Color(0xFFDB2777),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Wrap(
+                    spacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      Text(
+                        historyDate(entry.savedAt),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text('·', style: TextStyle(color: AppColors.border)),
+                  Wrap(
+                    spacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.restaurant_outlined,
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      Text(
+                        entry.portion,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const Divider(height: 18),
-              _buildSecondaryBadge(
-                icon: Icons.grain_outlined,
-                label: 'Natrium',
-                value: _baseSodium != null
-                    ? '${(_baseSodium! * _servings).round()} mg'
-                    : 'Belum tersedia',
-                subtext: 'Batas harian aman',
-                color: const Color(0xFF0D9488),
+              const SizedBox(height: 16),
+              const Divider(height: 1, thickness: 1, color: AppColors.border),
+              const SizedBox(height: 16),
+              // Calorie & Score Metrics (Responsive)
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isReflow = constraints.maxWidth < 280 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.2;
+
+                  if (isReflow) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Estimasi Energi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '$totalCalories kal',
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.heroBackground,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: [
+                            const Text(
+                              'Kualitas Gizi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.mint,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.cyan.withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 5,
+                                children: [
+                                  const Icon(
+                                    Icons.favorite,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                  Text(
+                                    _scoreText,
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Estimasi Energi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '$totalCalories kal',
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.heroBackground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 42,
+                        color: AppColors.border,
+                        margin: const EdgeInsets.symmetric(horizontal: 14),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Kualitas Gizi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.mint,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.cyan.withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 5,
+                                children: [
+                                  const Icon(
+                                    Icons.favorite,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                  Text(
+                                    _scoreText,
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 14),
 
-        // 6. Portion Selector & Stepper
+        // 3. Portion Adjustment Card
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(24),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.border),
           ),
           child: Column(
@@ -449,56 +493,72 @@ class _AnalysisContentState extends State<AnalysisContent>
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  const Text(
-                    'Porsi',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                  Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: AppColors.mint,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.tune_rounded,
+                          size: 16,
+                          color: AppColors.heroBackground,
+                        ),
+                      ),
+                      const Text(
+                        'Sesuaikan Porsi',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     entry.portion,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
-
-              // Quick portion chips
+              const SizedBox(height: 12),
+              // Quick chips
               Row(
                 children: [
                   for (final count in [1.0, 2.0, 3.0, 4.0]) ...[
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
                         child: Material(
                           color: _servings == count
                               ? AppColors.heroBackground
-                              : Colors.white,
+                              : AppColors.background,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
                               color: _servings == count
                                   ? AppColors.heroBackground
                                   : AppColors.border,
-                              width: 1.5,
                             ),
                           ),
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             onTap: () => setState(() => _servings = count),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Text(
-                                '${count.toInt()}',
+                                '${count.toInt()}x',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: _servings == count
                                       ? Colors.white
@@ -513,51 +573,54 @@ class _AnalysisContentState extends State<AnalysisContent>
                   ],
                 ],
               ),
-              const SizedBox(height: 14),
-
+              const SizedBox(height: 10),
               // Stepper control: [-] [X porsi] [+]
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: 10,
+                  vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                       tooltip: 'Kurangi porsi',
+                      visualDensity: VisualDensity.compact,
                       onPressed: _servings > 1.0
                           ? () => setState(
                                 () => _servings =
                                     (_servings - 1.0).clamp(1.0, 10.0),
                               )
                           : null,
-                      icon: const Icon(Icons.remove_circle_outline, size: 26),
+                      icon: const Icon(Icons.remove_circle_outline, size: 22),
                       color: AppColors.primaryDark,
                     ),
-                    Text(
-                      '${_formatServings(_servings)} porsi',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    Flexible(
+                      child: Text(
+                        '${_formatServings(_servings)} porsi',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                     IconButton(
                       tooltip: 'Tambah porsi',
+                      visualDensity: VisualDensity.compact,
                       onPressed: _servings < 10.0
                           ? () => setState(
                                 () => _servings =
                                     (_servings + 1.0).clamp(1.0, 10.0),
                               )
                           : null,
-                      icon: const Icon(Icons.add_circle_outline, size: 26),
+                      icon: const Icon(Icons.add_circle_outline, size: 22),
                       color: AppColors.primaryDark,
                     ),
                   ],
@@ -566,14 +629,202 @@ class _AnalysisContentState extends State<AnalysisContent>
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 14),
 
-        // 7. Kesimpulan Singkat with Audio TTS
+        // 4. Kandungan Nutrisi (Makro & Mikro Terpadu)
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: AppColors.mint,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.pie_chart_outline_rounded,
+                          size: 16,
+                          color: AppColors.heroBackground,
+                        ),
+                      ),
+                      const Text(
+                        'Kandungan Nutrisi',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Text(
+                      '${_formatServings(_servings)} porsi',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              // Three Macro Columns
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 260 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.2;
+                  final proteinWidget = _buildMacroCard(
+                    label: 'Protein',
+                    value: proteinStr,
+                    percent: proteinPercent,
+                    icon: Icons.fitness_center_rounded,
+                    color: const Color(0xFF2563EB),
+                    bg: const Color(0xFFF0F7FF),
+                    border: const Color(0xFFD0E4FF),
+                  );
+                  final fatWidget = _buildMacroCard(
+                    label: 'Lemak',
+                    value: fatStr,
+                    percent: fatPercent,
+                    icon: Icons.opacity_rounded,
+                    color: const Color(0xFFD97706),
+                    bg: const Color(0xFFFFFBEB),
+                    border: const Color(0xFFFDE68A),
+                  );
+                  final carbsWidget = _buildMacroCard(
+                    label: 'Karbo',
+                    value: carbsStr,
+                    percent: carbsPercent,
+                    icon: Icons.grain_rounded,
+                    color: const Color(0xFF7C3AED),
+                    bg: const Color(0xFFFAF5FF),
+                    border: const Color(0xFFE9D5FF),
+                  );
+
+                  if (isNarrow) {
+                    return Column(
+                      children: [
+                        proteinWidget,
+                        const SizedBox(height: 8),
+                        fatWidget,
+                        const SizedBox(height: 8),
+                        carbsWidget,
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: proteinWidget),
+                      const SizedBox(width: 8),
+                      Expanded(child: fatWidget),
+                      const SizedBox(width: 8),
+                      Expanded(child: carbsWidget),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1, thickness: 1, color: AppColors.border),
+              const SizedBox(height: 14),
+              // Secondary Nutrients (Serat, Gula, Natrium)
+              _buildSecondaryRow(
+                icon: Icons.eco_rounded,
+                label: 'Serat',
+                value: _baseFiber > 0
+                    ? '${_formatNum(_baseFiber * _servings)} g'
+                    : '0 g',
+                subtext: 'Proporsi serat alami',
+                color: const Color(0xFF16A34A),
+              ),
+              const Divider(height: 16, thickness: 0.5, color: AppColors.border),
+              _buildSecondaryRow(
+                icon: Icons.cookie_outlined,
+                label: 'Gula',
+                value: _baseSugar != null
+                    ? '${_formatNum(_baseSugar! * _servings)} g'
+                    : 'Belum tersedia',
+                subtext: 'Gula alami & tambahan',
+                color: const Color(0xFFDB2777),
+              ),
+              const Divider(height: 16, thickness: 0.5, color: AppColors.border),
+              _buildSecondaryRow(
+                icon: Icons.grain_outlined,
+                label: 'Natrium',
+                value: _baseSodium != null
+                    ? '${(_baseSodium! * _servings).round()} mg'
+                    : 'Belum tersedia',
+                subtext: 'Batas harian aman',
+                color: const Color(0xFF0D9488),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 5. Analisis & Trade-Off Personal Section
+        Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: AppColors.mint,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                size: 16,
+                color: AppColors.heroBackground,
+              ),
+            ),
+            const Text(
+              'Analisis & Trade-Off Personal',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        // 5a. Kesimpulan AI & Audio Narasi Card
+        Container(
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: PersonalColors.soft,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: AppColors.cyan.withValues(alpha: 0.35),
             ),
@@ -582,11 +833,16 @@ class _AnalysisContentState extends State<AnalysisContent>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const PersonalHeading('Kesimpulan singkat'),
+              const SizedBox(height: 4),
               Text(
                 entry.spokenSummary.isEmpty
                     ? 'Kesimpulan singkat belum tersedia.'
                     : entry.spokenSummary,
-                style: const TextStyle(height: 1.5),
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: PersonalColors.ink,
+                ),
               ),
               if (entry.spokenSummary.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -597,9 +853,16 @@ class _AnalysisContentState extends State<AnalysisContent>
                     child: TextButton.icon(
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primaryDark,
+                        backgroundColor: Colors.white.withValues(alpha: 0.8),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
-                          vertical: 8,
+                          vertical: 7,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.cyan.withValues(alpha: 0.3),
+                          ),
                         ),
                       ),
                       onPressed: () => _speech.activeId == entry.id
@@ -609,12 +872,16 @@ class _AnalysisContentState extends State<AnalysisContent>
                         _speech.activeId == entry.id
                             ? Icons.stop_circle_outlined
                             : Icons.volume_up_outlined,
+                        size: 18,
                       ),
                       label: Text(
                         _speech.activeId == entry.id
                             ? 'Hentikan suara'
                             : 'Dengarkan kesimpulan',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
@@ -632,18 +899,16 @@ class _AnalysisContentState extends State<AnalysisContent>
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
 
-        // 8. Ringkasan Analisis
+        // 5b. Ringkasan Trade-Off Detail Card
         if (entry.note.isNotEmpty) ...[
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: PersonalColors.soft,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.cyan.withValues(alpha: 0.35),
-              ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,13 +916,13 @@ class _AnalysisContentState extends State<AnalysisContent>
                 const Text(
                   'Ringkasan · Yuk, lihat trade-off-nya',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: PersonalColors.primary,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   entry.note,
                   style: const TextStyle(
@@ -667,57 +932,113 @@ class _AnalysisContentState extends State<AnalysisContent>
                   ),
                 ),
                 if (entry.prioritySnapshot.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    'Fokus saat dicatat: ${entry.prioritySnapshot.join(' · ')}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: PersonalColors.secondary,
-                      height: 1.5,
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Text(
+                      'Fokus saat dicatat: ${entry.prioritySnapshot.join(' · ')}',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: PersonalColors.secondary,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
         ],
 
-        // 9. Trade-Off Kelebihan & Kekurangan Cards
+        // 5c. Kelebihan Card
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F7F4),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFBCE9E4)),
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Wrap(
+              Wrap(
+                spacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                children: [
+                children: const [
                   Icon(
                     Icons.thumb_up_alt_rounded,
-                    color: AppColors.primary,
-                    size: 22,
+                    color: Color(0xFF16A34A),
+                    size: 18,
                   ),
                   Text(
                     'Kelebihan',
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryDark,
+                      color: Color(0xFF15803D),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 _kelebihanText,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
+                  height: 1.5,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 5d. Kekurangan Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1F2),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFFECDD3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.thumb_down_alt_rounded,
+                    color: Color(0xFFE11D48),
+                    size: 18,
+                  ),
+                  Text(
+                    'Kekurangan',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFBE123C),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _kekuranganText,
+                style: const TextStyle(
+                  fontSize: 14,
                   height: 1.5,
                   color: AppColors.textPrimary,
                 ),
@@ -727,77 +1048,34 @@ class _AnalysisContentState extends State<AnalysisContent>
         ),
         const SizedBox(height: 14),
 
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF1F2),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFFECDD3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                children: [
-                  Icon(
-                    Icons.thumb_down_alt_rounded,
-                    color: Color(0xFFE11D48),
-                    size: 22,
-                  ),
-                  Text(
-                    'Kekurangan',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFBE123C),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                _kekuranganText,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Catatan / Deskripsi Tambahan Pengguna
+        // 6. User Note (if provided)
         if (entry.userNote != null && entry.userNote!.trim().isNotEmpty) ...[
           Container(
-            width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: AppColors.mint,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.edit_note_rounded,
-                        size: 20,
+                        size: 18,
                         color: AppColors.heroBackground,
                       ),
                     ),
-                    const SizedBox(width: 10),
                     const Text(
                       'Deskripsi Tambahan',
                       style: TextStyle(
@@ -808,7 +1086,7 @@ class _AnalysisContentState extends State<AnalysisContent>
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   entry.userNote!,
                   style: const TextStyle(
@@ -820,59 +1098,85 @@ class _AnalysisContentState extends State<AnalysisContent>
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
         ],
 
-        // 10. ExpansionTile for Source, Basis, & Raw OCR Text
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 16),
-          title: const Text(
-            'Tentang data nutrisi',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        // 7. ExpansionTile for Source & Reference Basis
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.border),
           ),
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Asal data: ${entry.source.isEmpty ? 'Database Terverifikasi NutriLens' : entry.source}',
-                    style: const TextStyle(fontSize: 14, height: 1.5),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Acuan perhitungan: ${entry.referenceBasis}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.5,
-                      color: PersonalColors.secondary,
-                    ),
-                  ),
-                  if (entry.rawOcrText != null) ...[
-                    const SizedBox(height: 14),
-                    const PersonalHeading('Teks label terbaca'),
-                    const SizedBox(height: 6),
-                    SelectableText(
-                      entry.rawOcrText!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        height: 1.4,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ],
+          child: Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              shape: const Border(),
+              collapsedShape: const Border(),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              title: const Text(
+                'Tentang data nutrisi',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
               ),
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Asal data: ${entry.source.isEmpty ? 'Database Terverifikasi NutriLens' : entry.source}',
+                        style: const TextStyle(fontSize: 13.5, height: 1.5),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Acuan perhitungan: ${entry.referenceBasis}',
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          height: 1.5,
+                          color: PersonalColors.secondary,
+                        ),
+                      ),
+                      if (entry.rawOcrText != null) ...[
+                        const SizedBox(height: 12),
+                        const PersonalHeading('Teks label terbaca'),
+                        const SizedBox(height: 6),
+                        SelectableText(
+                          entry.rawOcrText!,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            height: 1.4,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildMacroBadge({
+  Widget _buildPhotoFallback() => Container(
+    color: PersonalColors.soft,
+    alignment: Alignment.center,
+    child: const Icon(
+      Icons.image_not_supported_outlined,
+      color: PersonalColors.secondary,
+      size: 36,
+    ),
+  );
+
+  Widget _buildMacroCard({
     required String label,
     required String value,
     required String percent,
@@ -881,52 +1185,56 @@ class _AnalysisContentState extends State<AnalysisContent>
     required Color bg,
     required Color border,
   }) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
     decoration: BoxDecoration(
       color: bg,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
       border: Border.all(color: border),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
           children: [
             Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(color: border),
               ),
-              child: Icon(icon, size: 16, color: color),
+              child: Icon(icon, size: 13, color: color),
             ),
             Text(
               percent,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
           value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14.5,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 2),
         Text(
           label,
           style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
             color: AppColors.textSecondary,
           ),
         ),
@@ -934,7 +1242,7 @@ class _AnalysisContentState extends State<AnalysisContent>
     ),
   );
 
-  Widget _buildSecondaryBadge({
+  Widget _buildSecondaryRow({
     required IconData icon,
     required String label,
     required String value,
@@ -942,7 +1250,7 @@ class _AnalysisContentState extends State<AnalysisContent>
     required Color color,
   }) => LayoutBuilder(
     builder: (context, constraints) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
@@ -951,45 +1259,43 @@ class _AnalysisContentState extends State<AnalysisContent>
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: constraints.maxWidth > 60
+              maxWidth: constraints.maxWidth > 80
                   ? constraints.maxWidth
                   : double.infinity,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 10,
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: .12),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(9),
                   ),
-                  child: Icon(icon, color: color, size: 20),
+                  child: Icon(icon, color: color, size: 17),
                 ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
                       ),
-                      Text(
-                        subtext,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
+                    ),
+                    Text(
+                      subtext,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.textSecondary,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -997,7 +1303,7 @@ class _AnalysisContentState extends State<AnalysisContent>
           Text(
             value,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14.5,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),

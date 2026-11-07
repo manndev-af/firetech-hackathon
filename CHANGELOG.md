@@ -28,6 +28,16 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Changed
 
+- Perapian tata letak (layout) dan desain visual lembar rincian riwayat makanan (`HistoryEntryDetail` dan `AnalysisContent`):
+  - Mengatur ulang struktur *drawer* modal bawah (`showModalBottomSheet`) dengan header tetap (*fixed top bar*) berisi *drag handle pill*, ikon riwayat, judul "Rincian Riwayat Makanan", dan tombol tutup (`Icons.close_rounded`) yang tidak ikut tergulir.
+  - Mengharmoniskan palet warna latar belakang `AppColors.background` (`#F7FBFA`) dan kartu putih bergaris tepi halus (`AppColors.border`), menghilangkan kesan kotak-kotak terpisah yang tidak teratur.
+  - Menggabungkan metrik kalori dan skor kualitas gizi dalam satu kartu informasi identitas makanan yang ringkas berdampingan dengan tanggal dan porsi awal.
+  - Memposisikan kontrol porsi (*portion stepper* dan *quick chips* 1x, 2x, 3x, 4x) secara langsung setelah metrik energi, sehingga penyesuaian porsi langsung terlihat dampaknya secara visual pada nilai energi dan nutrisi.
+  - Menyatukan makronutrisi (Protein, Lemak, Karbohidrat) dan mikronutrisi (Serat, Gula, Natrium) ke dalam satu kartu "Kandungan Nutrisi" terpadu dengan tata letak 3 kolom yang proporsional dan *reflow* otomatis pada layar sempit/skala font besar tanpa *render flex overflow*.
+  - Mengelompokkan analisis dan *trade-off* personal secara terstruktur: kartu kesimpulan AI dengan tombol putar/hentikan suara TTS, kartu ringkasan *trade-off* dengan sorotan fokus saat dicatat, serta kartu kelebihan (hijau lembut) dan kekurangan (merah muda lembut) yang elegan tanpa emotikon.
+  - Merapikan *expansion tile* "Tentang data nutrisi" dan deskripsi catatan pengguna dengan batas visual yang konsisten.
+
+
 - Perbaikan batas outline tombol kamera pada Bottom Navigation Bar (`BottomNav` & `BottomNavPainter`):
   - Tombol aksi kamera mengambang diposisikan sejajar (`top: 20`, 56x56 px) dengan outline putih (`Border.all(color: Colors.white, width: 3.0)`) yang senada dengan warna dasar navbar, dan tidak keluar dari jalur garis tepi outline navbar.
   - Lengkungan notch diperhalus memeluk tombol kamera dengan rapi serta diberi goresan border halus bertema pada jalur outline navigasi bawah.
