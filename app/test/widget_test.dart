@@ -49,6 +49,8 @@ void main() {
         appRouter.namedLocation(AppRouteNames.onboarding),
         AppRoutes.onboarding,
       );
+      await tester.ensureVisible(find.byTooltip('Kembali'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Kembali'));
       await tester.pumpAndSettle();
       expect(find.byType(LoginScreen), findsOneWidget);
@@ -65,6 +67,8 @@ void main() {
       await tap(tester, 'Lanjutkan');
       expect(find.byType(OnboardingPreferenceScreen), findsOneWidget);
       await tap(tester, 'Lebih banyak nabati');
+      await tester.ensureVisible(find.byTooltip('Kembali'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Kembali'));
       await tester.pumpAndSettle();
       expect(
@@ -140,7 +144,6 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
       await start(tester);
       await tap(tester, 'Lanjutkan dengan Google');
       await tap(tester, 'Keseimbangan');
@@ -154,6 +157,7 @@ void main() {
       await tester.ensureVisible(find.text('Ke beranda'));
       expect(find.byType(OnboardingFinishScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
+      semantics.dispose();
     },
   );
 }

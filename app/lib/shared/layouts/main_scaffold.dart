@@ -14,17 +14,26 @@ class MainScaffold extends StatelessWidget {
       extendBody: true,
 
       bottomNavigationBar: BottomNav(
-        currentIndex: navigationShell.currentIndex,
+        currentIndex: const [0, 2, 3][navigationShell.currentIndex],
 
         onTap: (index) {
+          if (index == 1) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Insight belum tersedia.')),
+            );
+            return;
+          }
+          final branch = const {0: 0, 2: 1, 3: 2}[index]!;
           navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
+            branch,
+            initialLocation: branch == navigationShell.currentIndex,
           );
         },
 
         onAddTap: () {
-          context.push('/create-order');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Kamera makanan belum tersedia.')),
+          );
         },
       ),
     );
