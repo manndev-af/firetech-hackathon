@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/route_paths.dart';
@@ -80,8 +79,8 @@ class LoginScreen extends StatelessWidget {
                         builder: (context, constraints) {
                           return ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 240),
-                            child: SvgPicture.asset(
-                              'assets/images/foodartwork.svg',
+                            child: Image.asset(
+                              'assets/images/foodartwork.png',
                               width: constraints.maxWidth,
                               fit: BoxFit.contain,
                             ),
@@ -93,7 +92,7 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   // Title & Subtitle
                   const Text(
-                    'Kenali isi piringmu.',
+                    'Pahami Setiap Makananmu.',
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 30,
@@ -104,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Pahami makananmu, sesuai hal dan prioritas nutrisi yang ingin kamu perhatikan.',
+                    'Kenali kandungan nutrisi dan buat keputusan makan yang lebih sadar sesuai prioritasmu.',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 15,

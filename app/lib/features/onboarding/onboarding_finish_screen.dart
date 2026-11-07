@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/theme/app_colors.dart';
 import 'widgets/onboarding_widgets.dart';
@@ -64,8 +63,8 @@ class _OnboardingFinishScreenState extends State<OnboardingFinishScreen> {
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 230),
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                child: SvgPicture.asset(
-                  'assets/images/foodartwork.svg',
+                child: Image.asset(
+                  'assets/images/foodartwork.png',
                   height: 210,
                   fit: BoxFit.contain,
                 ),

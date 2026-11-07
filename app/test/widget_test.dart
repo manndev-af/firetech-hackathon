@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilens/app.dart';
 import 'package:nutrilens/core/router/app_router.dart';
@@ -34,7 +33,7 @@ void main() {
       expect(find.byType(FilledButton), findsOneWidget);
       expect(find.text('Daftar'), findsNothing);
       expect(find.text('nutrisee'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
+      expect(find.byType(Image), findsNWidgets(2));
       await tap(tester, 'Masuk');
       expect(find.byType(OnboardingFocusScreen), findsOneWidget);
       expect(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/theme/app_colors.dart';
 
@@ -45,7 +44,7 @@ class DashboardScanCard extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             const titleWidget = Text(
-              'Apa isi\npiringmu?',
+              'Kenali nutrisi\nmakananmu',
               style: TextStyle(
                 color: AppColors.surface,
                 fontSize: 28,
@@ -58,8 +57,8 @@ class DashboardScanCard extends StatelessWidget {
             final imageWidget = Semantics(
               image: true,
               label: 'Ilustrasi semangkuk makanan',
-              child: SvgPicture.asset(
-                'assets/images/foodartwork.svg',
+              child: Image.asset(
+                'assets/images/foodartwork.png',
                 height: 110,
                 fit: BoxFit.contain,
               ),
@@ -93,7 +92,7 @@ class DashboardScanCard extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         const Text(
-          'Foto makanan atau label gizinya untuk memahami isi dan porsinya.',
+          'Foto makanan piring atau label kemasan untuk memahami takaran gizi dan porsinya.',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 13,
