@@ -7,6 +7,7 @@ import { config } from './config/config';
 import { openapi } from './config/openapi';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
+import { createRequestLogger } from './middleware/requestLogger';
 import apiRoutes from './routes';
 import { DomainError, domainErrorHandler } from './utils/domainError';
 
@@ -15,6 +16,9 @@ export const createApp = (): Application => {
 
   // Security middleware
   app.use(helmet());
+
+  // Capture parser/validation failures as well as successful API responses.
+  if (config.env === 'development') app.use(createRequestLogger());
 
   // CORS configuration
   app.use(cors({
