@@ -251,8 +251,8 @@ final appRouter = GoRouter(
               note: note,
             );
             await saveDraft(draft);
-            if (!context.mounted) return;
-            await Navigator.of(context).push<void>(
+            if (!context.mounted) return false;
+            final saved = await Navigator.of(context).push<bool>(
               MaterialPageRoute(
                 builder: (_) => ScanResultScreen(
                   photo: photo,
@@ -262,9 +262,9 @@ final appRouter = GoRouter(
                 ),
               ),
             );
-            return;
+            return saved ?? false;
           }
-          await Navigator.of(context).push<void>(
+          final saved = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => ScanResultScreen(
                 photo: photo,
@@ -273,6 +273,7 @@ final appRouter = GoRouter(
               ),
             ),
           );
+          return saved ?? false;
         },
       ),
     ),

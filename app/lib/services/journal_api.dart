@@ -58,14 +58,29 @@ class JournalApi {
   }
 
   /// Memperbarui porsi kuantitas entri konsumsi secara deterministik di backend.
-  Future<ScanHistoryEntry?> updateQuantity(String id, double quantity) async {
+  Future<ScanHistoryEntry?> updateQuantity(
+    String id,
+    double quantity, {
+    String? localPhotoPath,
+    String? userNote,
+    List<String> prioritySnapshot = const [],
+    String? rawOcrText,
+  }) async {
     try {
       final response = await _client.patch(
         ApiEndpoints.foodEntryQuantity(id),
         body: {'quantity': quantity},
       );
       if (response is Map) {
-        return ScanHistoryEntry.fromBackend(Map<String, dynamic>.from(response));
+        final parsed = ScanHistoryEntry.fromBackend(
+          Map<String, dynamic>.from(response),
+          localPhotoPath: localPhotoPath,
+          userNote: userNote,
+          prioritySnapshot: prioritySnapshot,
+        );
+        return rawOcrText != null && parsed.rawOcrText == null
+            ? parsed.copyWith(rawOcrText: rawOcrText)
+            : parsed;
       }
       return null;
     } catch (_) {

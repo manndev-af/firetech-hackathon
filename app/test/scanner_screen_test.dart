@@ -345,4 +345,56 @@ void main() {
       expect(recordedNote, 'Tanpa kuah, sambal dipisah');
     },
   );
+
+  testWidgets(
+    'onUsePhoto returning true resets photo, clears note, and reopens camera preview',
+    (tester) async {
+      final folder = Directory.systemTemp.createTempSync(
+        'nutrilens-clear-test-',
+      );
+      final photo = File('${folder.path}/capture.jpg');
+      addTearDown(() async {
+        if (await photo.exists()) await photo.delete();
+        await folder.delete();
+      });
+      await tester.runAsync(() async {
+        final bytes = await rootBundle.load('assets/images/history_yogurt.jpg');
+        await photo.writeAsBytes(bytes.buffer.asUint8List());
+      });
+      camera.photoPath = photo.path;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: ScannerScreen(
+            onUsePhoto: (file, mode, {note}) async {
+              return true;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await precacheImage(
+          FileImage(photo),
+          tester.element(find.byType(ScannerScreen)),
+        );
+      });
+      await tap(tester, find.byKey(const Key('camera-shutter')));
+      expect(find.text('Periksa fotomu'), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('scan-note-field')),
+        'Catatan tes',
+      );
+      await tester.pumpAndSettle();
+
+      await tap(tester, find.widgetWithText(FilledButton, 'Gunakan foto'));
+      await tester.pumpAndSettle();
+
+      // Should return to live camera preview and clear photo & review UI
+      expect(find.text('Periksa fotomu'), findsNothing);
+      expect(find.byType(CameraPreview), findsOneWidget);
+    },
+  );
 }

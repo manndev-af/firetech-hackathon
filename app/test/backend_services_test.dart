@@ -240,12 +240,13 @@ void main() {
           });
 
           final api = JournalApi(baseUrl: 'http://127.0.0.1:${server.port}');
-          final updated = await api.updateQuantity('entry-1', 2.0);
+          final updated = await api.updateQuantity('entry-1', 2.0, localPhotoPath: '/local/storage/path.jpg');
 
           expect(updated, isNotNull);
           expect(updated!.quantity, 2.0);
           expect(updated.energyKcal, 700.0);
           expect(updated.proteinG, 24.0);
+          expect(updated.photoPath, '/local/storage/path.jpg');
           api.close();
         }, RealHttpOverrides()));
 
