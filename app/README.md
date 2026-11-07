@@ -13,9 +13,16 @@ flutter run
 
 ## Routing
 
-Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), menggantikan konstanta Insight sebelumnya. Builder Jelajahi di router masih dinonaktifkan sampai layar fiturnya diimplementasikan.
+Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Route tersebut kini terhubung ke tab Jelajahi pada shell navigasi. `/comparison` dan `/assistant` membuka halaman detail di atas shell; halaman asisten menerima `extra: true` untuk pintasan pola catatan yang menampilkan tampilan percakapan.
 
-Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home` berada dalam shell dengan navigasi Beranda, Jelajahi, Kamera, Riwayat, dan Profil. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
+Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home`, Jelajahi `/explore`, Riwayat `/history`, dan Profil `/profile` berada di shell. Tombol Kamera masih memberi pemberitahuan bahwa fitur belum tersedia. `/comparison` dan `/assistant` adalah halaman detail di luar shell.
+
+## Jelajahi, perbandingan, dan asisten
+
+- Tab Jelajahi dan kartu Buka Jelajah dari Home membuka `ExploreScreen`.
+- Bandingkan dua pilihan membuka `CompareScreen` (`/comparison`). Minuman A/B dan nilai gizi pada layar hanya data ilustrasi dari referensi desain, bukan data nutrisi terverifikasi.
+- Lihat pola catatanku membuka `AssistantScreen` dengan tampilan percakapan contoh. Tanya soal makanan membuka halaman asisten tanpa tampilan chat.
+- Tidak ada catatan makanan, lookup nutrisi, kalkulasi, pengiriman chat, atau jawaban LLM yang terhubung. Tampilan percakapan bersifat prototipe.
 
 Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
 
@@ -37,8 +44,8 @@ Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboa
 - `DashboardScreen(summary: DailyNutritionSummary(...))` menerima ringkasan catatan hari ini yang sudah dihitung dari data terkonfirmasi oleh integrasi berikutnya. Model global ada di `models/daily_nutrition_summary.dart`: jumlah catatan positif, total gula/protein/energi nullable, dan penanda kelengkapan tiap nutrisi. Widget hanya memformat nilai yang diberikan; belum ada penyimpanan, pengambilan riwayat, atau kalkulasi nutrisi baru.
 - Nilai null tampil sebagai Belum tersedia, angka nol yang diketahui tetap nol, dan nutrisi yang hilang/ditandai parsial menghasilkan catatan belum lengkap. Ringkasan bukan target atau total konsumsi harian di luar makanan yang dicatat.
 - Fokus onboarding dibawa lewat `GoRouterState.extra` dan divalidasi terhadap empat opsi yang tersedia. Akses langsung `/home` tanpa fokus menampilkan Belum dipilih; route extra tidak disimpan setelah restart/reload.
-- Foto makanan dan Catat makanan pertama memakai callback `onScan`; kartu Buka Jelajah memakai `onExplore`. Callback default memberi pemberitahuan fitur belum tersedia. Kamera, riwayat tersimpan, perbandingan, dan profil belum diimplementasikan.
-- Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Implementasi navigasi lama dipertahankan sesuai permintaan pengguna; pengembangan dashboard tidak menambah branch atau mengubah callback navigasi. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
+- Foto makanan dan Catat makanan pertama memakai callback `onScan`; kartu Buka Jelajah membuka tab Jelajahi. Callback kamera tetap memberi pemberitahuan fitur belum tersedia. Riwayat tersimpan belum ada.
+- Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Empat tab konten kini terhubung ke empat branch shell. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
 - `assets/images/dashboard_reference.png` adalah ekspor pengguna `Group-18.png`; hanya area ilustrasi kartu yang dirender. Teks, tombol, dan ringkasan merupakan widget Flutter. Setelah menambah aset, hentikan dan jalankan ulang aplikasi agar bundle baru terbentuk.
 
 ## Profil dan Riwayat
