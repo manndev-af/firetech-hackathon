@@ -173,15 +173,11 @@ Training model direncanakan menggunakan Python/PyTorch, MobileNetV3-Large, dan s
 
 ## Branch dan alur kolaborasi
 
-Konvensi yang direkomendasikan untuk tim:
+Aturan aktif mengikuti permintaan pemilik repository: pekerjaan dan commit dilakukan langsung di `main`. Instruksi ini merupakan izin tetap untuk commit ke `main` ketika pengguna meminta commit. Jangan membuat branch fitur atau berpindah branch secara otomatis. Buat/pindah branch hanya atas permintaan eksplisit pengguna; bila branch aktif berbeda, pertahankan perubahan lokal dan laporkan situasinya sebelum berpindah.
 
-- `main` menyimpan versi stabil untuk demo/rilis.
-- `development` menjadi branch integrasi pekerjaan aktif.
-- Branch fitur atau perbaikan dibuat dari `development`, misalnya `feature/nutrition-profile` atau `fix/portion-calculation`.
-- Setelah review dan verifikasi yang sesuai, merge branch pekerjaan ke `development`; saat siap dirilis, merge `development` ke `main`.
-- Satu branch dapat memuat beberapa perubahan kecil yang saling terkait. Pisahkan branch ketika pekerjaan dapat dikembangkan/review secara mandiri.
+Aturan proyek ini mengesampingkan saran generik skill yang mewajibkan branch fitur atau melarang commit ke `main`. Periksa status Git sebelum commit, sertakan hanya perubahan yang diminta, dan pertahankan pekerjaan lokal lain. Push tetap memerlukan permintaan pengguna.
 
-Ini adalah konvensi kerja, bukan pernyataan bahwa branch tersebut sudah ada atau aturan perlindungan branch sudah dikonfigurasi. Periksa branch/status aktual sebelum berpindah atau membuat branch. Di GitHub, orang yang melakukan merge memerlukan akses tulis yang sesuai; aturan repository dapat menambah syarat review atau pemeriksaan.
+Catatan historis: panduan sebelumnya menyarankan branch fitur dari `development`, lalu merge ke `development` dan `main`. Saran tersebut digantikan aturan kerja langsung di `main` di atas; keberadaan branch lama tidak mewajibkan penggunaannya. Pemeriksaan kode, pengujian yang relevan, serta pembaruan dokumentasi/changelog tetap berlaku.
 
 ## Alur kerja perubahan
 
