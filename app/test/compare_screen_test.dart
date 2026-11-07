@@ -45,6 +45,9 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Bahas pilihan ini'), findsNothing);
+    expect(find.text('Ubah gambar'), findsNothing);
+    expect(find.text('Perbandingan Nutrisi'), findsOneWidget);
+    expect(find.text('Kalori'), findsOneWidget);
     expect(find.text('Selesai'), findsOneWidget);
   });
 
