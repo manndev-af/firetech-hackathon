@@ -11,11 +11,15 @@ flutter pub get
 flutter run
 ```
 
+## Kamera
+
+Tombol kamera tengah dan aksi scan membuka `/scan` di atas shell. Layar memakai plugin `camera` untuk preview dan foto, serta `image_picker` untuk galeri. Mode Makanan/Label produk menentukan tujuan foto. Foto diperiksa sebelum digunakan dan dapat diulang. Kamera tidak merekam audio, dilepas saat aplikasi tidak aktif atau saat review, dan menampilkan pemulihan izin/error. Capture disimpan di cache perangkat; belum menjadi riwayat permanen. Android memakai izin kamera runtime. Pengujian perangkat fisik tetap diperlukan.
+
 ## Routing
 
 Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Route tersebut kini terhubung ke tab Jelajahi pada shell navigasi. `/comparison` dan `/assistant` membuka halaman detail di atas shell; halaman asisten menerima `extra: true` untuk pintasan pola catatan yang menampilkan tampilan percakapan.
 
-Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home`, Jelajahi `/explore`, Riwayat `/history`, dan Profil `/profile` berada di shell. Tombol Kamera masih memberi pemberitahuan bahwa fitur belum tersedia. `/comparison` dan `/assistant` adalah halaman detail di luar shell.
+Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home`, Jelajahi `/explore`, Riwayat `/history`, dan Profil `/profile` berada di shell. Tombol Kamera membuka preview kamera dan pilihan mode Makanan/Label produk. `/comparison` dan `/assistant` adalah halaman detail di luar shell.
 
 ## Jelajahi, perbandingan, dan asisten
 
@@ -91,7 +95,6 @@ Setelah menambahkan font, hentikan aplikasi, jalankan `flutter pub get` dari `ap
 - `lib/core/utils/` menyimpan utilitas umum dan `ApiException`.
 - `lib/models/`, `lib/services/`, `lib/repositories/`, dan `lib/providers/` adalah layer global lintas fitur.
 - `lib/features/` hanya memuat UI per domain. File halaman berada langsung di folder feature; widget khusus halaman berada di `widgets/`. Jangan membuat folder `pages/` atau mengulang model/provider/repository/service dalam feature.
-- Contoh alur pencarian: `features/food_search/food_search_page.dart` menggunakan `providers/food_provider.dart`, yang memanggil `repositories/food_repository.dart`, lalu `services/food_service.dart` untuk request via `core/network/api_client.dart`. File tersebut merupakan contoh penempatan, belum semuanya dibuat.
 - Integrasi Supabase tidak termasuk struktur saat ini.
 
 Navigasi menggunakan `context.go(path)` untuk berpindah ke tujuan dan `context.pop()` untuk kembali. Tambahkan layar produk saat mengerjakan flow terkait dan ganti builder route tersebut tanpa mengubah path publik secara diam-diam.
@@ -104,3 +107,11 @@ flutter test
 ```
 
 Dokumentasi Flutter tersedia di [docs.flutter.dev](https://docs.flutter.dev/). Kontrak produk dan batas nutrisi tetap mengikuti dokumen proyek; route yang tersedia tidak berarti fitur kamera, akun, model, database, atau analisis nutrisi sudah diterapkan.
+
+### Hasil scan dan OCR
+
+Gunakan foto membuka detail hasil bergaya Riwayat. Mode label memakai Google ML Kit di perangkat, menampilkan teks asli, saran angka, koreksi manual dan konfirmasi acuan per sajian/per 100 g/per 100 ml. Nilai kosong tetap tidak diketahui. Mode makanan belum terhubung ke klasifikasi atau referensi nutrisi. Hasil tidak dikirim ke server atau disimpan ke Riwayat. Uji kamera dan OCR pada Android fisik sebelum demo.
+
+Hasil langsung tanpa form porsi/deskripsi. Pengali 1?100 sajian tersedia setelah angka label diperiksa dengan acuan Per sajian. Nilai kosong tetap unknown; per 100 g/ml tidak dianggap satu porsi. Berat tidak ditebak dari foto.
+
+Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.

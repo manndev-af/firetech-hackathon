@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nutrilens/shared/widgets/navigation/bottom_nav.dart';
 
+import '../../core/router/route_paths.dart';
+
 class MainScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -10,24 +12,24 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: navigationShell,
+      ),
       extendBody: true,
 
-      bottomNavigationBar: BottomNav(
-        currentIndex: navigationShell.currentIndex,
-
-        onTap: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
-
-        onAddTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Kamera makanan belum tersedia.')),
-          );
-        },
+      bottomNavigationBar: ColoredBox(
+        color: Colors.transparent,
+        child: BottomNav(
+          currentIndex: navigationShell.currentIndex,
+          onTap: (index) {
+            navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            );
+          },
+          onAddTap: () => context.push(AppRoutes.scanner),
+        ),
       ),
     );
   }
