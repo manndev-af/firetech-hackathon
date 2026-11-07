@@ -32,46 +32,11 @@ class HistoryScreen extends StatelessWidget {
               : entries.where((entry) => !entry.isIllustration).toList())
           ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
-    // Only show drafts that have NOT yet been saved as a completed history entry.
-    final completedIds = {for (final e in records) e.id};
-    final pendingDrafts = drafts
-        .where((d) => !completedIds.contains(d.id))
-        .toList();
-
     return PersonalPage(
       title: 'Riwayat',
       subtitle: 'Makananmu, dalam satu catatan.',
       children: [
-        if (pendingDrafts.isNotEmpty) ...[
-          const PersonalHeading('Menunggu analisis'),
-          for (final draft in pendingDrafts.reversed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: PersonalCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      draft.label ? 'Label produk' : 'Foto makanan',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${historyDate(draft.createdAt)} · Tersimpan di perangkat',
-                    ),
-                    TextButton(
-                      onPressed: onResume == null
-                          ? null
-                          : () => onResume!(draft),
-                      child: const Text('Lanjutkan analisis'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 20),
-        ],
-        if (records.isEmpty && pendingDrafts.isEmpty) ...[
+        if (records.isEmpty) ...[
           PersonalCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
