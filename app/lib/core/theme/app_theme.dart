@@ -13,6 +13,7 @@ abstract final class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: AppTypography.fontFamily,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.background,
       textTheme: const TextTheme(
@@ -21,7 +22,7 @@ abstract final class AppTheme {
         bodyLarge: AppTypography.body,
         bodyMedium: AppTypography.body,
         bodySmall: AppTypography.secondary,
-      ),
+      ).apply(fontFamily: AppTypography.fontFamily),
       cardTheme: CardThemeData(
         color: AppColors.surface,
         shape: RoundedRectangleBorder(
