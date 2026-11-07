@@ -1,5 +1,20 @@
 # Express TypeScript Starter Template
 
+## Prisma + MySQL
+
+Backend memakai Prisma ORM 7 dengan adapter MariaDB resmi yang kompatibel dengan MySQL. Prisma schema ada di `prisma/schema.prisma`; client TypeScript digenerate ke `src/generated/prisma/` dan tidak disimpan di Git.
+
+1. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dengan kredensial dan nama database MySQL lokal. Encode karakter khusus pada username/password sesuai URL.
+2. Jalankan `pnpm install` untuk memasang dependency dari `pnpm-lock.yaml`.
+3. Jalankan `pnpm db:generate` setelah mengubah schema.
+4. Setelah model ditambahkan, buat migration lokal dengan `pnpm db:migrate`; deployment menerapkan migration yang sudah dibuat melalui `pnpm db:deploy`.
+
+Client singleton tersedia dari `src/config/prisma.ts` lewat `getPrismaClient()`. Database tidak dikontak saat server mulai; client menginisialisasi saat fitur pertama kali memintanya. Belum ada model domain atau migration karena requirement data belum ditentukan.
+
+## Struktur service
+
+Logika bisnis dan orkestrasi data berada di `src/services/`. Controller di `src/controllers/` menangani HTTP dan mendelegasikan pekerjaan ke service. Tambahkan file service saat logika fitur sudah ditentukan; belum ada service domain atau persistensi yang dibuat.
+
 A professional, production-ready Express.js backend starter template built with TypeScript, featuring clean architecture, comprehensive middleware, and best practices.
 
 ## ✨ Features
