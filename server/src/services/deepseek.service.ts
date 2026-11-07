@@ -327,18 +327,31 @@ export function validateAnalysis(
 }
 
 export async function callDeepSeek(
-  input: {
-    image: Buffer;
-    mode: 'food' | 'label';
-    description: string;
-    rawOcrText: string;
-  },
+  input: { image: Buffer; mode: 'food' | 'label'; description: string; rawOcrText: string },
   context: RetrievalContext,
   transport: typeof fetch = fetch,
 ) {
-  providerReady();
   const settings = scannerConfig();
   const rawOcrText = settings.useRawOcr ? input.rawOcrText : '';
+  const value = await requestVision([
+    { role: 'system', content: systemPrompt(input.mode, settings.useRawOcr) },
+    { role: 'user', content: [
+      { type: 'text', text: JSON.stringify({ mode: input.mode, description: input.description,
+        ...(settings.useRawOcr && { rawOcrText }), context }) },
+      { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${input.image.toString('base64')}` } },
+    ] },
+  ], transport);
+  return validateAnalysis(value, input.mode, rawOcrText,
+    context.references.map(reference => reference.id), context.profile.priorities as string[]);
+}
+
+export async function requestVision(
+  messages: unknown[],
+  transport: typeof fetch = fetch,
+  limits = { maxTokens: 4096, maxResponseBytes: scannerConfig().maxResponseBytes },
+) {
+  providerReady();
+  const settings = scannerConfig();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), settings.timeoutMs);
   try {
@@ -355,32 +368,10 @@ export async function callDeepSeek(
         body: JSON.stringify({
           model: settings.model,
           stream: false,
-          max_tokens: 4096,
+          max_tokens: limits.maxTokens,
           thinking: { type: 'disabled' },
           response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: systemPrompt(input.mode, settings.useRawOcr) },
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify({
-                    mode: input.mode,
-                    description: input.description,
-                    ...(settings.useRawOcr && { rawOcrText }),
-                    context,
-                  }),
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:image/jpeg;base64,${input.image.toString('base64')}`,
-                  },
-                },
-              ],
-            },
-          ],
+          messages,
         }),
       },
     );
@@ -399,7 +390,7 @@ export async function callDeepSeek(
       const { done, value } = await reader.read();
       if (done) break;
       size += value.length;
-      if (size > settings.maxResponseBytes) {
+      if (size > limits.maxResponseBytes) {
         await reader.cancel();
         throw new DomainError(
           'PROVIDER_RESPONSE_LIMIT',
@@ -419,13 +410,7 @@ export async function callDeepSeek(
         'Respons analisis belum lengkap.',
         502,
       );
-    return validateAnalysis(
-      JSON.parse(envelope.choices[0].message.content),
-      input.mode,
-      rawOcrText,
-      context.references.map((reference) => reference.id),
-      context.profile.priorities as string[],
-    );
+    return JSON.parse(envelope.choices[0].message.content) as unknown;
   } catch (error) {
     if (error instanceof DomainError) throw error;
     throw new DomainError(
