@@ -128,8 +128,16 @@ Dokumentasi Flutter tersedia di [docs.flutter.dev](https://docs.flutter.dev/). K
 
 ### Hasil scan dan OCR
 
-Gunakan foto membuka detail hasil bergaya Riwayat. Mode label memakai Google ML Kit di perangkat, menampilkan teks asli, saran angka, koreksi manual dan konfirmasi acuan per sajian/per 100 g/per 100 ml. Nilai kosong tetap tidak diketahui. Mode makanan belum terhubung ke klasifikasi atau referensi nutrisi. Hasil tidak dikirim ke server atau disimpan ke Riwayat. Uji kamera dan OCR pada Android fisik sebelum demo.
+Mode makanan memakai pemeriksaan makanan lokal. Mode label mencoba Google ML Kit tanpa pemeriksaan makanan. Secara default OCR label bersifat opsional: OCR gagal, kosong atau tanpa kata kunci tidak menghalangi foto dikirim ke backend untuk pembacaan gambar. Teks yang berhasil dibaca tetap disertakan, maksimal 20.000 karakter; teks melebihi batas ditolak, bukan dipotong.
 
-Hasil langsung tanpa form porsi/deskripsi. Pengali 1?100 sajian tersedia setelah angka label diperiksa dengan acuan Per sajian. Nilai kosong tetap unknown; per 100 g/ml tidak dianggap satu porsi. Berat tidak ditebak dari foto.
+Untuk backend dengan `SCANNER_USE_RAW_OCR=true`, jalankan Flutter dengan konfigurasi yang sama:
 
-Kartu hasil memprioritaskan energi, protein, gula, dan natrium yang tersedia. Nilai yang belum terbaca dirangkum dalam satu baris; lemak, karbohidrat, dan serat tersedia pada detail Kandungan lainnya. Grid dua kolom berikon berubah menjadi satu kolom saat teks diperbesar.
+```bash
+flutter run --dart-define=SCANNER_USE_RAW_OCR=true
+```
+
+Flag Flutter mengatur kewajiban OCR lokal; flag backend mengatur penggunaan OCR dalam analisis. Keduanya terpisah dan perlu diselaraskan. Default keduanya false. Mode wajib menolak OCR gagal/kosong/tanpa kata kunci sebelum pengiriman.
+
+Foto dikirim ke `POST /api/v1/scans` menggunakan multipart dan UUID Idempotency-Key. Backend melakukan satu panggilan LLM vision untuk membaca gambar, memvalidasi hasil dan mencatat konsumsi. Fallback gambar memakai panggilan awal yang sama, tanpa panggilan tambahan. Jika basis belum jelas, minta koreksi/foto ulang; nutrisi yang tidak terbaca tetap null. Edit quantity memakai kalkulasi backend deterministik melalui PATCH, tanpa meminta LLM menghitung ulang. Parser `extractLabel()` hanya saran lokal dan tidak menentukan nilai request/hasil API.
+
+Uji kamera dan ekstraksi ML Kit pada Android fisik sebelum demo; tes mock/transkripsi bukan pengujian OCR perangkat. Kontrak backend: [SCANNER_API.md](../server/SCANNER_API.md).

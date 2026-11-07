@@ -7,6 +7,8 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ### Fixed
 
+- OCR lokal opsional tidak lagi menghalangi analisis gambar oleh backend saat gagal/kosong/tanpa kata kunci; mode OCR wajib tersedia lewat dart-define SCANNER_USE_RAW_OCR=true. Batas teks diselaraskan menjadi 20.000 karakter.
+
 - Parser saran label Flutter mengenali label bilingual, LemakJenuh dan satuan kkal/kcal tanpa mencampur energi lemak atau AKG.
 
 - Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
