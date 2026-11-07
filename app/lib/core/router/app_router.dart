@@ -99,11 +99,11 @@ final appRouter = GoRouter(
     //   ),
     // ),
     // GoRoute(
-    //   path: AppRoutes.insight,
-    //   name: AppRouteNames.insight,
+    //   path: AppRoutes.explore,
+    //   name: AppRouteNames.explore,
     //   builder: (context, state) => const RoutePlaceholderScreen(
-    //     title: 'Personalized Insight',
-    //     description: 'Trade-off berdasarkan prioritas nutrisi pengguna.',
+    //     title: 'Jelajahi',
+    //     description: 'Jelajahi informasi nutrisi dan perbandingan makanan.',
     //   ),
     // ),
     // GoRoute(

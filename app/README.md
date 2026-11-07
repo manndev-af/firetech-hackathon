@@ -13,6 +13,8 @@ flutter run
 
 ## Routing
 
+Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`), menggantikan konstanta Insight sebelumnya. Builder Jelajahi di router masih dinonaktifkan sampai layar fiturnya diimplementasikan.
+
 Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home` berada dalam shell dengan navigasi Beranda, Jelajahi, Kamera, Riwayat, dan Profil. Route produk lain masih dinonaktifkan dalam konfigurasi; konstanta path bukan bukti fitur sudah tersedia.
 
 Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
