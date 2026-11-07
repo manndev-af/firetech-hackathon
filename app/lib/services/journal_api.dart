@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import '../core/network/api_client.dart';
 import '../core/network/api_endpoints.dart';
 import '../models/scan_history_entry.dart';
