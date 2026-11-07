@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 abstract final class AppTypography {
+  static const fontFamily = 'Inter';
+
   static const title = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
