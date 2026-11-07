@@ -311,23 +311,53 @@ void main() {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       addTearDown(() => server.close(force: true));
       final handled = server.first.then((request) async {
-        expect(request.uri.path, '/api/v1/analysis');
+        expect(request.uri.path, '/api/v1/scans');
         expect(request.headers.value('Idempotency-Key'), 'scan_test');
-        final body = jsonDecode(await utf8.decodeStream(request)) as Map;
-        expect(body['rawOcrText'], draft(photo.path).rawOcrText);
-        expect(body['image']['base64'], base64Encode([1, 2, 3]));
-        expect(
-          body.keys,
-          unorderedEquals([
-            'requestId',
-            'mode',
-            'rawOcrText',
-            'image',
-            'priorities',
-          ]),
-        );
+        expect(request.headers.contentType?.mimeType, 'multipart/form-data');
+        final rawBody = await utf8.decodeStream(request);
+        expect(rawBody, contains('name="mode"'));
+        expect(rawBody, contains('label'));
+        expect(rawBody, contains('name="rawOcrText"'));
+        expect(rawBody, contains('name="image"'));
+        expect(rawBody, contains('filename="photo.jpg"'));
+        request.response.statusCode = 201;
         request.response.headers.contentType = ContentType.json;
-        request.response.write(jsonEncode(response()));
+        request.response.write(jsonEncode({
+          'success': true,
+          'message': 'Scan recorded',
+          'data': {
+            'id': 'scan_test',
+            'consumedAt': '2026-11-07T00:00:00.000Z',
+            'mode': 'label',
+            'title': 'Produk',
+            'description': '',
+            'rawOcrText': '  Energi 100\nGula 5 g\n',
+            'quantity': 1.0,
+            'baseQuantity': 1.0,
+            'provenance': 'label_extracted_unverified',
+            'pros': ['Rendah lemak'],
+            'cons': ['Tinggi gula'],
+            'ttsSummary': 'Perhatikan gula sesuai porsi yang kamu pilih.',
+            'ttsSummarySource': 'model',
+            'nutrients': {
+              'calories_kcal': 100.0,
+              'protein_g': 0.0,
+              'total_fat_g': 2.0,
+              'saturated_fat_g': 0.5,
+              'carbohydrates_g': 20.0,
+              'sugar_g': null,
+              'sodium_mg': null,
+              'fiber_g': 1.0,
+            },
+            'analysis': {
+              'foodName': 'Produk',
+              'summary': 'Penjelasan panjang yang tidak dibacakan seluruhnya.',
+              'advantages': ['Rendah lemak'],
+              'tradeoffs': ['Tinggi gula'],
+            },
+          },
+          'timestamp': '2026-11-07T00:00:00.000Z',
+        }));
         await request.response.close();
       });
       final entry = await AnalysisApi(
@@ -335,6 +365,10 @@ void main() {
       ).analyze(draft(photo.path));
       await handled;
       expect(entry.name, 'Produk');
+      expect(entry.pros, ['Rendah lemak']);
+      expect(entry.cons, ['Tinggi gula']);
+      expect(entry.energyKcal, 100);
+      expect(entry.sugarG, isNull);
       await expectLater(
         AnalysisApi().analyze(draft(photo.path)),
         throwsA(isA<ScanFailure>()),

@@ -6,6 +6,7 @@ import '../../models/scan_draft.dart';
 import '../../models/scan_history_entry.dart';
 import '../../providers/local_app_state.dart';
 import '../../services/analysis_api.dart';
+import '../../services/journal_api.dart';
 import '../../services/local_vision.dart';
 import '../../services/scan_pipeline.dart';
 import '../../shared/widgets/personal_page.dart';
@@ -240,7 +241,19 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           ),
     children: [
       if (_result != null) ...[
-        AnalysisContent(entry: _result!, autoSpeak: analysisAudioSession.value),
+        AnalysisContent(
+          entry: _result!,
+          autoSpeak: analysisAudioSession.value,
+          onQuantityChanged: (qty) async {
+            if (_result != null && _result!.id.isNotEmpty) {
+              final updated = await JournalApi().updateQuantity(_result!.id, qty);
+              if (updated != null && mounted) {
+                setState(() => _result = updated);
+                await saveAnalysis(updated);
+              }
+            }
+          },
+        ),
       ] else ...[
         if (_busy)
           const Padding(

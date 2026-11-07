@@ -23,10 +23,16 @@ Backend memakai Prisma ORM 7 dengan adapter MariaDB resmi yang kompatibel dengan
 
 1. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dengan kredensial dan nama database MySQL lokal. Encode karakter khusus pada username/password sesuai URL.
 2. Jalankan `pnpm install` untuk memasang dependency dari `pnpm-lock.yaml`.
-3. Jalankan `pnpm db:generate` setelah mengubah schema.
+3. Jalankan `pnpm db:generate` setelah instalasi awal dan setelah mengubah schema.
 4. Terapkan migration yang tersedia dengan `pnpm db:deploy`. Untuk perubahan schema berikutnya, buat migration lokal dengan `pnpm db:migrate`; jangan reset database berisi data pengguna.
 
 Client singleton tersedia dari `src/config/prisma.ts` lewat `getPrismaClient()`. Database tidak dikontak saat server mulai; client menginisialisasi saat fitur pertama kali memintanya. Model domain: `User`, `NutritionProfile`, `FoodEntry`, `KnowledgeChunk`, `ScanRequest`. Migration awal tersedia di `prisma/migrations/202611070001_scanner_consumption/`.
+
+### Instalasi pnpm di Windows
+
+Gunakan pnpm 12 dan lockfile yang tersedia; jangan mencampur `npm install` dengan instalasi pnpm. `pnpm-workspace.yaml` mengizinkan build script `@prisma/engines` dan `prisma`, serta menolak script `@scarf/scarf`. Kebijakan ini mengatasi `ERR_PNPM_IGNORED_BUILDS` tanpa mengizinkan semua script dependency. Notifikasi agent skills `dotenv` tidak menghalangi instalasi dan tidak diperlukan untuk menjalankan backend.
+
+Jika PowerShell memblokir `pnpm.ps1`, gunakan `pnpm.cmd` untuk perintah yang sama. Jika muncul Windows error 32 saat membuat symlink, pastikan instalasi lain pada folder yang sama sudah selesai, lalu ulangi `pnpm install --frozen-lockfile`.
 
 ## Struktur service
 

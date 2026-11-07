@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../models/scan_history_entry.dart';
+import '../../../providers/local_app_state.dart';
+import '../../../services/journal_api.dart';
 import '../../../services/summary_speech.dart';
 import '../../scanner/widgets/analysis_content.dart';
 import '../../../shared/widgets/personal_page.dart';
@@ -365,6 +367,32 @@ class HistoryEntryDetail extends StatelessWidget {
                           ],
                         ),
                       ),
+                      IconButton(
+                        tooltip: 'Hapus dari riwayat',
+                        onPressed: () async {
+                          final navigator = Navigator.of(context);
+                          final messenger = ScaffoldMessenger.of(context);
+                          await deleteAnalysis(entry.id);
+                          JournalApi().deleteEntry(entry.id).catchError((_) => false);
+                          navigator.pop();
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Catatan dihapus dari Riwayat.'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(0xFFFEE2E2),
+                          minimumSize: const Size(36, 36),
+                        ),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 20,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       IconButton(
                         tooltip: 'Tutup',
                         onPressed: () => Navigator.pop(context),
