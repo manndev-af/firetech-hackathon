@@ -3,6 +3,7 @@ import multer from "multer";
 import sharp from "sharp";
 import { ajv } from "../validation/nutrition";
 import { DomainError } from "../utils/domainError";
+import { scannerConfig } from "../config/scanner";
 
 export const maxImageBytes = 5 * 1024 * 1024;
 const upload = multer({
@@ -111,7 +112,7 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
   const mode = req.body.mode as "food" | "label";
   const description = (req.body.description || "").trim();
   const rawOcrText = (req.body.rawOcrText || "").trim();
-  if (mode === "label" && !rawOcrText)
+  if (mode === "label" && scannerConfig().useRawOcr && !rawOcrText)
     throw new DomainError("OCR_REQUIRED", "Raw OCR wajib pada mode label.");
   const quantity =
     req.body.quantity === undefined ? 1 : Number(req.body.quantity);
@@ -153,8 +154,8 @@ export async function readScanInput(req: Request): Promise<ScanInput> {
     const image = await decoder
       .rotate()
       .resize({
-        width: 544,
-        height: 544,
+        width: 1600,
+        height: 1600,
         fit: "contain",
         background: "#ffffff",
       })

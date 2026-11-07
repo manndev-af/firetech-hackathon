@@ -7,6 +7,7 @@ export function scannerConfig() {
     apiKey: process.env.DEEPSEEK_API_KEY,
     baseUrl: process.env.DEEPSEEK_BASE_URL?.trim().replace(/\/+$/, ''),
     model: process.env.DEEPSEEK_MODEL || 'deepseek-flash',
+    useRawOcr: process.env.SCANNER_USE_RAW_OCR === 'true',
     timeoutMs: 45000,
     maxResponseBytes: 128 * 1024,
   };

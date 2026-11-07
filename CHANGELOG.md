@@ -5,6 +5,14 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 ## [Unreleased]
 
+### Fixed
+
+- Backend scan label membedakan energi total dari energi lemak/AKG, menerima variasi spasi evidence OCR, serta membatalkan insight/TTS dari angka ditolak. Basis gram/ml per sajian dinormalisasi ke satu porsi; hitungan quantity tetap deterministik.
+
+### Changed
+
+- Raw OCR scanner sementara nonaktif secara default melalui `SCANNER_USE_RAW_OCR=false`: label dianalisis dari gambar, tanpa OCR pada retrieval/payload/validasi evidence. Set true mengembalikan gambar + OCR wajib; data OCR yang disertakan tetap tersimpan dan menjadi fingerprint. Prompt v4, OpenAPI, contoh environment dan handoff diselaraskan.
+
 ### Added
 
 - Service frontend integrasi backend `ProfileApi` (`app/lib/services/profile_api.dart`):

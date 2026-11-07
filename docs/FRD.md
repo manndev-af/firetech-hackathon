@@ -180,3 +180,8 @@ Tim perlu memverifikasi sekurang-kurangnya bahwa:
 - Interpretasi klinis atas tinggi/berat badan; kedua field hanya opsional dan belum mengubah analisis pada MVP.
 - Klaim dampak kesehatan jangka panjang berdasarkan penggunaan aplikasi.
 - Autentikasi kompleks, sinkronisasi cloud, atau analitik konsumsi jangka panjang.
+
+
+### Koreksi basis label - 8 November 2026
+
+Scan label baru dengan basis per sajian dalam gram/ml dinormalisasi menjadi satu porsi dengan massa/volume referensi tetap tersimpan; entri lama dan basis per-100 tidak diubah. Validasi evidence membedakan energi total dari energi lemak/AKG; konflik nyata mengosongkan nilai dan membatalkan insight/TTS terkait. Kontrak dan batasannya ada di [SCANNER_API.md](../server/SCANNER_API.md).

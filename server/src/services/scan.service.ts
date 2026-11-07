@@ -33,7 +33,7 @@ export async function createScan(userId: string, input: ScanInput, provider = ca
   }
   try {
     const profile = await getProfile(userId);
-    const context = await retrieveContext(userId, profile, input.consumedAt, `${input.description}\n${input.rawOcrText}`);
+    const context = await retrieveContext(userId, profile, input.consumedAt, `${input.description}\n${scannerConfig().useRawOcr ? input.rawOcrText : ""}`);
     await db.scanRequest.update({ where: { id: claimed.id }, data: { state: 'dispatched', dispatchedAt: new Date() } });
     const analysis = await provider(input, context);
     const entry = await db.$transaction(async tx => {
