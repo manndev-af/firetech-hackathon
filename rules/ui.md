@@ -1,6 +1,6 @@
-# Aturan Mutu UI NutriLens AI
+# Aturan Mutu UI NutriSee
 
-Aturan ini berlaku untuk desain, implementasi, dan review antarmuka Flutter NutriLens. Gunakan [DESIGN.md](../docs/DESIGN.md) untuk pola dan arahan visual, [FRD.md](../docs/FRD.md) untuk perilaku/kriteria penerimaan, dan [DECISIONS.md](../docs/DECISIONS.md) untuk status keputusan. Ikuti pula [AGENTS.md](../AGENTS.md) dan [aturan dokumentasi](documentation.md).
+Aturan ini berlaku untuk desain, implementasi, dan review antarmuka Flutter NutriSee. Gunakan [DESIGN.md](../docs/DESIGN.md) untuk pola dan arahan visual, [FRD.md](../docs/FRD.md) untuk perilaku/kriteria penerimaan, dan [DECISIONS.md](../docs/DECISIONS.md) untuk status keputusan. Ikuti pula [AGENTS.md](../AGENTS.md) dan [aturan dokumentasi](documentation.md).
 
 ## Prinsip produk pada UI
 

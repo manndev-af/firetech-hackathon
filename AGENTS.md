@@ -755,9 +755,9 @@ If a technical limitation is discovered, explain it and propose the simplest via
 
 ---
 
-## NutriLens AI Documentation Context
+## NutriSee Documentation Context
 
-Before any NutriLens AI development task, read this `AGENTS.md` and the relevant project documents. Use [docs/SUMMARY.md](docs/SUMMARY.md) as the primary product context (including its dated addendum), [docs/PRD.md](docs/PRD.md) for product goals/scope, [docs/FRD.md](docs/FRD.md) for functional requirements and acceptance criteria, [docs/DESIGN.md](docs/DESIGN.md) and [rules/ui.md](rules/ui.md) for UI work, [docs/DECISIONS.md](docs/DECISIONS.md) for decision status, and [docs/architecture.md](docs/architecture.md) for component responsibilities and data flow. Consult [README.md](README.md) for the documentation index. Do not assume a proposed API, class list, dataset size/split, nutrient value, or metric is finalized unless the documents explicitly say so.
+Before any NutriSee development task, read this `AGENTS.md` and the relevant project documents. Use [docs/SUMMARY.md](docs/SUMMARY.md) as the primary product context (including its dated addendum), [docs/PRD.md](docs/PRD.md) for product goals/scope, [docs/FRD.md](docs/FRD.md) for functional requirements and acceptance criteria, [docs/DESIGN.md](docs/DESIGN.md) and [rules/ui.md](rules/ui.md) for UI work, [docs/DECISIONS.md](docs/DECISIONS.md) for decision status, and [docs/architecture.md](docs/architecture.md) for component responsibilities and data flow. Consult [README.md](README.md) for the documentation index. Do not assume a proposed API, class list, dataset size/split, nutrient value, or metric is finalized unless the documents explicitly say so.
 
 ### Changelog workflow
 

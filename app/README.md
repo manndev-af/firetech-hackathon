@@ -1,143 +1,76 @@
-# NutriLens AI — Flutter App
+# NutriSee — Aplikasi Flutter
 
-Aplikasi mobile NutriLens AI berada di folder ini. Baca [panduan root](../AGENTS.md), [ringkasan produk](../docs/SUMMARY.md), [PRD](../docs/PRD.md), [FRD](../docs/FRD.md), dan [panduan UI](../docs/DESIGN.md) sebelum mengembangkan fitur.
+Aplikasi mobile NutriSee menangani kamera, OCR lokal, tampilan hasil, profil, riwayat, perbandingan makanan, percakapan asisten, dan TTS. Ringkasan produk ada di [README utama](../README.md); aturan pengembangan ada di [AGENTS.md](../AGENTS.md).
 
 ## Menjalankan aplikasi
 
-Pastikan Flutter SDK sesuai batas versi di `pubspec.yaml`, lalu dari folder `app/` jalankan:
+Jalankan dari folder `app/` dengan Flutter dan perangkat Android yang sudah dikonfigurasi:
 
 ```bash
 flutter pub get
-flutter run
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
 ```
 
-## Kamera
+Alamat tersebut ditujukan untuk emulator Android yang mengakses backend pada komputer host. Untuk perangkat fisik, gunakan alamat backend yang dapat dijangkau perangkat. Port mengikuti konfigurasi backend.
 
-### Pembaruan pemrosesan lokal, OCR, dan audio
+Konfigurasi terpusat ada di `lib/core/network/api_endpoints.dart`. Urutan pemilihan URL: argumen eksplisit service, `API_BASE_URL`, alias `ANALYSIS_BASE_URL`, lalu `ApiEndpoints.defaultBaseUrl`. Default saat dokumentasi diperbarui adalah `https://nutrisee.manndev.web.id`; ini bukan klaim ketersediaan atau hasil uji layanan tersebut. Gunakan origin backend tanpa menambahkan `/api/v1`, karena path endpoint sudah memuat prefix itu.
 
-Alur scan sekarang memakai Object Detection dan fallback Image Labeling untuk beberapa kategori minuman sebelum request mode Makanan. Hasil negatif/error berhenti lokal. Mode Label melewati gate tersebut dan mengirim teks OCR mentah beserta JPEG yang diperkecil; parser angka OCR lama tidak dipakai pada alur baru. Batas awal confidence 0,65 belum merupakan hasil evaluasi akurasi, dan tidak semua minuman didukung model bawaan.
+API key LLM dan kredensial database hanya berada di backend. Setup MySQL, seed dummy, dan flag demo dijelaskan di [README backend](../server/README.md#scanner-konsumsi-development). Login Google pada UI masih alur demo, bukan autentikasi backend.
 
-Foto upload maksimal 1600 px (makanan) / 2000 px (label), 1,5 MB JPEG, tanpa EXIF; teks OCR tetap dari foto input sebelum kompresi. Profil, preferensi audio, foto terkompresi, teks OCR, draft, dan hasil disimpan dalam application-support directory. Snapshot JSON berurutan memiliki backup untuk pemulihan. Kegagalan penyimpanan ditampilkan, bukan dianggap tersimpan. Backup cloud Android dinonaktifkan; uninstall/hapus data aplikasi menghilangkan catatan lokal.
+## Scanner dan OCR
 
-Backend belum tersedia. Tanpa konfigurasi, draft muncul di Riwayat sebagai Menunggu analisis dan bisa dilanjutkan. Adapter siap memakai [kontrak SCAN_API](../docs/SCAN_API.md):
+`ScannerScreen` menangani foto kamera atau galeri, mode Makanan/Label produk, dan deskripsi tambahan. Mode makanan memakai ML Kit sebagai gate lokal; hasil gate bukan pengukuran nutrisi atau bukti akurasi klasifikasi. Kamera tidak merekam audio dan membutuhkan izin perangkat.
+
+Foto dikirim ke `POST /api/v1/scans` melalui multipart dengan UUID pada `Idempotency-Key`. Backend memvalidasi input, mengambil konteks personalisasi, melakukan satu dispatch vision, lalu menyimpan konsumsi jika analisis berhasil. Nilai foto berstatus estimasi model; hasil label adalah ekstraksi belum terverifikasi. Nilai yang tidak terbaca tetap null.
+
+Default `SCANNER_USE_RAW_OCR=false` membuat kegagalan OCR lokal tidak menghalangi pengiriman gambar label. Jika backend diatur menggunakan raw OCR, selaraskan flag Flutter:
 
 ```bash
-flutter run --dart-define=ANALYSIS_BASE_URL=https://backend.example/
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=SCANNER_USE_RAW_OCR=true
 ```
 
-Ganti URL dengan layanan yang menerapkan kontrak tersebut. Kunci LLM tetap di backend. Request hanya membawa prioritas nutrisi, bukan nama/usia/ukuran tubuh/alergi. Tidak ada retry otomatis.
+Flag Flutter mengatur kewajiban OCR lokal; flag backend mengatur penggunaan OCR dalam analisis. Saat aktif, OCR gagal/kosong/tanpa kata kunci ditolak sebelum pengiriman. `extractLabel()` hanya parser saran lokal, bukan sumber nilai nutrisi hasil API.
 
-Audio analisis aktif akan membacakan `spokenSummary` singkat saat hasil tersedia. Riwayat menyimpan teksnya untuk dibacakan ulang secara lokal. Flutter TTS memilih suara Indonesia yang terpasang dan tidak membutuhkan jaringan; jika tidak ada, pengguna diberi petunjuk memasang suara melalui pengaturan perangkat. Tidak ada file audio atau panggilan LLM tambahan untuk replay. Teks hasil tetap dapat dibaca ketika TTS gagal.
+Perubahan quantity memakai PATCH backend dan kalkulasi deterministik tanpa panggilan LLM tambahan. Jangan membuat key scan baru otomatis saat timeout karena dapat mencatat konsumsi lagi. Detail request, respons, error, dan TTS tersedia di [SCANNER_API.md](../server/SCANNER_API.md).
 
-Build normal kini memakai catatan lokal nyata; `--dart-define=UI_PREVIEW=true` masih tersedia untuk fixture desain bila riwayat dan draft kosong. Nilai contoh tidak lagi dipakai sebagai fallback hasil scan. Uraian historis tentang session-only, default preview, dan parser angka di bawah digantikan oleh pembaruan ini.
+## Profil, jurnal, dan audio
 
-Tombol kamera tengah dan aksi scan membuka `/scan` di atas shell. Layar memakai plugin `camera` untuk preview dan foto, serta `image_picker` untuk galeri. Mode Makanan/Label produk menentukan tujuan foto. Foto diperiksa sebelum digunakan dan dapat diulang. Kamera tidak merekam audio, dilepas saat aplikasi tidak aktif atau saat review, dan menampilkan pemulihan izin/error. Capture disimpan di cache perangkat; belum menjadi riwayat permanen. Android memakai izin kamera runtime. Pengujian perangkat fisik tetap diperlukan.
+`ProfileApi` menyediakan akses profil; `JournalApi` menyediakan daftar/detail konsumsi, koreksi jumlah, penghapusan, dan ringkasan nutrisi harian. Profil mengatur fokus penjelasan, bukan mengubah nilai nutrisi sumber. Backend MVP memakai satu owner dummy, bukan akun pengguna yang terautentikasi.
 
-## Routing
+Penyimpanan lokal menangani profil, preferensi audio, foto, OCR, draft, dan hasil pada perangkat. Backup cloud Android dinonaktifkan; uninstall atau hapus data aplikasi menghilangkan data lokal. Penyimpanan lokal dan jurnal backend memiliki mekanisme berbeda; ketersediaan endpoint tidak membuktikan seluruh data tersinkron.
 
-Tujuan Jelajahi menggunakan `AppRoutes.explore` (`/explore`) dan `AppRouteNames.explore` (`explore`). Route tersebut kini terhubung ke tab Jelajahi pada shell navigasi. `/comparison` dan `/assistant` membuka halaman detail di atas shell; halaman asisten menerima `extra: true` untuk pintasan pola catatan yang menampilkan tampilan percakapan.
+TTS memakai suara Indonesia pada perangkat untuk membacakan ringkasan singkat hasil. Backend menyediakan `ttsSummary`; replay audio tidak memerlukan panggilan LLM baru. Ketersediaan suara dan perilaku kamera/OCR perlu diuji pada Android fisik.
 
-Navigasi menggunakan `go_router`. Konfigurasi utama ada di `lib/core/router/app_router.dart`, sedangkan nama dan path route ada di `lib/core/router/route_paths.dart`. Aplikasi saat ini dimulai dari `/login`. Route `/login` merender `LoginScreen` di luar shell navigasi bawah. Halaman, route, dan akses pendaftaran telah dihapus. Dashboard `/home`, Jelajahi `/explore`, Riwayat `/history`, dan Profil `/profile` berada di shell. Tombol Kamera membuka preview kamera dan pilihan mode Makanan/Label produk. `/comparison` dan `/assistant` adalah halaman detail di luar shell.
+## Jelajahi, compare, dan assistant
 
-## Jelajahi, perbandingan, dan asisten
+- Jelajahi membuka pilihan perbandingan dan asisten.
+- `CompareScreen` mengirim dua gambar melalui `CompareApi` ke `/api/v1/comparisons`, lalu menampilkan hasil. Perbandingan tidak mencatat konsumsi. Lihat [COMPARE_API.md](../server/COMPARE_API.md).
+- `AssistantScreen` memakai `AssistantApi` ke `/api/v1/assistant/messages`. Mode `general` untuk pertanyaan makanan; mode `pattern` untuk pola catatan tujuh tanggal lokal. Riwayat percakapan dikirim client dan tidak dipersistenkan backend. Lihat [ASSISTANT_API.md](../server/ASSISTANT_API.md).
 
-- Tab Jelajahi dan kartu Buka Jelajah dari Home membuka `ExploreScreen`.
-- Bandingkan dua pilihan membuka `CompareScreen` (`/comparison`). Minuman A/B dan nilai gizi pada layar hanya data ilustrasi dari referensi desain, bukan data nutrisi terverifikasi.
-- Perbandingan meminta dua gambar dari galeri sebelum membuka ringkasan. Gambar ditampilkan dari file lokal; belum diunggah ke backend atau dianalisis. Ringkasan masih memakai nilai ilustrasi.
-- Lihat pola catatanku membuka `AssistantScreen` dengan tampilan percakapan contoh. Tanya soal makanan membuka halaman asisten tanpa tampilan chat.
-- Tidak ada catatan makanan, lookup nutrisi, kalkulasi, pengiriman chat, atau jawaban LLM yang terhubung. Tampilan percakapan bersifat prototipe.
+Service dan pemanggilan UI tersedia di repository; verifikasi end-to-end tetap diperlukan pada backend dan perangkat yang digunakan untuk demo.
 
-Halaman login berada di `lib/features/auth/login_screen.dart` dan dapat dibuka menggunakan `context.go(AppRoutes.login)`. UI mengikuti referensi terbaru: latar putih, wordmark nutrilens, ilustrasi makanan, judul “Kenali isi piringmu.”, dan satu tombol “Lanjutkan dengan Google”. Form email/kata sandi telah dihapus. Tombol Google membuka onboarding sebagai alur demo; status prototipe/login belum terhubung tetap terlihat. Tidak ada proses OAuth, pengiriman kredensial, atau sesi akun. Layout dapat digulir pada layar kecil dan saat teks diperbesar.
+## Routing dan struktur
 
-## Onboarding
+Konfigurasi navigasi ada di `lib/core/router/app_router.dart`; path dan nama route ada di `route_paths.dart`. `/home`, `/explore`, `/history`, dan `/profile` berada dalam shell navigasi bawah. `/scan`, `/comparison`, dan `/assistant` membuka alur detail di luar shell. Login dan onboarding merupakan alur terpisah.
 
-Route `/onboarding` berada di luar shell dan merender `features/onboarding/onboarding_screen.dart`. Container ini mengatur tiga layar: `onboarding_focus_screen.dart` (01/02), `onboarding_preference_screen.dart` (02/02), dan `onboarding_finish_screen.dart`. Komponen khusus alur berada di `features/onboarding/widgets/`.
+| Lokasi | Isi |
+|---|---|
+| `lib/features/` | Halaman per domain dan widget khusus halaman. |
+| `lib/core/network/` | Client HTTP, endpoint, dan konfigurasi base URL. |
+| `lib/core/router/` | Konfigurasi navigasi. |
+| `lib/core/theme/` | Warna, tipografi, dan tema. |
+| `lib/models/`, `lib/services/`, `lib/repositories/`, `lib/providers/` | Data dan logika lintas fitur sesuai struktur yang tersedia. |
+| `assets/` | Gambar, ikon, dan font statis. |
 
-- Langkah 1 memilih satu fokus: Gula, Protein, Natrium, atau Keseimbangan; default Gula mengikuti referensi.
-- Langkah 2 memilih satu preferensi opsional: Masakan rumahan, Praktis dan cepat, atau Lebih banyak nabati; default Masakan rumahan mengikuti referensi. Lanjutkan menerima pilihan, sedangkan Lewati dulu mengosongkan preferensi.
-- Layar selesai menampilkan fokus aktual dan preferensi jika dipilih, lalu Ke beranda membuka `/home`. Tombol kembali dan back sistem berpindah ke langkah sebelumnya; dari langkah pertama menuju login. Pilihan dipertahankan ketika kembali di dalam alur.
-- Pilihan hanya hidup di state UI selama onboarding. Keluar dari alur/memulai ulang mengembalikan default; fokus terpilih diteruskan ke label dashboard sebagai route extra, tanpa penyimpanan permanen atau penerapan ke engine. Ini bukan implementasi lengkap Nutrition Profile.
-- `assets/images/onboarding_finish_reference.png` berasal dari ekspor pengguna `Group-16.png`; hanya area ilustrasi dirender. Aset bukan hasil scan atau referensi nutrisi.
+Font Inter dibundel di `assets/fonts/` dengan bobot 400/500/600/700 dan lisensi `assets/fonts/OFL.txt`. Gunakan tema global, bukan menetapkan font berulang pada setiap widget. Panduan aset ada di [WORKSPACE](../docs/WORKSPACE.md#aset-statis-flutter).
 
-## Dashboard dan ringkasan hari ini
-
-`features/dashboard/dashboard_screen.dart` mengikuti referensi Home kosong/berisi. Kartu scan berada di `widgets/dashboard_scan_card.dart`; bagian riwayat berada di `widgets/dashboard_history.dart`.
-
-- Tanpa `summary`, layar menampilkan Belum ada catatan dan Catat makanan pertama. Tidak ada angka contoh yang dimasukkan ke data aplikasi.
-- `DashboardScreen(summary: DailyNutritionSummary(...))` menerima ringkasan catatan hari ini yang sudah dihitung dari data terkonfirmasi oleh integrasi berikutnya. Model global ada di `models/daily_nutrition_summary.dart`: jumlah catatan positif, total gula/protein/energi nullable, dan penanda kelengkapan tiap nutrisi. Widget hanya memformat nilai yang diberikan; belum ada penyimpanan, pengambilan riwayat, atau kalkulasi nutrisi baru.
-- Nilai null tampil sebagai Belum tersedia, angka nol yang diketahui tetap nol, dan nutrisi yang hilang/ditandai parsial menghasilkan catatan belum lengkap. Ringkasan bukan target atau total konsumsi harian di luar makanan yang dicatat.
-- Fokus onboarding dibawa lewat `GoRouterState.extra` dan divalidasi terhadap empat opsi yang tersedia. Akses langsung `/home` tanpa fokus menampilkan Belum dipilih; route extra tidak disimpan setelah restart/reload.
-- Foto makanan dan Catat makanan pertama memakai callback `onScan`; kartu Buka Jelajah membuka tab Jelajahi. Callback kamera tetap memberi pemberitahuan fitur belum tersedia. Riwayat tersimpan belum ada.
-- Navigasi bawah tetap memakai desain sebelumnya: latar berlekuk, tombol kamera hijau mengambang, dan label Beranda/Jelajahi/Riwayat/Profil. Empat tab konten kini terhubung ke empat branch shell. Konten dashboard memiliki padding bawah agar tidak tertutup bar.
-- `assets/images/dashboard_reference.png` adalah ekspor pengguna `Group-18.png`; hanya area ilustrasi kartu yang dirender. Teks, tombol, dan ringkasan merupakan widget Flutter. Setelah menambah aset, hentikan dan jalankan ulang aplikasi agar bundle baru terbentuk.
-
-## Profil dan Riwayat
-
-Revisi Profil terbaru: ikon Edit profil membuka nama, usia, tinggi, dan berat langsung di halaman. Lihat detail pada Personalisasi membuka seluruh form prioritas, pilihan makanan, dan alergi di bawah judulnya, tanpa bottom sheet atau tombol Edit tambahan. Tombol Simpan/Kembali berada di akhir form; data kedua bagian dipertahankan secara terpisah. Selesai mengedit mengembalikan halaman ke ringkasan. Uraian bottom sheet di catatan sebelumnya sudah digantikan.
-
-Revisi review pengguna 7 November 2026 menggantikan uraian UI awal berikut: Profil menampilkan ringkasan lalu Lihat detail, serta sakelar Audio analisis aktif/nonaktif dalam sesi. TTS belum terintegrasi. Riwayat memakai foto dan ringkasan singkat, tanpa filter atau label demo. `ScanHistoryEntry.photoPath` menerima file foto lokal; file tidak tersedia memiliki fallback. Asal data dan Acuan perhitungan dapat dibuka di detail.
-
-Riwayat terisi kini langsung terlihat saat menjalankan `flutter run`, sesuai permintaan review pengguna. Tiga contoh: yogurt stroberi, nasi/ayam/sayur, dan teh tawar, lengkap dengan foto, porsi, ringkasan, serta detail analisis. Router memakai `UI_PREVIEW` dengan default `true`; jalankan `flutter run --dart-define=UI_PREVIEW=false` untuk melihat state tanpa fixture. Angka/foto hanya bahan review desain, bukan hasil analisis/kamera nyata, dan tidak masuk ke penyimpanan atau ringkasan pengguna. Font Inter memakai ukuran menurut peran 24/18/16/14. Sumber foto dan hasil review ada dalam [audit](../docs/PROFILE_HISTORY_AUDIT.md#revisi-setelah-review-pengguna).
-
-### Catatan implementasi awal
-
-Pembaruan 7 November 2026 menggantikan status navigasi/profil pada uraian dashboard terdahulu:
-
-- Tab History membuka `/history`; Profile membuka `/profile`; editor berada di `/profile/nutrition`. Home tetap branch pertama. Insight dan tombol kamera memberi pemberitahuan belum tersedia, bukan membuka route yang tidak ada.
-- `features/profile/` memuat ringkasan dan editor lima bagian: prioritas jamak, preferensi/pola makan/halal, alergi, nama/usia, serta tinggi/berat. Semua selain minimal satu prioritas bersifat opsional. Simpan memvalidasi draft; Batal/Kembali meminta konfirmasi jika ada perubahan. Tinggi/berat tidak menghitung BMI atau target kalori. Pencocokan alergen belum tersedia.
-- Model `models/nutrition_profile.dart` serta notifier sesi pada router menghubungkan onboarding, profil, dan label fokus dashboard. State tidak disimpan ke disk atau server dan hilang setelah restart. Profil belum diterapkan ke engine.
-- `features/history/history_screen.dart` menyediakan filter jenis/tanggal, reset, empty state, dan detail snapshot. Lihat contoh riwayat membuka preview berlabel ilustrasi yang terpisah dari catatan pengguna. Sumber/basis/porsi ditampilkan dan null tetap Belum tersedia. API serta penyimpanan hasil nyata belum tersedia; Mulai pindai menjelaskan kamera belum tersedia.
-- Komponen bersama berada di `shared/widgets/personal_page.dart`, memakai token teal/mint dan font Inter aplikasi. Figcraft tidak dimodifikasi. TTS dan penyimpanan permanen belum tersedia. Rincian perubahan, bukti pengujian, serta batasnya ada di [audit Profil/Riwayat](../docs/PROFILE_HISTORY_AUDIT.md).
-
-Ekspor enam preview PNG dari widget Flutter (hasil lokal di `build/ui-audit/after/`, tidak dilacak Git):
-
-```bash
-flutter test --no-pub test/profile_history_preview_test.dart --dart-define=EXPORT_UI_PREVIEWS=true
-```
-
-## Font global Inter
-
-Seluruh halaman memakai Inter melalui `fontFamily` pada `AppTheme.light` dan penerapan font ke `TextTheme`. Nama family disimpan di `AppTypography.fontFamily`; tidak perlu menambahkan `fontFamily` pada setiap `Text` atau layout. `TextStyle` lokal tetap dapat mengatur ukuran/bobot/warna dan mewarisi family tema.
-
-File lokal berada di `assets/fonts/`: Inter-Regular (400), Inter-Medium (500), Inter-SemiBold (600), dan Inter-Bold (700), dengan mapping bobot pada `flutter.fonts` di `pubspec.yaml`. Font dibundel agar tersedia offline, tanpa package tambahan atau request font saat aplikasi dibuka. Sumber unduhan: [Google Fonts Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700); lisensi SIL Open Font License disertakan pada `assets/fonts/OFL.txt` dari [repository Google Fonts](https://github.com/google/fonts/blob/main/ofl/inter/OFL.txt).
-
-Setelah menambahkan font, hentikan aplikasi, jalankan `flutter pub get` dari `app/`, lalu `flutter run` agar bundle font ikut dibangun. Hot reload saja belum tentu memuat font baru.
-
-## Struktur kode
-
-- `assets/images/` menyimpan foto, ilustrasi, dan logo; `assets/icons/` menyimpan ikon kustom. Keduanya terdaftar di `pubspec.yaml`. `assets/images/login_reference.png` adalah ekspor desain pengguna (`Group-11.png`); layar login hanya merender area ilustrasi makanannya. Gambar ini merupakan ilustrasi, bukan hasil scan/model atau referensi nutrisi. Simpan aset statis di luar `lib/`; panduan penamaan, subfolder, dan lisensi ada di [WORKSPACE.md](../docs/WORKSPACE.md#aset-statis-flutter).
-- `lib/app.dart` mengatur `MaterialApp.router` dan tema aplikasi.
-- `lib/core/theme/` berisi token warna teal/cyan, tipografi, dan `ThemeData` sesuai [DESIGN.md](../docs/DESIGN.md): judul 24 px bold, teks dasar 14 px, kartu putih radius 24 px, dan latar mint pucat.
-- `lib/core/router/` berisi konfigurasi serta path/nama route.
-- `lib/core/network/` menjadi batas komunikasi ke backend API terpisah. `ApiClient` menerima base URI saat dibuat; URL environment belum ditetapkan. Endpoint yang tercantum mengikuti usulan kontrak di AGENTS.md dan belum menyatakan endpoint backend sudah tersedia.
-- `lib/core/utils/` menyimpan utilitas umum dan `ApiException`.
-- `lib/models/`, `lib/services/`, `lib/repositories/`, dan `lib/providers/` adalah layer global lintas fitur.
-- `lib/features/` hanya memuat UI per domain. File halaman berada langsung di folder feature; widget khusus halaman berada di `widgets/`. Jangan membuat folder `pages/` atau mengulang model/provider/repository/service dalam feature.
-- Integrasi Supabase tidak termasuk struktur saat ini.
-
-Navigasi menggunakan `context.go(path)` untuk berpindah ke tujuan dan `context.pop()` untuk kembali. Tambahkan layar produk saat mengerjakan flow terkait dan ganti builder route tersebut tanpa mengubah path publik secara diam-diam.
-
-## Verifikasi
+## Verifikasi dan referensi
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-Dokumentasi Flutter tersedia di [docs.flutter.dev](https://docs.flutter.dev/). Kontrak produk dan batas nutrisi tetap mengikuti dokumen proyek; route yang tersedia tidak berarti fitur kamera, akun, model, database, atau analisis nutrisi sudah diterapkan.
+Perintah tersebut merupakan panduan pemeriksaan, bukan klaim sudah dijalankan pada pembaruan dokumentasi ini. Tes mock tidak menggantikan pengujian kamera, OCR, TTS, dan koneksi API pada perangkat.
 
-### Hasil scan dan OCR
-
-Mode makanan memakai pemeriksaan makanan lokal. Mode label mencoba Google ML Kit tanpa pemeriksaan makanan. Secara default OCR label bersifat opsional: OCR gagal, kosong atau tanpa kata kunci tidak menghalangi foto dikirim ke backend untuk pembacaan gambar. Teks yang berhasil dibaca tetap disertakan, maksimal 20.000 karakter; teks melebihi batas ditolak, bukan dipotong.
-
-Untuk backend dengan `SCANNER_USE_RAW_OCR=true`, jalankan Flutter dengan konfigurasi yang sama:
-
-```bash
-flutter run --dart-define=SCANNER_USE_RAW_OCR=true
-```
-
-Flag Flutter mengatur kewajiban OCR lokal; flag backend mengatur penggunaan OCR dalam analisis. Keduanya terpisah dan perlu diselaraskan. Default keduanya false. Mode wajib menolak OCR gagal/kosong/tanpa kata kunci sebelum pengiriman.
-
-Foto dikirim ke `POST /api/v1/scans` menggunakan multipart dan UUID Idempotency-Key. Backend melakukan satu panggilan LLM vision untuk membaca gambar, memvalidasi hasil dan mencatat konsumsi. Fallback gambar memakai panggilan awal yang sama, tanpa panggilan tambahan. Jika basis belum jelas, minta koreksi/foto ulang; nutrisi yang tidak terbaca tetap null. Edit quantity memakai kalkulasi backend deterministik melalui PATCH, tanpa meminta LLM menghitung ulang. Parser `extractLabel()` hanya saran lokal dan tidak menentukan nilai request/hasil API.
-
-Uji kamera dan ekstraksi ML Kit pada Android fisik sebelum demo; tes mock/transkripsi bukan pengujian OCR perangkat. Kontrak backend: [SCANNER_API.md](../server/SCANNER_API.md).
+Riwayat desain dan revisi UI ada di [DESIGN](../docs/DESIGN.md) dan [audit Profil/Riwayat](../docs/PROFILE_HISTORY_AUDIT.md). Sasaran produk dan kriteria fitur ada di [PRD](../docs/PRD.md) dan [FRD](../docs/FRD.md). Kontrak frontend terdahulu di [SCAN_API](../docs/SCAN_API.md) merupakan konteks historis; gunakan kontrak backend untuk integrasi aktif.

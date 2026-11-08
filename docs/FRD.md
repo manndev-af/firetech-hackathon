@@ -2,7 +2,7 @@
 
 > Addendum scanner backend, 7 November 2026: POST scan valid langsung menyimpan konsumsi. Kedua mode menerima gambar; mode label wajib raw OCR. Request yang sama dideduplikasi per owner/idempotency key dan tidak mengulang provider setelah uncertain dispatch. Profil mengikuti seluruh field UI termasuk identity opsional, prioritas jamak, preferensi tunggal, pola makan, halal, alergi tiga status dan audio. Identity/audio dapat diperbarui tanpa prioritas; simpan personalisasi wajib minimal satu. Koreksi quantity mempertahankan null serta basis asli; daily summary memperlihatkan known/missing counts dan timezone. Respons menyertakan ttsSummary singkat pada panggilan yang sama. Estimasi foto dan label extraction dibedakan dari data terverifikasi. Bagian historis ONNX/konfirmasi-sebelum-jurnal di bawah tidak menjadi kontrak scanner baru; kontrak endpoint aktual ada di OpenAPI backend. Integrasi UI belum termasuk.
 
-## NutriLens AI — Personalized Nutrition Decision Support
+## NutriSee — Personalized Nutrition Decision Support
 
 | Atribut | Nilai |
 |---|---|
@@ -15,7 +15,7 @@
 
 Pembaruan integrasi lokal (7 November 2026): pengguna mengonfirmasi Object Detection + Image Labeling untuk gate foto makanan/minuman, OCR mentah + foto terkompresi sebagai input backend, serta teks kesimpulan tersimpan untuk replay TTS lokal. Gate negatif/gagal tidak mengirim request; mode label tidak memakai gate objek. Profil/audio/draft/riwayat bertahan di storage lokal. Hasil backend disimpan otomatis; kesimpulan pendek dibacakan hanya ketika preferensi audio aktif, sedangkan replay merupakan tindakan manual. Foto yang dipindai tidak otomatis dianggap konsumsi. Kontrak, error, batas model, dan status backend belum tersedia tercatat di [SCAN_API](SCAN_API.md). Ini menggantikan status session-only dan hasil scan contoh pada catatan lama.
 
-Dokumen ini merinci kebutuhan fungsional NutriLens AI, prioritas implementasi, serta kriteria penerimaan untuk membantu tim membangun dan memvalidasi MVP. PRD menjelaskan konteks dan sasaran produk; FRD ini merinci perilaku yang harus disediakan produk.
+Dokumen ini merinci kebutuhan fungsional NutriSee, prioritas implementasi, serta kriteria penerimaan untuk membantu tim membangun dan memvalidasi MVP. PRD menjelaskan konteks dan sasaran produk; FRD ini merinci perilaku yang harus disediakan produk.
 
 ## 2. Ruang Lingkup Fungsional
 

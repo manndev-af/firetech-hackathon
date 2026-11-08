@@ -1,6 +1,6 @@
-# Aturan Dokumentasi NutriLens AI
+# Aturan Dokumentasi NutriSee
 
-Aturan ini menjelaskan cara menjaga dokumentasi NutriLens tetap selaras dengan produk dan implementasi. Terapkan pada perubahan dokumentasi, produk, aplikasi, backend, model, data, maupun cara kerja agent.
+Aturan ini menjelaskan cara menjaga dokumentasi NutriSee tetap selaras dengan produk dan implementasi. Terapkan pada perubahan dokumentasi, produk, aplikasi, backend, model, data, maupun cara kerja agent.
 
 ## Sumber rujukan
 
@@ -49,7 +49,7 @@ Jika sumber bertentangan, ikuti instruksi terbaru yang diberikan pengguna dan ba
 | Aturan agent, skill/rules, atau changelog | AGENTS, rule terkait, dan README bila navigasinya perlu diperbarui. |
 | Perubahan format atau ignore file | WORKSPACE dan konfigurasi relevan; perbarui changelog jika berdampak material. |
 
-## Aturan khusus NutriLens AI
+## Aturan khusus NutriSee
 
 - Nutrition Profile dapat menyoroti penjelasan, perbandingan, dan alternatif; profil tidak mengubah nilai nutrisi sumber.
 - Nilai nutrisi harus berasal dari sumber yang dapat diverifikasi dan mempertahankan sumber, basis, serta satuannya. Nilai yang tidak tersedia tetap tidak diketahui, bukan nol.

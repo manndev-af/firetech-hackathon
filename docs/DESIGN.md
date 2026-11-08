@@ -1,4 +1,4 @@
-# NutriLens AI — Rancangan UI/UX
+# NutriSee — Rancangan UI/UX
 
 Penyempurnaan 7 November 2026: detail Riwayat tanpa ikon silang; tutup melalui gestur geser, area luar panel, atau kembali sistem. Kartu Ringkasan menampilkan catatan dan fokus saat dicatat tanpa penilaian kesehatan baru. Preview Personalisasi menampilkan seluruh prioritas, preferensi, pola makan, halal, dan status/bahan alergi. Input Profil memakai latar mint, border radius 16, label tetap terlihat, satuan, dan teks input 16 px; font Inter serta palet yang ada dipertahankan.
 
@@ -61,7 +61,7 @@ Pembaruan Login Flutter — 7 November 2026: referensi `Group-11.png` dari pengg
 
 Pembaruan Flutter — 7 November 2026: atas permintaan pengguna, halaman Register, route `/register`, serta tautan Daftar pada login dan navigasi placeholder telah dihapus. Rancangan Daftar pada inventaris prototipe di bawah tetap merupakan catatan desain historis, bukan fitur Flutter yang tersedia.
 
-Implementasi Flutter — 7 November 2026: layar Login telah dibuat mengikuti referensi pengguna dengan header kembali/NutriLens, judul sambutan, input email dan kata sandi, tombol Masuk, kartu insight mint, dan catatan batas layanan. Layar `/login` berada di luar shell navigasi bawah, menggunakan token tema yang tersedia, dan dapat digulir saat keyboard terbuka atau teks diperbesar. Form memvalidasi input dan menyediakan kontrol visibilitas kata sandi; Masuk memberi pemberitahuan autentikasi belum tersedia. Implementasi ini hanya UI dan tidak mengubah scope autentikasi MVP.
+Implementasi Flutter — 7 November 2026: layar Login telah dibuat mengikuti referensi pengguna dengan header kembali/NutriSee, judul sambutan, input email dan kata sandi, tombol Masuk, kartu insight mint, dan catatan batas layanan. Layar `/login` berada di luar shell navigasi bawah, menggunakan token tema yang tersedia, dan dapat digulir saat keyboard terbuka atau teks diperbesar. Form memvalidasi input dan menyediakan kontrol visibilitas kata sandi; Masuk memberi pemberitahuan autentikasi belum tersedia. Implementasi ini hanya UI dan tidak mengubah scope autentikasi MVP.
 
 UI membantu pengguna memahami nutrisi berdasarkan prioritasnya sambil menunjukkan sumber dan keterbatasan data. Alur utama harus dapat diselesaikan dengan mengambil gambar, mengonfirmasi identitas makanan, memilih porsi, lalu membaca analisis.
 

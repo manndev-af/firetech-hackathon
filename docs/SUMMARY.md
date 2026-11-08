@@ -1,6 +1,6 @@
-# NutriLens AI — Project Brainstorming & Product Foundation
+# NutriSee — Project Brainstorming & Product Foundation
 
-> **Working title:** NutriLens AI (Nama Belum Fix)
+> **Nama aplikasi:** NutriSee (dikonfirmasi 8 November 2026)
 
 > Addendum 7 November 2026: pengguna menyetujui backend scanner konsumsi pada `add-scanner-consumption-backend`. Jalur ini menggantikan rencana ONNX/verified-only historis dengan satu panggilan DeepSeek vision, estimasi/ekstraksi berprovenance, RAG SQL, jurnal otomatis dan kalkulasi quantity deterministik. Lihat [keputusan pengganti](DECISIONS.md) dan [panduan backend](../server/README.md#scanner-konsumsi-development). Implementasi diuji dengan provider mock; live DeepSeek belum diuji. Flutter tetap di luar scope change.
 > **Positioning:** Personalized Nutrition Decision Support  
@@ -11,7 +11,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-NutriLens AI adalah aplikasi mobile yang membantu pengguna memahami informasi nutrisi dari makanan yang akan dikonsumsi dan membuat keputusan makanan yang lebih terinformasi berdasarkan prioritas atau profil pengguna.
+NutriSee adalah aplikasi mobile yang membantu pengguna memahami informasi nutrisi dari makanan yang akan dikonsumsi dan membuat keputusan makanan yang lebih terinformasi berdasarkan prioritas atau profil pengguna.
 
 Aplikasi menyediakan dua jalur utama:
 
@@ -20,7 +20,7 @@ Aplikasi menyediakan dua jalur utama:
 
 Setelah data makanan dan porsinya diverifikasi, backend mengambil referensi kandungan nutrisi dari database yang sesuai, menghitung nutrisi secara deterministik, kemudian menyajikan penjelasan dan insight yang disesuaikan dengan prioritas pengguna.
 
-**Nilai utama produk bukan hanya mengenali makanan atau menghitung kalori.** NutriLens membantu pengguna memahami apa arti informasi nutrisi, membandingkan trade-off antar makanan, dan memilih berdasarkan kebutuhannya sendiri.
+**Nilai utama produk bukan hanya mengenali makanan atau menghitung kalori.** NutriSee membantu pengguna memahami apa arti informasi nutrisi, membandingkan trade-off antar makanan, dan memilih berdasarkan kebutuhannya sendiri.
 
 ### Prinsip utama produk
 
@@ -54,12 +54,12 @@ Data berikut dapat digunakan sebagai konteks masalah dalam proposal/pitch. Batas
 | Survei Kesehatan Indonesia (SKI) 2023, Kementerian Kesehatan | Sekitar 47,5% penduduk usia 3 tahun ke atas mengonsumsi minuman manis setidaknya sekali sehari. Pada kelompok usia 15–19 tahun sekitar 45,8%; 20–24 tahun 44,3%; dan 25–29 tahun 45,0%. Angka Riau yang pernah dibahas sekitar 46,5%.                                                                              | Ini menunjukkan frekuensi konsumsi minuman manis, bukan jumlah gram gula dan bukan bukti bahwa seluruh responden melampaui batas konsumsi gula.                                    |
 | Mauludyani et al., Jurnal Gizi dan Pangan/IPB (2021)         | Studi pada 400 orang dewasa di wilayah Jabodetabek melaporkan sekitar 70% responden memeriksa label pangan. Di antara pemeriksa label, 37,5% memperhatikan informasi nilai gizi sebelum membeli. Rata-rata pengetahuan label gizi sekitar 7,7 dari 14.                                                             | Sampel terbatas pada Jabodetabek dan penelitian tahun 2021; tidak boleh digeneralisasi sebagai gambaran seluruh masyarakat Indonesia saat ini.                                     |
 | Gonzalez et al., _Current Developments in Nutrition_ (2025)  | Delapan focus group yang melibatkan 46 remaja Indonesia usia 12–18 tahun di wilayah metropolitan Jakarta membahas faktor pemilihan snack; harga dan rasa merupakan pertimbangan penting. Beberapa format label juga dinilai lebih mudah dipahami daripada yang lain.                                               | Studi kualitatif dengan jumlah dan cakupan peserta terbatas; bukan pengukuran perilaku seluruh remaja Indonesia.                                                                   |
-| Colozza et al., _BMJ Public Health_ (2026)                   | Studi eksperimental pada 4.039 responden di Indonesia membandingkan beberapa format front-of-pack nutrition labels. Warning labels dan Multiple Traffic Light menunjukkan efektivitas dalam membantu responden mengurutkan kualitas nutrisi produk dan mengenali pilihan yang relatif lebih baik atau kurang baik. | Temuan ini mendukung pentingnya penyajian informasi nutrisi yang mudah dipahami. Studi tersebut tidak membuktikan efektivitas NutriLens AI atau perubahan perilaku jangka panjang. |
+| Colozza et al., _BMJ Public Health_ (2026)                   | Studi eksperimental pada 4.039 responden di Indonesia membandingkan beberapa format front-of-pack nutrition labels. Warning labels dan Multiple Traffic Light menunjukkan efektivitas dalam membantu responden mengurutkan kualitas nutrisi produk dan mengenali pilihan yang relatif lebih baik atau kurang baik. | Temuan ini mendukung pentingnya penyajian informasi nutrisi yang mudah dipahami. Studi tersebut tidak membuktikan efektivitas NutriSee atau perubahan perilaku jangka panjang. |
 | SKI 2023 — status gizi dewasa                                | Angka prevalensi obesitas dewasa yang pernah dibahas adalah 23,4%, dibandingkan 21,8% pada 2018, dengan definisi yang digunakan dalam laporan tersebut.                                                                                                                                                            | Jangan menyimpulkan bahwa rendahnya literasi label secara langsung menyebabkan obesitas. Angka ini hanya konteks kesehatan masyarakat.                                             |
 
 ### 2.3 Implikasi bagi desain produk
 
-Riset tentang label dan informasi produk mendukung gagasan bahwa informasi nutrisi yang disajikan dengan jelas dapat membantu konsumen memahami dan membandingkan produk. NutriLens menerapkan prinsip serupa dalam bentuk digital:
+Riset tentang label dan informasi produk mendukung gagasan bahwa informasi nutrisi yang disajikan dengan jelas dapat membantu konsumen memahami dan membandingkan produk. NutriSee menerapkan prinsip serupa dalam bentuk digital:
 
 - Mengubah angka nutrisi menjadi penjelasan sederhana.
 - Menampilkan informasi per 100 gram dan per porsi agar perbandingan lebih mudah.
@@ -90,7 +90,7 @@ Pengguna ingin:
 
 ### 3.3 Value proposition
 
-**NutriLens AI mengubah informasi makanan yang kompleks menjadi insight nutrisi yang mudah dipahami dan relevan dengan prioritas pengguna, sehingga pengguna dapat mengambil keputusan makanan secara lebih sadar.**
+**NutriSee mengubah informasi makanan yang kompleks menjadi insight nutrisi yang mudah dipahami dan relevan dengan prioritas pengguna, sehingga pengguna dapat mengambil keputusan makanan secara lebih sadar.**
 
 ---
 
@@ -141,7 +141,7 @@ Dua jalur input makanan berbeda, tetapi bergabung pada tahap konfirmasi porsi da
 
 ```mermaid
 flowchart TD
-    A[Open NutriLens AI] --> B[Onboarding dan profil sederhana]
+    A[Open NutriSee] --> B[Onboarding dan profil sederhana]
     B --> C[Home / Dashboard]
     C --> D[Scan Your Food]
     D --> E{Jenis makanan}
@@ -403,7 +403,7 @@ Perhitungan ini dilakukan oleh Nutrition Calculator di backend (atau fungsi loka
 
 ## 10. Personalized Insight dan Nutrition Trade-Off
 
-Ini adalah fitur pembeda utama NutriLens dibanding aplikasi food recognition atau calorie counter biasa.
+Ini adalah fitur pembeda utama NutriSee dibanding aplikasi food recognition atau calorie counter biasa.
 
 ### 10.1 Tujuan
 
@@ -767,7 +767,7 @@ Endpoint dapat disederhanakan selama hackathon; tidak semuanya wajib dibuat seba
 
 ---
 
-## 16. Struktur Repository NutriLens AI
+## 16. Struktur Repository NutriSee
 
 Struktur berikut mencerminkan repository saat ini. `app/` menggunakan scaffold default Flutter yang sudah tersedia; backend berada langsung di `server/`. README pada masing-masing folder menjadi panduan lokal untuk app dan server.
 
@@ -938,7 +938,7 @@ Ukuran tersebut adalah indikator literasi dan kegunaan awal. Jangan mengklaim ap
 
 ### 22.1 Arah yang sudah relatif disepakati dalam brainstorming
 
-- Nama/konsep kerja: NutriLens AI.
+- Nama aplikasi: NutriSee; konteks konsep awal tetap disimpan di dokumen ini.
 - Fokus: Personalized Nutrition Decision Support / literasi nutrisi.
 - Model klasifikasi: MobileNetV3-Large fine-tuning.
 - Dataset gambar: MM-Food-100K, menggunakan subset, bukan wajib seluruh 100K.
@@ -985,11 +985,11 @@ Untuk menjaga proyek tetap fokus dan selesai dalam 24 jam, urutan kerja yang pal
 
 ### Positioning final yang disarankan
 
-> **NutriLens AI is a personalized nutrition decision-support application that transforms food images and product nutrition information into understandable, user-centered insights—helping people compare food choices and make more informed decisions.**
+> **NutriSee is a personalized nutrition decision-support application that transforms food images and product nutrition information into understandable, user-centered insights—helping people compare food choices and make more informed decisions.**
 
 Versi Indonesia:
 
-> **NutriLens AI adalah aplikasi pendukung keputusan nutrisi personal yang mengubah foto makanan dan informasi nutrisi produk menjadi insight yang mudah dipahami, sehingga pengguna dapat membandingkan pilihan makanan dan mengambil keputusan secara lebih terinformasi.**
+> **NutriSee adalah aplikasi pendukung keputusan nutrisi personal yang mengubah foto makanan dan informasi nutrisi produk menjadi insight yang mudah dipahami, sehingga pengguna dapat membandingkan pilihan makanan dan mengambil keputusan secara lebih terinformasi.**
 
 ---
 
@@ -1046,7 +1046,7 @@ Nutrition Profile hanya memengaruhi fokus penjelasan, perbandingan, dan alternat
 
 ### Batas penggunaan dan keselamatan
 
-- NutriLens AI tidak membuat diagnosis, konsultasi dokter, rekomendasi pengobatan, atau perubahan dosis obat.
+- NutriSee tidak membuat diagnosis, konsultasi dokter, rekomendasi pengobatan, atau perubahan dosis obat.
 - Fitur terkait kondisi medis memerlukan validasi tenaga kesehatan dan perlindungan data kesehatan yang sesuai.
 - Data nutrisi harus berasal dari sumber yang dapat diverifikasi; nilai yang tidak diketahui tidak boleh dianggap nol.
 - Nutrition Engine bertanggung jawab atas kalkulasi dan aturan nutrisi secara deterministik.

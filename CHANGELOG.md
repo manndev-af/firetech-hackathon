@@ -1,9 +1,13 @@
     
 # Changelog
 
-Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengikuti prinsip [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versi menggunakan [Semantic Versioning](https://semver.org/spec/v2.0.0.html) setelah proyek mulai membuat rilis; sebelum itu, perubahan dicatat pada bagian **Unreleased**.
+Semua perubahan penting pada NutriSee dicatat di dokumen ini. Format mengikuti prinsip [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versi menggunakan [Semantic Versioning](https://semver.org/spec/v2.0.0.html) setelah proyek mulai membuat rilis; sebelum itu, perubahan dicatat pada bagian **Unreleased**.
 
 ## [Unreleased]
+
+### Changed
+
+- Nama aplikasi pada README dan dokumentasi rujukan diselaraskan menjadi NutriSee. README utama merangkum fitur, batas MVP, setup, dan kontrak API; panduan starter backend yang tidak sesuai dibuang. Pembaruan hanya Markdown, tanpa perubahan kode atau konfigurasi runtime.
 
 ### Added
 
@@ -182,7 +186,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
   - Kartu personalisasi dikelompokkan secara logis ke dalam 3 sub-bagian: Fokus Nutrisi (chip badge bertema), Pola & Preferensi Makan (pilihan makanan, pola makan, preferensi halal dengan ikon jelas), dan Keamanan Makanan (informasi alergen).
   - Pengaturan (Audio analisis dan Privasi dan data) dikemas rapi dalam kartu kontainer dengan pemisah halus.
 - Palet warna dan tombol kamera diselaraskan dengan tema aplikasi:
-  - Tombol tengah kamera pada navigasi bawah (`BottomNav`) diperbarui dengan gradien tema NutriLens (`AppColors.cyan` ke `AppColors.heroBackground`), cincin tepi putih 3.5 px, dan bayangan lembut agar serasi dengan keseluruhan antarmuka.
+  - Tombol tengah kamera pada navigasi bawah (`BottomNav`) diperbarui dengan gradien tema NutriSee (`AppColors.cyan` ke `AppColors.heroBackground`), cincin tepi putih 3.5 px, dan bayangan lembut agar serasi dengan keseluruhan antarmuka.
   - Penyelarasan warna `PersonalColors` dengan `AppColors.mint` dan `AppColors.border`.
 - Layout dan UX kamera (`ScannerScreen`) diperbarui: viewfinder dilengkapi overlay retikel sudut AI dan badge status deteksi, tombol jepret (shutter) dan galeri ditata lebih modern dan proporsional, serta tipografi diselaraskan dengan standar onboarding.
 - Tampilan hasil foto (`ScanResultScreen`) didesain ulang secara menyeluruh mengikuti referensi UI/UX modern:
@@ -231,7 +235,7 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 
 - Font Inter lokal beserta lisensi SIL Open Font License, mapping bobot 400/500/600/700 pada pubspec, dan panduan font di README/WORKSPACE.
 
-- Dashboard NutriLens sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
+- Dashboard NutriSee sesuai referensi Home kosong/berisi, widget riwayat terpisah, serta model ringkasan harian nullable dengan penanda kelengkapan nutrisi. Ringkasan menerima data yang diberikan; belum ada integrasi penyimpanan/scan atau data contoh dalam aplikasi.
 - Ilustrasi dashboard lokal dari ekspor pengguna dan pengujian empty state, ringkasan, data hilang, callback, serta teks besar.
 
 - Alur onboarding Flutter sesuai tiga referensi pengguna: pilihan fokus nutrisi, preferensi opsional dengan Lewati dulu, dan ringkasan selesai dinamis menuju beranda. Pilihan dipertahankan saat kembali antar-langkah, masih berupa state UI tanpa penyimpanan/profil engine.
@@ -277,9 +281,9 @@ Semua perubahan penting pada NutriLens AI dicatat di dokumen ini. Format mengiku
 - DESIGN.md diperbarui agar mencerminkan token visual dan pola tata letak pada prototipe FigCraft, serta mencantumkan 14 layar dan alur navigasinya. Login/Daftar ditandai sebagai eksplorasi UI, bukan komitmen autentikasi MVP.
 - Dokumentasi menegaskan batas personalisasi: profil memengaruhi fokus insight/perbandingan, bukan nilai nutrisi sumber; kalkulasi dilakukan deterministik dan LLM hanya menjelaskan hasil.
 - Struktur repository pada panduan agent dan summary diselaraskan dengan proyek Flutter di `app/` dan backend di `server/`, termasuk README lokal masing-masing.
-- Panduan workspace lama yang merujuk proyek lain diganti dengan layout NutriLens AI, rujukan dokumen, dan alur kolaborasi `main`/`development`.
-- Aturan sinkronisasi dokumentasi disesuaikan dengan dokumen aktif, komponen, serta batas produk NutriLens AI.
-- Dokumen desain UI, register keputusan, dan aturan mutu UI yang sebelumnya berisi konteks proyek lain diselaraskan dengan NutriLens AI.
+- Panduan workspace lama yang merujuk proyek lain diganti dengan layout NutriSee, rujukan dokumen, dan alur kolaborasi `main`/`development`.
+- Aturan sinkronisasi dokumentasi disesuaikan dengan dokumen aktif, komponen, serta batas produk NutriSee.
+- Dokumen desain UI, register keputusan, dan aturan mutu UI yang sebelumnya berisi konteks proyek lain diselaraskan dengan NutriSee.
 
 ### Fixed
 

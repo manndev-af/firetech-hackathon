@@ -1,4 +1,4 @@
-# Workspace NutriLens AI
+# Workspace NutriSee
 
 Panduan ini menjelaskan tata letak repository dan cara berpindah antar area kerja. Tujuannya menjaga mobile app, backend, dan dokumen produk pada satu repository tanpa membuat struktur yang belum diperlukan.
 
@@ -165,7 +165,7 @@ Untuk dependency, perintah, dan cara menjalankan app, ikuti [app/README.md](../a
 - [app/assets/images/](../app/assets/images/) menyimpan foto, ilustrasi, dan logo yang diekspor dari Figma atau sumber lain dengan izin penggunaan yang sesuai.
 - [app/assets/icons/](../app/assets/icons/) menyimpan ikon kustom. Ikon Material bawaan tetap dapat digunakan tanpa berkas tambahan.
 - Kedua folder sudah didaftarkan pada `flutter.assets` di [pubspec.yaml](../app/pubspec.yaml). Folder icons masih berisi `.gitkeep`; images juga memuat `login_reference.png` dari ekspor desain pengguna `Group-11.png`. Onboarding juga memakai `onboarding_finish_reference.png` dari ekspor pengguna `Group-16.png`, sedangkan dashboard memakai `dashboard_reference.png` dari `Group-18.png`. Login, onboarding, dan dashboard hanya merender area ilustrasi makanan dari ekspor tersebut, sementara teks dan tombol tetap widget Flutter. Aset merupakan ilustrasi, bukan bukti hasil identifikasi atau nilai nutrisi. Lisensi/sumber asli ilustrasi belum diverifikasi; pastikan izin sebelum redistribusi.
-- Gunakan nama berkas `snake_case`, misalnya `nutrilens_logo.png`, dengan path dari root Flutter seperti `assets/images/nutrilens_logo.png`. Nama tersebut hanya contoh, bukan aset yang sudah tersedia.
+- Gunakan nama berkas `snake_case`, misalnya `nutrisee_logo.png`, dengan path dari root Flutter seperti `assets/images/nutrisee_logo.png`. Nama tersebut hanya contoh, bukan aset yang sudah tersedia.
 - Jika menambahkan subfolder, daftarkan path-nya tersendiri di `pubspec.yaml`; deklarasi direktori tidak mencakup subfolder secara rekursif, kecuali varian resolusi gambar Flutter.
 - Gunakan format gambar yang didukung Flutter untuk gambar/ikon lokal. SVG memerlukan dukungan tambahan; jangan menambah dependency sebelum diperlukan. Inter kini dibundel di `app/assets/fonts/` dan didaftarkan pada `flutter.fonts` untuk bobot 400/500/600/700. Tema global menerapkannya ke seluruh halaman. Berkas `OFL.txt` menyertakan lisensi SIL Open Font License; sumber Google Fonts dan petunjuk rebuild ada di README app.
 - Folder ini hanya untuk aset aplikasi. Foto pengguna, hasil scan, dataset, dan model besar tidak ditempatkan atau dikomit di sini. Catat sumber/lisensi aset saat menambahkan berkas sebenarnya.
@@ -213,7 +213,7 @@ Catatan historis: panduan sebelumnya menyarankan branch fitur dari `development`
 
 ## Batas bukti saat ini
 
-Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyatakan bahwa alur produk, classifier, lookup nutrisi, model terlatih, API NutriLens, atau integrasi perangkat telah selesai atau diuji. Periksa kode dan hasil verifikasi terbaru sebelum membuat klaim implementasi.
+Panduan ini mendokumentasikan layout dan alur kerja repository. Ia tidak menyatakan bahwa alur produk, classifier, lookup nutrisi, model terlatih, API NutriSee, atau integrasi perangkat telah selesai atau diuji. Periksa kode dan hasil verifikasi terbaru sebelum membuat klaim implementasi.
 
 ### Log debugging backend
 

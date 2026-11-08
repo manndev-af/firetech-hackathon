@@ -1,4 +1,4 @@
-# Arsitektur NutriLens AI
+# Arsitektur NutriSee
 
 ## Implementasi scanner backend — 7 November 2026
 
@@ -10,7 +10,7 @@ Dokumen ini merangkum arsitektur konseptual dan pembagian tanggung jawab yang me
 
 ## 1. Tujuan dan Batas Produk
 
-NutriLens AI membantu pengguna memahami nutrisi makanan dan membandingkan trade-off berdasarkan preferensi yang mereka pilih. Produk mendukung keputusan dan literasi nutrisi; bukan diagnosis, konsultasi dokter, rekomendasi pengobatan, atau pengganti tenaga kesehatan.
+NutriSee membantu pengguna memahami nutrisi makanan dan membandingkan trade-off berdasarkan preferensi yang mereka pilih. Produk mendukung keputusan dan literasi nutrisi; bukan diagnosis, konsultasi dokter, rekomendasi pengobatan, atau pengganti tenaga kesehatan.
 
 Pipeline produk:
 

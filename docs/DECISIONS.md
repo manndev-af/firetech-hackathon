@@ -1,4 +1,8 @@
-# NutriLens AI — Register Keputusan
+# NutriSee — Register Keputusan
+
+## Nama aplikasi — 8 November 2026
+
+`CONFIRMED_DIRECTION`: pengguna menetapkan nama NutriSee untuk README dan dokumentasi rujukannya. Pembaruan ini hanya menyentuh Markdown; identifier kode, package, nama aset/desain historis, dan konfigurasi runtime tidak diubah.
 
 ## Scanner backend — keputusan pengganti, 7 November 2026
 
@@ -17,7 +21,7 @@ Field profil mengikuti screen Flutter yang ada, ditambah penyimpanan preferensi 
 
 Baca bersama [SUMMARY.md](SUMMARY.md), [PRD.md](PRD.md), [FRD.md](FRD.md), dan [architecture.md](architecture.md). Keputusan baru ditambahkan saat tim/pengguna menetapkan arahnya. Jangan menafsirkan keberadaan keputusan di sini sebagai bukti fitur telah diimplementasikan.
 
-Catatan migrasi: isi register sebelumnya membahas proyek lain dan tidak dipindahkan karena tidak berlaku untuk NutriLens AI.
+Catatan migrasi: isi register sebelumnya membahas proyek lain dan tidak dipindahkan karena tidak berlaku untuk NutriSee.
 
 ## Revisi setelah review pengguna — 7 November 2026
 
@@ -46,7 +50,7 @@ Preview menggunakan fixture yang diberi label ilustrasi dan terpisah dari catata
 
 | ID | Keputusan | Dampak dan batas | Status |
 |---|---|---|---|
-| DEC-001 | NutriLens AI berfokus pada dukungan keputusan dan pemahaman nutrisi personal, bukan diagnosis atau konsultasi medis. | Jangan membuat rekomendasi pengobatan atau perubahan dosis obat. Fitur klinis memerlukan validasi tenaga kesehatan dan perlindungan data yang sesuai. | `CONFIRMED_DIRECTION` |
+| DEC-001 | NutriSee berfokus pada dukungan keputusan dan pemahaman nutrisi personal, bukan diagnosis atau konsultasi medis. | Jangan membuat rekomendasi pengobatan atau perubahan dosis obat. Fitur klinis memerlukan validasi tenaga kesehatan dan perlindungan data yang sesuai. | `CONFIRMED_DIRECTION` |
 | DEC-002 | Nutrition Profile memuat usia/rentang usia, preferensi makanan, dan prioritas jamak: Sugar Awareness, Sodium Awareness, Protein Intake, Calorie Awareness, dan Balanced Nutrition. | Tinggi dan berat opsional; alergi opsional untuk menandai bahan berdasarkan data yang tersedia; aktivitas fisik pengembangan berikutnya; penyakit dan obat bukan bagian MVP. | `CONFIRMED_DIRECTION` |
 | DEC-003 | Personalisasi memengaruhi fokus penjelasan, perbandingan, dan alternatif, bukan nilai nutrisi asli makanan. | Alergi yang tidak tercatat tidak membuktikan makanan bebas alergen. | `CONFIRMED_DIRECTION` |
 | DEC-004 | Nutrition Engine menghitung secara deterministik dari data bersumber; LLM hanya menjelaskan hasil terstruktur. | LLM bukan kalkulator nutrisi atau otoritas medis. Nilai yang tidak tersedia tetap tidak diketahui, bukan nol. | `CONFIRMED_DIRECTION` |

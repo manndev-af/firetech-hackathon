@@ -2,7 +2,7 @@
 
 > Addendum scanner, 7 November 2026: pengguna menyetujui backend scanner konsumsi otomatis, satu panggilan DeepSeek Vision dengan gambar pada kedua mode dan OCR pada label, serta personalisasi berbasis retrieval SQL. Nilai foto berstatus estimasi model; label adalah ekstraksi belum terverifikasi. Quantity dapat dikoreksi deterministik dan konsumsi dapat dihapus. Ini menggantikan rencana ONNX/verified-only khusus jalur scanner yang dijelaskan di bagian historis berikutnya. Scope development memakai seed dummy tanpa login; frontend dan TTS playback dikerjakan terpisah. Lihat DECISIONS.md dan server/README.md untuk batas implementasi.
 
-## NutriLens AI — Personalized Nutrition Decision Support
+## NutriSee — Personalized Nutrition Decision Support
 
 | Atribut | Nilai |
 |---|---|
@@ -10,11 +10,11 @@
 | Versi | 1.0 |
 | Tanggal | 1 November 2026 |
 | Sumber kebutuhan | `SUMMARY.md` dan pedoman proyek |
-| Nama produk | NutriLens AI (nama kerja, belum final) |
+| Nama produk | NutriSee (dikonfirmasi 8 November 2026) |
 
 ## 1. Ringkasan Produk
 
-NutriLens AI adalah aplikasi mobile yang membantu pengguna memahami kandungan nutrisi makanan dan mengambil keputusan berdasarkan prioritas nutrisi yang mereka pilih. Aplikasi mengenali makanan dari foto atau membaca informasi produk kemasan, meminta pengguna memeriksa hasil pengenalan dan ukuran porsi, lalu menghitung nutrisi secara deterministik dan menjelaskan kelebihan, kekurangan, serta trade-off yang relevan.
+NutriSee adalah aplikasi mobile yang membantu pengguna memahami kandungan nutrisi makanan dan mengambil keputusan berdasarkan prioritas nutrisi yang mereka pilih. Aplikasi mengenali makanan dari foto atau membaca informasi produk kemasan, meminta pengguna memeriksa hasil pengenalan dan ukuran porsi, lalu menghitung nutrisi secara deterministik dan menjelaskan kelebihan, kekurangan, serta trade-off yang relevan.
 
 Nilai utama produk adalah mengubah data nutrisi menjadi informasi yang mudah dipahami dan personal. Produk ini merupakan alat pendukung keputusan dan literasi nutrisi, bukan alat diagnosis, rekomendasi medis, atau pengganti ahli gizi.
 
@@ -22,7 +22,7 @@ Nilai utama produk adalah mengubah data nutrisi menjadi informasi yang mudah dip
 
 Angka pada label nutrisi sering sulit dipahami dan dibandingkan. Makanan siap santap tidak selalu memiliki informasi nutrisi yang mudah diakses. Sementara itu, kebutuhan pengguna berbeda-beda: sebagian lebih memperhatikan gula atau natrium, sebagian lain protein, energi, atau keseimbangan nutrisi. Hasil klasifikasi foto dan informasi database juga dapat keliru atau tidak lengkap.
 
-NutriLens menjawab kebutuhan ini dengan menyatukan pengenalan makanan, verifikasi oleh pengguna, data nutrisi bersumber, kalkulasi berdasarkan porsi, dan insight sesuai prioritas pengguna.
+NutriSee menjawab kebutuhan ini dengan menyatukan pengenalan makanan, verifikasi oleh pengguna, data nutrisi bersumber, kalkulasi berdasarkan porsi, dan insight sesuai prioritas pengguna.
 
 ## 3. Visi, Sasaran, dan Ukuran Keberhasilan
 
@@ -157,7 +157,7 @@ Sistem mengikuti prinsip satu backend sederhana. Jangan menambahkan microservice
 
 ### Asumsi sementara
 
-- Nama NutriLens AI dan positioning masih nama kerja.
+- Nama aplikasi NutriSee telah dikonfirmasi pada 8 November 2026; positioning mengikuti arah produk yang tercatat.
 - Jalur makanan tanpa kemasan adalah jalur demo utama.
 - Pengguna mengonfirmasi identitas makanan dan porsi.
 - Model hanya mengklasifikasikan kategori makanan; bukan menghitung nutrisi atau porsi.
