@@ -2,6 +2,8 @@
 
 **Pahami isi makananmu, pilih sesuai prioritasmu.**
 
+[Unduh aplikasi NutriSee melalui Google Drive](https://drive.google.com/drive/folders/1yuB_mItMEmbxDc6mfs3OC-sCF7P8Ql0g?usp=sharing).
+
 NutriSee adalah aplikasi pendukung keputusan nutrisi personal. Pengguna dapat memindai makanan atau label kemasan, melihat kelebihan dan kekurangannya sesuai profil nutrisi, mencatat konsumsi, membandingkan dua makanan, dan bertanya kepada asisten.
 
 Personalisasi menyoroti trade-off sesuai prioritas gula, natrium, protein, kalori, dan keseimbangan. Nilai nutrisi yang belum diketahui tetap ditampilkan sebagai belum tersedia. NutriSee mendukung pemahaman makanan, bukan diagnosis atau pengganti tenaga kesehatan.
